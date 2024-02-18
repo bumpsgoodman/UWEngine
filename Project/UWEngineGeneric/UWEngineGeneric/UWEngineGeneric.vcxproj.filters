@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="UWEngineCommon">
+      <UniqueIdentifier>{ee802b58-1898-47c1-b495-1988a6175aba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{b126415d-f224-462e-9cd5-400b2fdcabb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{b73d2048-2e76-4c0e-a5df-726481830e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private\Util">
+      <UniqueIdentifier>{e608ea77-3306-4c60-8d54-146532bfb343}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IFixedArray.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IHashMap.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\Util\HashFunction.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DllMain.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\FixedArray.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\List.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\StaticMemoryPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\HashMap.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Util\HashFunction.cpp">
+      <Filter>Private\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DynamicArray.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\ChunkedMemoryPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

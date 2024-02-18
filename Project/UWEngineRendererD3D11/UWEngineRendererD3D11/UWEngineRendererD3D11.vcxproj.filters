@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="UWEngineCommon">
+      <UniqueIdentifier>{88b469e7-43db-47da-ba15-a734ce3223b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{c9211719-4499-410b-a023-4bc0b94e27d3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\RendererD3D11.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\MeshObject.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UWEngineRendererD3D11.def" />
+  </ItemGroup>
+</Project>
