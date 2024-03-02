@@ -1,9 +1,11 @@
-﻿#pragma once
+﻿/*
+* Camera
+*
+* 작성자: bumpsgoodman
+* 작성일: 2024.02.20
+*/
 
-class Camera
-{
-public:
-    
-private:
+#pragma once
 
-};
+#include "ICamera.h"
+

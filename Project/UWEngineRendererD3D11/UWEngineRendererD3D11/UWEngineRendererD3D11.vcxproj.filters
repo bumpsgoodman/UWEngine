@@ -20,6 +20,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ICamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
@@ -32,6 +33,9 @@
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\MeshObject.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp">
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>

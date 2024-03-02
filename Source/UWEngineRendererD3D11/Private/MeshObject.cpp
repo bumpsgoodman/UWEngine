@@ -33,12 +33,12 @@ public:
     virtual size_t __stdcall GetRefCount() const override;
 
     virtual bool __stdcall Initialize(IRendererD3D11* pRenderer) override;
-
     virtual bool __stdcall CreateMesh(const void* pVertices, const uint_t vertexSize, const uint_t numVertices,
                                       const uint16_t* pIndices, const uint_t numIndices,
                                       const wchar_t* pShaderFileName) override;
-
     virtual void __stdcall RenderMesh() override;
+
+    virtual void __stdcall SetCamera(ICamera* pCamera) override;
 
 private:
     size_t m_refCount = 0;
@@ -52,12 +52,12 @@ private:
     ID3D11Buffer* m_pConstantBuffer = nullptr;
 
     XMMATRIX m_world = {};
-    XMMATRIX m_view = {};
-    XMMATRIX m_projection = {};
 
     uint_t m_numVertices = 0;
     uint_t m_numIndices = 0;
     uint_t m_vertexSize = 0;
+
+    ICamera* m_pCamera = nullptr;
 };
 
 size_t __stdcall MeshObject::AddRef()
@@ -72,6 +72,7 @@ size_t __stdcall MeshObject::Release()
 
     if (m_refCount == 0)
     {
+        SAFE_RELEASE(m_pConstantBuffer);
         SAFE_RELEASE(m_pIndexBuffer);
         SAFE_RELEASE(m_pVertexBuffer);
         SAFE_RELEASE(m_pVertexLayout);
@@ -205,19 +206,8 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertex
     m_numIndices = numIndices;
     m_vertexSize = vertexSize;
 
-
-
     // Initialize the world matrix
     m_world = XMMatrixIdentity();
-
-    // Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet(0.0f, 20.0f, -150.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    m_view = XMMatrixLookAtLH(Eye, At, Up);
-
-    // Initialize the projection matrix
-    m_projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1920.0f / 1080.0f, 0.01f, 100.0f);
 
     bResult = true;
 
@@ -230,6 +220,7 @@ void __stdcall MeshObject::RenderMesh()
 {
     ID3D11DeviceContext* pImmediateContext = (ID3D11DeviceContext*)m_pRenderer->Private_GetImmediateContext();
 
+#if 0
     static float t = 0.0f;
     static ULONGLONG timeStart = 0;
     ULONGLONG timeCur = GetTickCount64();
@@ -238,11 +229,12 @@ void __stdcall MeshObject::RenderMesh()
     t = (timeCur - timeStart) / 1000.0f;
 
     m_world = XMMatrixRotationY(t);
+#endif
 
     ConstantBuffer cb;
     cb.mWorld = XMMatrixTranspose(m_world);
-    cb.mView = XMMatrixTranspose(m_view);
-    cb.mProjection = XMMatrixTranspose(m_projection);
+    cb.mView = XMMatrixTranspose(m_pCamera->GetView());
+    cb.mProjection = XMMatrixTranspose(m_pCamera->GetProjection());
     pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     UINT stride = m_vertexSize;
@@ -262,7 +254,13 @@ void __stdcall MeshObject::RenderMesh()
     SAFE_RELEASE(pImmediateContext);
 }
 
-void __stdcall CreateMeshObject(IMeshObject** ppOutMeshObject)
+void __stdcall MeshObject::SetCamera(ICamera* pCamera)
+{
+    ASSERT(pCamera != nullptr, "pCamera == nullptr");
+    m_pCamera = pCamera;
+}
+
+void __stdcall Private_CreateMeshObject(IMeshObject** ppOutMeshObject)
 {
     ASSERT(ppOutMeshObject != nullptr, "ppOutMeshObject == nullptr");
 

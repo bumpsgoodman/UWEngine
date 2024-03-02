@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ICamera.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\MeshObject.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\RendererD3D11.cpp" />

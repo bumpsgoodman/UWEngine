@@ -10,7 +10,8 @@
 
 using namespace DirectX;
 
-extern void __stdcall CreateMeshObject(IMeshObject** ppOutMeshObject);
+extern void __stdcall Private_CreateMeshObject(IMeshObject** ppOutMeshObject);
+void __stdcall Private_CreateCamera(ICamera** ppOutCamera);
 
 class RendererD3D11 final : public IRendererD3D11
 {
@@ -33,6 +34,7 @@ public:
     virtual void __stdcall Present() override;
 
     virtual IMeshObject* __stdcall CreateMeshObject() override;
+    virtual ICamera* __stdcall CreateCamera() override;
 
     virtual void* __stdcall Private_GetD3dDevice() const override;
     virtual void* __stdcall Private_GetImmediateContext() const override;
@@ -220,10 +222,18 @@ void __stdcall RendererD3D11::Present()
 IMeshObject* __stdcall RendererD3D11::CreateMeshObject()
 {
     IMeshObject* pMeshObject;
-    ::CreateMeshObject(&pMeshObject);
+    Private_CreateMeshObject(&pMeshObject);
 
     pMeshObject->Initialize(this);
     return pMeshObject;
+}
+
+ICamera* __stdcall RendererD3D11::CreateCamera()
+{
+    ICamera* pCamera;
+    Private_CreateCamera(&pCamera);
+
+    return pCamera;
 }
 
 void* __stdcall RendererD3D11::Private_GetD3dDevice() const

@@ -21,27 +21,28 @@ ALIGN16 union ColorF
         float Alpha;
     };
     float RGBA[4];
-    __m128 M_RGBA;
+    __m128 MM_RGBA;
 };
 
-ALIGN16 struct Vector4
+ALIGN16 union Vector4
 {
-    union
+    struct
     {
-        struct
-        {
-            float X;
-            float Y;
-            float Z;
-            float W;
-        };
-        float XYZW[4];
-        __m128 M_XYZW;
+        float X;
+        float Y;
+        float Z;
+        float W;
     };
+    float XYZW[4];
+    __m128 MM_XYZW;
 
     Vector4() = default;
     Vector4(const float x, const float y, const float z, const float w);
     Vector4(const float* pXYZW);
+
+    void __vectorcall Set(const float x, const float y, const float z, const float w);
+    void __vectorcall Set(const float* pXYZW);
+    void __vectorcall Set(const __m128 xyzw);
 
     Vector4 __vectorcall operator+(const Vector4 v) const;
     Vector4 __vectorcall operator-(const Vector4 v) const;
@@ -62,12 +63,25 @@ ALIGN16 struct Vector4
     */
 };
 
-ALIGN16 struct Matrix44
+ALIGN16 union Matrix44
 {
-    __m128 R0;
-    __m128 R1;
-    __m128 R2;
-    __m128 R3;
+    struct
+    {
+        Vector4 R0;
+        Vector4 R1;
+        Vector4 R2;
+        Vector4 R3;
+    };
+    struct
+    {
+        __m128 MM_R0;
+        __m128 MM_R1;
+        __m128 MM_R2;
+        __m128 MM_R3;
+    };
+    __m128 MM_ROWS[4];
+    Vector4 ROWS[4];
+    float M[4][4];
 
     Matrix44() = default;
     Matrix44(const float r00, const float r01, const float r02, const float r03,
@@ -77,7 +91,16 @@ ALIGN16 struct Matrix44
     Matrix44(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3);
     Matrix44(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3);
 
-    Matrix44 __vectorcall operator*(const Matrix44 m);
+    void __vectorcall Set(const float r00, const float r01, const float r02, const float r03,
+                          const float r10, const float r11, const float r12, const float r13,
+                          const float r20, const float r21, const float r22, const float r23,
+                          const float r30, const float r31, const float r32, const float r33);
+    void __vectorcall Set(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3);
+    void __vectorcall Set(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3);
+
+    Matrix44 __vectorcall operator+(const Matrix44 mat);
+    Matrix44 __vectorcall operator-(const Matrix44 mat);
+    Matrix44 __vectorcall operator*(const Matrix44 mat);
 };
 
 // Vector4
@@ -95,40 +118,55 @@ static const Matrix44 s_identity44 = { s_identity44_r0, s_identity44_r1, s_ident
 // Vector4
 
 Vector4::Vector4(const float x, const float y, const float z, const float w)
-    : M_XYZW(_mm_setr_ps(w, z, y, x))
+    : MM_XYZW(_mm_set_ps(w, z, y, x))
 {
 }
 
 Vector4::Vector4(const float* pXYZW)
-    : M_XYZW(_mm_load_ps(pXYZW))
+    : MM_XYZW(_mm_load_ps(pXYZW))
 {
+}
+
+void __vectorcall Vector4::Set(const float x, const float y, const float z, const float w)
+{
+    MM_XYZW = _mm_set_ps(w, z, y, x);
+}
+
+void __vectorcall Vector4::Set(const float* pXYZW)
+{
+    MM_XYZW = _mm_load_ps(pXYZW);
+}
+
+void __vectorcall Vector4::Set(const __m128 xyzw)
+{
+    MM_XYZW = xyzw;
 }
 
 Vector4 __vectorcall Vector4::operator+(const Vector4 v) const
 {
     Vector4 result;
-    result.M_XYZW = _mm_add_ps(M_XYZW, v.M_XYZW);
+    result.MM_XYZW = _mm_add_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
 Vector4 __vectorcall Vector4::operator-(const Vector4 v) const
 {
     Vector4 result;
-    result.M_XYZW = _mm_sub_ps(M_XYZW, v.M_XYZW);
+    result.MM_XYZW = _mm_sub_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
 Vector4 __vectorcall Vector4::operator*(const Vector4 v) const
 {
     Vector4 result;
-    result.M_XYZW = _mm_mul_ps(M_XYZW, v.M_XYZW);
+    result.MM_XYZW = _mm_mul_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
 Vector4 __vectorcall Vector4::operator/(const Vector4 v) const
 {
     Vector4 result;
-    result.M_XYZW = _mm_div_ps(M_XYZW, v.M_XYZW);
+    result.MM_XYZW = _mm_div_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
@@ -136,7 +174,7 @@ Vector4 __vectorcall Vector4::operator+(const float scalar) const
 {
     __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
-    result.M_XYZW = _mm_add_ps(M_XYZW, temp);
+    result.MM_XYZW = _mm_add_ps(MM_XYZW, temp);
     return result;
 }
 
@@ -144,7 +182,7 @@ Vector4 __vectorcall Vector4::operator-(const float scalar) const
 {
     __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
-    result.M_XYZW = _mm_sub_ps(M_XYZW, temp);
+    result.MM_XYZW = _mm_sub_ps(MM_XYZW, temp);
     return result;
 }
 
@@ -152,16 +190,15 @@ Vector4 __vectorcall Vector4::operator*(const float scalar) const
 {
     __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
-    result.M_XYZW = _mm_mul_ps(M_XYZW, temp);
+    result.MM_XYZW = _mm_mul_ps(MM_XYZW, temp);
     return result;
 }
-
 
 Vector4 __vectorcall Vector4::operator/(const float scalar) const
 {
     __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
-    result.M_XYZW = _mm_div_ps(M_XYZW, temp);
+    result.MM_XYZW = _mm_div_ps(MM_XYZW, temp);
     return result;
 }
 
@@ -184,32 +221,122 @@ Matrix44::Matrix44(const float r00, const float r01, const float r02, const floa
                    const float r10, const float r11, const float r12, const float r13,
                    const float r20, const float r21, const float r22, const float r23,
                    const float r30, const float r31, const float r32, const float r33)
-    : R0(_mm_setr_ps(r00, r01, r02, r03))
-    , R1(_mm_setr_ps(r10, r11, r12, r13))
-    , R2(_mm_setr_ps(r20, r21, r22, r23))
-    , R3(_mm_setr_ps(r30, r31, r32, r33))
+    : MM_R0(_mm_setr_ps(r00, r01, r02, r03))
+    , MM_R1(_mm_setr_ps(r10, r11, r12, r13))
+    , MM_R2(_mm_setr_ps(r20, r21, r22, r23))
+    , MM_R3(_mm_setr_ps(r30, r31, r32, r33))
 {
 }
 
 Matrix44::Matrix44(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3)
-    : R0(r0.M_XYZW)
-    , R1(r1.M_XYZW)
-    , R2(r2.M_XYZW)
-    , R3(r3.M_XYZW)
+    : MM_R0(r0.MM_XYZW)
+    , MM_R1(r1.MM_XYZW)
+    , MM_R2(r2.MM_XYZW)
+    , MM_R3(r3.MM_XYZW)
 {
 }
 
 Matrix44::Matrix44(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3)
-    : R0(r0)
-    , R1(r1)
-    , R2(r2)
-    , R3(r3)
+    : MM_R0(r0)
+    , MM_R1(r1)
+    , MM_R2(r2)
+    , MM_R3(r3)
 {
 }
 
-Matrix44 __vectorcall Matrix44::operator*(const Matrix44 m)
+void __vectorcall Matrix44::Set(const float r00, const float r01, const float r02, const float r03,
+                                const float r10, const float r11, const float r12, const float r13,
+                                const float r20, const float r21, const float r22, const float r23,
+                                const float r30, const float r31, const float r32, const float r33)
 {
+    MM_R0 =_mm_setr_ps(r00, r01, r02, r03);
+    MM_R1 =_mm_setr_ps(r10, r11, r12, r13);
+    MM_R2 =_mm_setr_ps(r20, r21, r22, r23);
+    MM_R3 =_mm_setr_ps(r30, r31, r32, r33);
+}
 
+void __vectorcall Matrix44::Set(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3)
+{
+    MM_R0 = r0.MM_XYZW;
+    MM_R1 = r1.MM_XYZW;
+    MM_R2 = r2.MM_XYZW;
+    MM_R3 = r3.MM_XYZW;
+}
+
+void __vectorcall Matrix44::Set(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3)
+{
+    MM_R0 = r0;
+    MM_R1 = r1;
+    MM_R2 = r2;
+    MM_R3 = r3;
+}
+
+Matrix44 __vectorcall Matrix44::operator+(const Matrix44 mat)
+{
+    Matrix44 result;
+    result.MM_R0 = _mm_add_ps(MM_R0, mat.MM_R0);
+    result.MM_R1 = _mm_add_ps(MM_R1, mat.MM_R1);
+    result.MM_R2 = _mm_add_ps(MM_R2, mat.MM_R2);
+    result.MM_R3 = _mm_add_ps(MM_R3, mat.MM_R3);
+    return result;
+}
+
+Matrix44 __vectorcall Matrix44::operator-(const Matrix44 mat)
+{
+    Matrix44 result;
+    result.MM_R0 = _mm_sub_ps(MM_R0, mat.MM_R0);
+    result.MM_R1 = _mm_sub_ps(MM_R1, mat.MM_R1);
+    result.MM_R2 = _mm_sub_ps(MM_R2, mat.MM_R2);
+    result.MM_R3 = _mm_sub_ps(MM_R3, mat.MM_R3);
+    return result;
+}
+
+Matrix44 __vectorcall Matrix44::operator*(const Matrix44 mat)
+{
+    Matrix44 result;
+
+    float x;
+    float y;
+    float z;
+    float w;
+
+    x = M[0][0];
+    y = M[0][1];
+    z = M[0][2];
+    w = M[0][3];
+    result.M[0][0] = (x * mat.M[0][0]) + (y * mat.M[1][0]) + (z * mat.M[2][0]) + (w * mat.M[3][0]);
+    result.M[0][1] = (x * mat.M[0][1]) + (y * mat.M[1][1]) + (z * mat.M[2][1]) + (w * mat.M[3][1]);
+    result.M[0][2] = (x * mat.M[0][2]) + (y * mat.M[1][2]) + (z * mat.M[2][2]) + (w * mat.M[3][2]);
+    result.M[0][3] = (x * mat.M[0][3]) + (y * mat.M[1][3]) + (z * mat.M[2][3]) + (w * mat.M[3][3]);
+
+    x = M[1][0];
+    y = M[1][1];
+    z = M[1][2];
+    w = M[1][3];
+    result.M[1][0] = (x * mat.M[0][0]) + (y * mat.M[1][0]) + (z * mat.M[2][0]) + (w * mat.M[3][0]);
+    result.M[1][1] = (x * mat.M[0][1]) + (y * mat.M[1][1]) + (z * mat.M[2][1]) + (w * mat.M[3][1]);
+    result.M[1][2] = (x * mat.M[0][2]) + (y * mat.M[1][2]) + (z * mat.M[2][2]) + (w * mat.M[3][2]);
+    result.M[1][3] = (x * mat.M[0][3]) + (y * mat.M[1][3]) + (z * mat.M[2][3]) + (w * mat.M[3][3]);
+
+    x = M[2][0];
+    y = M[2][1];
+    z = M[2][2];
+    w = M[2][3];
+    result.M[2][0] = (x * mat.M[0][0]) + (y * mat.M[1][0]) + (z * mat.M[2][0]) + (w * mat.M[3][0]);
+    result.M[2][1] = (x * mat.M[0][1]) + (y * mat.M[1][1]) + (z * mat.M[2][1]) + (w * mat.M[3][1]);
+    result.M[2][2] = (x * mat.M[0][2]) + (y * mat.M[1][2]) + (z * mat.M[2][2]) + (w * mat.M[3][2]);
+    result.M[2][3] = (x * mat.M[0][3]) + (y * mat.M[1][3]) + (z * mat.M[2][3]) + (w * mat.M[3][3]);
+
+    x = M[3][0];
+    y = M[3][1];
+    z = M[3][2];
+    w = M[3][3];
+    result.M[3][0] = (x * mat.M[0][0]) + (y * mat.M[1][0]) + (z * mat.M[2][0]) + (w * mat.M[3][0]);
+    result.M[3][1] = (x * mat.M[0][1]) + (y * mat.M[1][1]) + (z * mat.M[2][1]) + (w * mat.M[3][1]);
+    result.M[3][2] = (x * mat.M[0][2]) + (y * mat.M[1][2]) + (z * mat.M[2][2]) + (w * mat.M[3][2]);
+    result.M[3][3] = (x * mat.M[0][3]) + (y * mat.M[1][3]) + (z * mat.M[2][3]) + (w * mat.M[3][3]);
+
+    return result;
 }
 
 Vector4 __vectorcall GetIdentity44R0()
@@ -235,4 +362,48 @@ Vector4 __vectorcall GetIdentity44R3()
 Matrix44 __vectorcall GetIdentityMatrix44()
 {
     return s_identity44;
+}
+
+Matrix44 __vectorcall RotatePitch(const float angleRad)
+{
+    float sin;
+    float cos;
+    GetSinCos(angleRad, &sin, &cos);
+
+    Matrix44 result(1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, cos, -sin, 0.0f,
+                    0.0f, sin, cos, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+    return result;
+}
+
+Matrix44 __vectorcall RotateYaw(const float angleRad)
+{
+    float sin;
+    float cos;
+    GetSinCos(angleRad, &sin, &cos);
+
+    Matrix44 result(cos, 0.0f, sin, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    -sin, 0.0f, cos, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+    return result;
+}
+
+Matrix44 __vectorcall RotateRoll(const float angleRad)
+{
+    float sin;
+    float cos;
+    GetSinCos(angleRad, &sin, &cos);
+
+    Matrix44 result(cos, -sin, 0.0f, 0.0f,
+                    sin, cos, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
+    return result;
+}
+
+Matrix44 __vectorcall RotateRollPitchYaw(const float rollRad, const float pitchRad, const float yawRad)
+{
+    return Matrix44();
 }
