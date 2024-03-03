@@ -114,20 +114,23 @@ void __stdcall Camera::MoveZ(const float dist)
     m_at += dir;
 }
 
-void __stdcall Camera::RotatePitch(const float angleRad)
+void __stdcall Camera::RotatePitch(const float angleDegree)
 {
+    const float angleRad = angleDegree * (float)PI / 180.0f;
     XMVECTOR angle = XMVectorSet(1.0f * angleRad, 0.0f, 0.0f, 0.0f);
     m_rotation += angle;
 }
 
-void __stdcall Camera::RotateYaw(const float angleRad)
+void __stdcall Camera::RotateYaw(const float angleDegree)
 {
+    const float angleRad = angleDegree * (float)PI / 180.0f;
     XMVECTOR angle = XMVectorSet(0.0f, 1.0f * angleRad, 0.0f, 0.0f);
     m_rotation += angle;
 }
 
-void __stdcall Camera::RotateRoll(const float angleRad)
+void __stdcall Camera::RotateRoll(const float angleDegree)
 {
+    const float angleRad = angleDegree * (float)PI / 180.0f;
     XMVECTOR angle = XMVectorSet(0.0f, 0.0f, 1.0f * angleRad, 0.0f);
     m_rotation += angle;
 }

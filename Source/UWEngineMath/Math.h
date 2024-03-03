@@ -371,8 +371,8 @@ Matrix44 __vectorcall RotatePitch(const float angleRad)
     GetSinCos(angleRad, &sin, &cos);
 
     Matrix44 result(1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, cos, -sin, 0.0f,
-                    0.0f, sin, cos, 0.0f,
+                    0.0f, cos, sin, 0.0f,
+                    0.0f, -sin, cos, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
     return result;
 }
@@ -383,9 +383,9 @@ Matrix44 __vectorcall RotateYaw(const float angleRad)
     float cos;
     GetSinCos(angleRad, &sin, &cos);
 
-    Matrix44 result(cos, 0.0f, sin, 0.0f,
+    Matrix44 result(cos, 0.0f, -sin, 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
-                    -sin, 0.0f, cos, 0.0f,
+                    sin, 0.0f, cos, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
     return result;
 }
@@ -396,8 +396,8 @@ Matrix44 __vectorcall RotateRoll(const float angleRad)
     float cos;
     GetSinCos(angleRad, &sin, &cos);
 
-    Matrix44 result(cos, -sin, 0.0f, 0.0f,
-                    sin, cos, 0.0f, 0.0f,
+    Matrix44 result(cos, sin, 0.0f, 0.0f,
+                    -sin, cos, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f);
     return result;
@@ -405,5 +405,38 @@ Matrix44 __vectorcall RotateRoll(const float angleRad)
 
 Matrix44 __vectorcall RotateRollPitchYaw(const float rollRad, const float pitchRad, const float yawRad)
 {
-    return Matrix44();
+    float sr;
+    float cr;
+    GetSinCos(rollRad, &sr, &cr);
+
+    float sp;
+    float cp;
+    GetSinCos(pitchRad, &sp, &cp);
+
+    float sy;
+    float cy;
+    GetSinCos(yawRad, &sy, &cy);
+
+    Matrix44 result;
+    result.M[0][0] = cr * cy + sr * sp * sy;
+    result.M[0][1] = sr * cp;
+    result.M[0][2] = cr * -sy + sr * sp * cy;
+    result.M[0][3] = 0.0f;
+
+    result.M[1][0] = -sr * cy + cr * sp * sy;
+    result.M[1][1] = cr * cp;
+    result.M[1][2] = -sr * -sy + cr * sp * cy;
+    result.M[1][3] = 0.0f;
+
+    result.M[2][0] = cp * sy;
+    result.M[2][1] = -sp;
+    result.M[2][2] = cp * cy;
+    result.M[2][3] = 0.0f;
+
+    result.M[3][0] = 0.0f;
+    result.M[3][1] = 0.0f;
+    result.M[3][2] = 0.0f;
+    result.M[3][3] = 1.0f;
+
+    return result;
 }

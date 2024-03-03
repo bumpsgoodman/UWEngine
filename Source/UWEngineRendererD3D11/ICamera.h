@@ -22,9 +22,9 @@ interface ICamera : public IRefObject
     virtual void __stdcall MoveY(const float dist) = 0;
     virtual void __stdcall MoveZ(const float dist) = 0;
 
-    virtual void __stdcall RotatePitch(const float angleRad) = 0;
-    virtual void __stdcall RotateYaw(const float angleRad) = 0;
-    virtual void __stdcall RotateRoll(const float angleRad) = 0;
+    virtual void __stdcall RotatePitch(const float angleDegree) = 0;
+    virtual void __stdcall RotateYaw(const float angleDegree) = 0;
+    virtual void __stdcall RotateRoll(const float angleDegree) = 0;
 
     virtual XMMATRIX __vectorcall GetView() const = 0;
     virtual XMMATRIX __vectorcall GetProjection() const = 0;
