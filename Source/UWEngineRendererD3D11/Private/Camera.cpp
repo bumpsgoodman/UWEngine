@@ -33,6 +33,14 @@ public:
     virtual void __stdcall RotateYaw(const float angleRad) override;
     virtual void __stdcall RotateRoll(const float angleRad) override;
 
+    virtual void __vectorcall SetEye(FXMVECTOR v) override;
+    virtual void __vectorcall SetAt(FXMVECTOR v) override;
+    virtual void __vectorcall SetUp(FXMVECTOR v) override;
+
+    virtual XMVECTOR __vectorcall GetEye() const override;
+    virtual XMVECTOR __vectorcall GetAt() const override;
+    virtual XMVECTOR __vectorcall GetUp() const override;
+
     virtual XMMATRIX __vectorcall GetView() const override;
     virtual XMMATRIX __vectorcall GetProjection() const override;
 
@@ -133,6 +141,36 @@ void __stdcall Camera::RotateRoll(const float angleDegree)
     const float angleRad = angleDegree * (float)PI / 180.0f;
     XMVECTOR angle = XMVectorSet(0.0f, 0.0f, 1.0f * angleRad, 0.0f);
     m_rotation += angle;
+}
+
+void __vectorcall Camera::SetEye(FXMVECTOR v)
+{
+    m_eye = v;
+}
+
+void __vectorcall Camera::SetAt(FXMVECTOR v)
+{
+    m_at = v;
+}
+
+void __vectorcall Camera::SetUp(FXMVECTOR v)
+{
+    m_up = v;
+}
+
+XMVECTOR __vectorcall Camera::GetEye() const
+{
+    return m_eye;
+}
+
+XMVECTOR __vectorcall Camera::GetAt() const
+{
+    return m_at;
+}
+
+XMVECTOR __vectorcall Camera::GetUp() const
+{
+    return m_up;
 }
 
 XMMATRIX __vectorcall Camera::GetView() const

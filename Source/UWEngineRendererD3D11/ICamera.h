@@ -26,6 +26,14 @@ interface ICamera : public IRefObject
     virtual void __stdcall RotateYaw(const float angleDegree) = 0;
     virtual void __stdcall RotateRoll(const float angleDegree) = 0;
 
+    virtual void __vectorcall SetEye(FXMVECTOR v) = 0;
+    virtual void __vectorcall SetAt(FXMVECTOR v) = 0;
+    virtual void __vectorcall SetUp(FXMVECTOR v) = 0;
+
+    virtual XMVECTOR __vectorcall GetEye() const = 0;
+    virtual XMVECTOR __vectorcall GetAt() const = 0;
+    virtual XMVECTOR __vectorcall GetUp() const = 0;
+
     virtual XMMATRIX __vectorcall GetView() const = 0;
     virtual XMMATRIX __vectorcall GetProjection() const = 0;
 };
