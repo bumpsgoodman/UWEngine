@@ -20,14 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IHashMap.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IFixedArray.h" />
   </ItemGroup>
   <ItemGroup>
@@ -43,7 +44,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\StaticMemoryPool.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Util\HashFunction.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\FixedArray.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -17,32 +17,32 @@ struct KeyValue
 
     // 제거 및 확장에 필요
     // 수정 금지
-    size_t Index;
+    vsize Index;
 };
 
 interface IHashMap
 {
-    virtual bool __stdcall Initialize(const size_t keySize, const size_t valueSize, const size_t numDefaultKeyValues) = 0;
+    virtual bool __stdcall Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) = 0;
     virtual void __stdcall Release() = 0;
     virtual void __stdcall Clear() = 0;
 
-    virtual bool __stdcall Insert(const void* pKey, const size_t keySize, const void* pValue, const size_t valueSize) = 0;
-    virtual bool __stdcall InsertByHash(const void* pKey, const size_t keySize, const void* pValue, const size_t valueSize, const uint64_t hash) = 0;
+    virtual bool __stdcall Insert(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize) = 0;
+    virtual bool __stdcall InsertByHash(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize, const uint64 hash) = 0;
 
-    virtual bool __stdcall Remove(const void* pKey, const size_t keySize) = 0;
-    virtual bool __stdcall RemoveByHash(const void* pKey, const size_t keySize, const uint64_t hash) = 0;
+    virtual bool __stdcall Remove(const void* pKey, const vsize keySize) = 0;
+    virtual bool __stdcall RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) = 0;
 
-    virtual size_t __stdcall GetCount(const void* pKey, const size_t keySize) const = 0;
-    virtual size_t __stdcall GetCountByHash(const void* pKey, const size_t keySize, const uint64_t hash) const = 0;
+    virtual vsize __stdcall GetCount(const void* pKey, const vsize keySize) const = 0;
+    virtual vsize __stdcall GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const = 0;
 
-    virtual void* GetValueOrNull(const void* pKey, const size_t keySize) const = 0;
-    virtual void* GetValueByHashOrNull(const void* pKey, const size_t keySize, const uint64_t hash) const = 0;
+    virtual void* GetValueOrNull(const void* pKey, const vsize keySize) const = 0;
+    virtual void* GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const = 0;
 
     virtual KeyValue* GetKeyValuesOrNull() const = 0;
-    virtual size_t __stdcall GetKeySize() const = 0;
-    virtual size_t __stdcall GetValueSize() const = 0;
-    virtual size_t __stdcall GetNumKeyValues() const = 0;
-    virtual size_t __stdcall GetNumMaxKeyValues() const = 0;
+    virtual vsize __stdcall GetKeySize() const = 0;
+    virtual vsize __stdcall GetValueSize() const = 0;
+    virtual vsize __stdcall GetNumKeyValues() const = 0;
+    virtual vsize __stdcall GetNumMaxKeyValues() const = 0;
 
     virtual float __stdcall GetFactor() const = 0;
 

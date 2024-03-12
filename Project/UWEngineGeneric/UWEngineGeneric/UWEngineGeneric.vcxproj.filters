@@ -7,12 +7,6 @@
     <Filter Include="Private">
       <UniqueIdentifier>{b126415d-f224-462e-9cd5-400b2fdcabb9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util">
-      <UniqueIdentifier>{b73d2048-2e76-4c0e-a5df-726481830e95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Private\Util">
-      <UniqueIdentifier>{e608ea77-3306-4c60-8d54-146532bfb343}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h">
@@ -22,15 +16,18 @@
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IHashMap.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\Util\HashFunction.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
   </ItemGroup>
@@ -52,9 +49,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\HashMap.cpp">
       <Filter>Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Util\HashFunction.cpp">
-      <Filter>Private\Util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DynamicArray.cpp">
       <Filter>Private</Filter>

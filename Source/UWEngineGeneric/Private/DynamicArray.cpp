@@ -18,22 +18,22 @@ public:
     DynamicArray& operator=(DynamicArray&&) = default;
     ~DynamicArray();
 
-    virtual bool __stdcall Initialize(const size_t elementSize, const size_t numDefaultElements) override;
+    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numDefaultElements) override;
     virtual void __stdcall Release() override;
     virtual void __stdcall Clear() override;
 
-    virtual bool __stdcall PushBack(const void* pElementOrNull, const size_t elementSize) override;
+    virtual bool __stdcall PushBack(const void* pElementOrNull, const vsize elementSize) override;
     virtual bool __stdcall PopBack() override;
 
-    virtual bool __stdcall Insert(const void* pElementOrNull, const size_t elementSize, const size_t index) override;
-    virtual bool __stdcall Remove(const size_t index) override;
+    virtual bool __stdcall Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual bool __stdcall Remove(const vsize index) override;
 
     virtual void* __stdcall GetBackOrNull() const override;
-    virtual void* __stdcall GetElementOrNull(const size_t index) const override;
+    virtual void* __stdcall GetElementOrNull(const vsize index) const override;
     virtual void* __stdcall GetElementsOrNull() const override;
-    virtual size_t __stdcall GetElementSize() const override;
-    virtual size_t __stdcall GetNumMaxElements() const override;
-    virtual size_t __stdcall GetNumElements() const override;
+    virtual vsize __stdcall GetElementSize() const override;
+    virtual vsize __stdcall GetNumMaxElements() const override;
+    virtual vsize __stdcall GetNumElements() const override;
 
 private:
     bool __stdcall expand();
@@ -41,9 +41,9 @@ private:
 private:
     void* m_pElements = nullptr;
 
-    size_t m_elementSize = 0;
-    size_t m_numElements = 0;
-    size_t m_numMaxElements = 0;
+    vsize m_elementSize = 0;
+    vsize m_numElements = 0;
+    vsize m_numMaxElements = 0;
 };
 
 DynamicArray::~DynamicArray()
@@ -51,7 +51,7 @@ DynamicArray::~DynamicArray()
     Release();
 }
 
-bool __stdcall DynamicArray::Initialize(const size_t elementSize, const size_t numDefaultElements)
+bool __stdcall DynamicArray::Initialize(const vsize elementSize, const vsize numDefaultElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numDefaultElements > 0, "numDefaultElements == 0");
@@ -78,7 +78,7 @@ void __stdcall DynamicArray::Clear()
     m_numElements = 0;
 }
 
-bool __stdcall DynamicArray::PushBack(const void* pElementOrNull, const size_t elementSize)
+bool __stdcall DynamicArray::PushBack(const void* pElementOrNull, const vsize elementSize)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
 
@@ -111,7 +111,7 @@ bool __stdcall DynamicArray::PopBack()
     return true;
 }
 
-bool __stdcall DynamicArray::Insert(const void* pElementOrNull, const size_t elementSize, const size_t index)
+bool __stdcall DynamicArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
     ASSERT(index <= m_numElements, "Invalid index");
@@ -127,7 +127,7 @@ bool __stdcall DynamicArray::Insert(const void* pElementOrNull, const size_t ele
     }
 
     // element 한 칸씩 밀기
-    const size_t len = m_numElements - index;
+    const vsize len = m_numElements - index;
     char* pDst = (char*)m_pElements + m_elementSize * (index + 1);
     char* pSrc = pDst - m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
@@ -145,12 +145,12 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall DynamicArray::Remove(const size_t index)
+bool __stdcall DynamicArray::Remove(const vsize index)
 {
     ASSERT(index <= m_numElements, "Invalid index");
 
     // element 한 칸씩 당기기
-    const size_t len = m_numElements - index;
+    const vsize len = m_numElements - index;
     char* pDst = (char*)m_pElements + m_elementSize * index;
     const char* pSrc = pDst + m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
@@ -187,7 +187,7 @@ void* __stdcall DynamicArray::GetBackOrNull() const
     return (char*)m_pElements + m_elementSize * (m_numElements - 1);
 }
 
-void* __stdcall DynamicArray::GetElementOrNull(size_t index) const
+void* __stdcall DynamicArray::GetElementOrNull(vsize index) const
 {
     if (index >= m_numElements)
     {
@@ -202,17 +202,17 @@ void* __stdcall DynamicArray::GetElementsOrNull() const
     return m_pElements;
 }
 
-size_t __stdcall DynamicArray::GetElementSize() const
+vsize __stdcall DynamicArray::GetElementSize() const
 {
     return m_elementSize;
 }
 
-size_t __stdcall DynamicArray::GetNumMaxElements() const
+vsize __stdcall DynamicArray::GetNumMaxElements() const
 {
     return m_numMaxElements;
 }
 
-size_t __stdcall DynamicArray::GetNumElements() const
+vsize __stdcall DynamicArray::GetNumElements() const
 {
     return m_numElements;
 }

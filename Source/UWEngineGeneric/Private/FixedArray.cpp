@@ -18,29 +18,29 @@ public:
     FixedArray& operator=(FixedArray&&) = default;
     ~FixedArray();
 
-    virtual bool __stdcall Initialize(const size_t elementSize, const size_t numMaxElements) override;
+    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numMaxElements) override;
     virtual void __stdcall Release() override;
     virtual void __stdcall Clear() override;
 
-    virtual bool __stdcall PushBack(const void* pElementOrNull, const size_t elementSize) override;
+    virtual bool __stdcall PushBack(const void* pElementOrNull, const vsize elementSize) override;
     virtual bool __stdcall PopBack() override;
 
-    virtual bool __stdcall Insert(const void* pElementOrNull, const size_t elementSize, const size_t index) override;
-    virtual bool __stdcall Remove(const size_t index) override;
+    virtual bool __stdcall Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual bool __stdcall Remove(const vsize index) override;
 
     virtual void* __stdcall GetBackOrNull() const override;
-    virtual void* __stdcall GetElementOrNull(const size_t index) const override;
+    virtual void* __stdcall GetElementOrNull(const vsize index) const override;
     virtual void* __stdcall GetElementsPtrOrNull() const override;
-    virtual size_t __stdcall GetElementSize() const override;
-    virtual size_t __stdcall GetNumMaxElements() const override;
-    virtual size_t __stdcall GetNumElements() const override;
+    virtual vsize __stdcall GetElementSize() const override;
+    virtual vsize __stdcall GetNumMaxElements() const override;
+    virtual vsize __stdcall GetNumElements() const override;
 
 private:
     void* m_pElements = nullptr;
 
-    size_t m_elementSize = 0;
-    size_t m_numMaxElements = 0;
-    size_t m_numElements = 0;
+    vsize m_elementSize = 0;
+    vsize m_numMaxElements = 0;
+    vsize m_numElements = 0;
 };
 
 FixedArray::~FixedArray()
@@ -48,7 +48,7 @@ FixedArray::~FixedArray()
     Release();
 }
 
-bool __stdcall FixedArray::Initialize(const size_t elementSize, const size_t numMaxElements)
+bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numMaxElements > 0, "numMaxElements == 0");
@@ -75,7 +75,7 @@ void __stdcall FixedArray::Clear()
     m_numElements = 0;
 }
 
-bool __stdcall FixedArray::PushBack(const void* pElementOrNull, const size_t elementSize)
+bool __stdcall FixedArray::PushBack(const void* pElementOrNull, const vsize elementSize)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
 
@@ -105,7 +105,7 @@ bool __stdcall FixedArray::PopBack()
     return true;
 }
 
-bool __stdcall FixedArray::Insert(const void* pElementOrNull, const size_t elementSize, const size_t index)
+bool __stdcall FixedArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
     ASSERT(index <= m_numElements, "Invalid index");
@@ -118,7 +118,7 @@ bool __stdcall FixedArray::Insert(const void* pElementOrNull, const size_t eleme
     }
 
     // element 한 칸씩 밀기
-    const size_t len = m_numElements - index;
+    const vsize len = m_numElements - index;
     char* pDst = (char*)m_pElements + m_elementSize * (index + 1);
     char* pSrc = pDst - m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
@@ -136,12 +136,12 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall FixedArray::Remove(const size_t index)
+bool __stdcall FixedArray::Remove(const vsize index)
 {
     ASSERT(index <= m_numElements, "Invalid index");
 
     // element 한 칸씩 당기기
-    const size_t len = m_numElements - index;
+    const vsize len = m_numElements - index;
     char* pDst = (char*)m_pElements + m_elementSize * index;
     const char* pSrc = pDst + m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
@@ -161,7 +161,7 @@ void* __stdcall FixedArray::GetBackOrNull() const
     return (char*)m_pElements + m_elementSize * (m_numElements - 1);
 }
 
-void* __stdcall FixedArray::GetElementOrNull(size_t index) const
+void* __stdcall FixedArray::GetElementOrNull(vsize index) const
 {
     if (index >= m_numElements)
     {
@@ -176,17 +176,17 @@ void* __stdcall FixedArray::GetElementsPtrOrNull() const
     return m_pElements;
 }
 
-size_t __stdcall FixedArray::GetElementSize() const
+vsize __stdcall FixedArray::GetElementSize() const
 {
     return m_elementSize;
 }
 
-size_t __stdcall FixedArray::GetNumMaxElements() const
+vsize __stdcall FixedArray::GetNumMaxElements() const
 {
     return m_numMaxElements;
 }
 
-size_t __stdcall FixedArray::GetNumElements() const
+vsize __stdcall FixedArray::GetNumElements() const
 {
     return m_numElements;
 }

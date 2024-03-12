@@ -10,8 +10,8 @@
 
 struct Header
 {
-    uint_t Index : sizeof(uint_t) * 8 - 1;
-    uint_t Alloc : 1;
+    uint Index : sizeof(uint) * 8 - 1;
+    uint Alloc : 1;
 };
 #define HEADER_SIZE sizeof(Header)
 
@@ -25,7 +25,7 @@ public:
     StaticMemoryPool& operator=(StaticMemoryPool&&) = default;
     ~StaticMemoryPool();
 
-    virtual bool __stdcall Initialize(const size_t elementSize, const size_t numElementsPerBlock, const size_t numMaxElements) override;
+    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
     virtual void __stdcall Release() override;
     virtual void __stdcall Reset() override;
 
@@ -33,20 +33,20 @@ public:
     virtual void __stdcall Free(void* pMemory) override;
     virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
 
-    virtual size_t __stdcall GetElementSize() const override;
-    virtual size_t __stdcall GetNumAllocElements() const override;
-    virtual size_t __stdcall GetNumMaxElements() const override;
+    virtual vsize __stdcall GetElementSize() const override;
+    virtual vsize __stdcall GetNumAllocElements() const override;
+    virtual vsize __stdcall GetNumMaxElements() const override;
 
 private:
     void** m_ppBlocks = nullptr;
-    uint_t* m_pIndexTable = nullptr;
-    uint_t* m_pIndexTablePtr = nullptr;
+    uint* m_pIndexTable = nullptr;
+    uint* m_pIndexTablePtr = nullptr;
 
-    size_t m_elementSize = 0;
-    size_t m_elementSizeWithHeader = 0;
-    size_t m_numMaxElements = 0;
-    size_t m_numElementsPerBlock = 0;
-    size_t m_numMaxBlocks = 0;
+    vsize m_elementSize = 0;
+    vsize m_elementSizeWithHeader = 0;
+    vsize m_numMaxElements = 0;
+    vsize m_numElementsPerBlock = 0;
+    vsize m_numMaxBlocks = 0;
 };
 
 StaticMemoryPool::~StaticMemoryPool()
@@ -54,7 +54,7 @@ StaticMemoryPool::~StaticMemoryPool()
     Release();
 }
 
-bool __stdcall StaticMemoryPool::Initialize(const size_t elementSize, const size_t numElementsPerBlock, const size_t numMaxElements)
+bool __stdcall StaticMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerBlock > 0, "numElementsPerBlock == 0");
@@ -72,13 +72,13 @@ bool __stdcall StaticMemoryPool::Initialize(const size_t elementSize, const size
     ASSERT(m_ppBlocks != nullptr, "Failed to malloc m_ppBlocks");
     memset(m_ppBlocks, 0, PTR_SIZE * m_numMaxBlocks);
 
-    m_pIndexTable = (uint_t*)malloc(sizeof(uint_t) * numMaxElements);
+    m_pIndexTable = (uint*)malloc(sizeof(uint) * numMaxElements);
     ASSERT(m_pIndexTable != nullptr, "Failed to malloc index table");
 
     // 인덱스 테이블 초기화
-    for (size_t i = 0; i < numMaxElements; ++i)
+    for (vsize i = 0; i < numMaxElements; ++i)
     {
-        m_pIndexTable[i] = (uint_t)i;
+        m_pIndexTable[i] = (uint)i;
     }
 
     // 블럭 할당
@@ -106,16 +106,16 @@ void* __stdcall StaticMemoryPool::AllocateOrNull()
     void* pMemory = nullptr;
 
     // 더 이상 할당 불가
-    const uint_t* pBeyondLastIndexTable = m_pIndexTable + m_numMaxElements;
+    const uint* pBeyondLastIndexTable = m_pIndexTable + m_numMaxElements;
     if (m_pIndexTablePtr == pBeyondLastIndexTable)
     {
         goto lb_return;
     }
 
     // 할당 가능한 블럭과 그 블럭에서의 인덱스 구하기
-    const size_t numAllocElements = GetNumAllocElements();
-    const size_t blockIndex = numAllocElements / m_numElementsPerBlock;
-    const size_t index = numAllocElements % m_numElementsPerBlock;
+    const vsize numAllocElements = GetNumAllocElements();
+    const vsize blockIndex = numAllocElements / m_numElementsPerBlock;
+    const vsize index = numAllocElements % m_numElementsPerBlock;
 
     // 블럭 추가로 할당
     if (m_ppBlocks[blockIndex] == nullptr)
@@ -147,7 +147,7 @@ void __stdcall StaticMemoryPool::Free(void* pMemory)
     }
 
     Header* pHeader = (Header*)pMemory - 1;
-    const uint_t index = pHeader->Index;
+    const uint index = pHeader->Index;
 
     ASSERT(m_pIndexTable[index] == index, "Invalid memory");
     ASSERT(pHeader->Alloc == 1, "Invalid memory");
@@ -159,14 +159,14 @@ void __stdcall StaticMemoryPool::Free(void* pMemory)
 
 void __stdcall StaticMemoryPool::Reset()
 {
-    uint_t index = 0;
+    uint index = 0;
 
     char** ppBlocks = (char**)m_ppBlocks;
     while (*ppBlocks != nullptr)
     {
         char* pElements = *ppBlocks;
 
-        for (size_t i = 0; i < m_numElementsPerBlock; ++i)
+        for (vsize i = 0; i < m_numElementsPerBlock; ++i)
         {
             Header* pHeader = (Header*)(pElements + m_elementSizeWithHeader * i);
             pHeader->Alloc = 0;
@@ -189,7 +189,7 @@ lb_return:
 bool __stdcall StaticMemoryPool::IsValidMemory(const void* pMemory) const
 {
     const Header* pHeader = (Header*)pMemory - 1;
-    const size_t index = pHeader->Index;
+    const vsize index = pHeader->Index;
     
     if (m_pIndexTable[index] != index)
     {
@@ -199,17 +199,17 @@ bool __stdcall StaticMemoryPool::IsValidMemory(const void* pMemory) const
     return pHeader->Alloc == 1;
 }
 
-size_t __stdcall StaticMemoryPool::GetElementSize() const
+vsize __stdcall StaticMemoryPool::GetElementSize() const
 {
     return m_elementSize;
 }
 
-size_t __stdcall StaticMemoryPool::GetNumAllocElements() const
+vsize __stdcall StaticMemoryPool::GetNumAllocElements() const
 {
     return m_pIndexTablePtr - m_pIndexTable;
 }
 
-size_t __stdcall StaticMemoryPool::GetNumMaxElements() const
+vsize __stdcall StaticMemoryPool::GetNumMaxElements() const
 {
     return m_numElementsPerBlock;
 }

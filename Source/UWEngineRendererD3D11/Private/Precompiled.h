@@ -45,10 +45,11 @@
 
 // UWEngine
 #include "UWEngineCommon/Defines.h"
+#include "UWEngineCommon/Util/HashFunction.h"
+#include "UWEngineCommon/Util/Timer.h"
 
 #include "UWEngineGeneric/IDynamicArray.h"
 #include "UWEngineGeneric/IHashMap.h"
 #include "UWEngineGeneric/IChunkedMemoryPool.h"
-#include "UWEngineGeneric/Util/HashFunction.h"
 
-#include "UWEngineMath/Math.h"
+#include "UWEngineMath/UWMath.h"

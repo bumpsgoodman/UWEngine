@@ -9,16 +9,14 @@
 #include "IMeshObject.h"
 #include "IRendererD3D11.h"
 
-using namespace DirectX;
-
 struct ConstantBuffer
 {
-    XMMATRIX mWorld;
-    XMMATRIX mView;
-    XMMATRIX mProjection;
+    Matrix44 World;
+    Matrix44 View;
+    Matrix44 Projection;
 };
 
-class MeshObject : public IMeshObject
+ALIGN16 class MeshObject : public IMeshObject
 {
 public:
     MeshObject() = default;
@@ -28,20 +26,46 @@ public:
     MeshObject& operator=(MeshObject&&) = default;
     ~MeshObject() = default;
 
-    virtual size_t __stdcall AddRef() override;
-    virtual size_t __stdcall Release() override;
-    virtual size_t __stdcall GetRefCount() const override;
+    virtual vsize __stdcall AddRef() override;
+    virtual vsize __stdcall Release() override;
+    virtual vsize __stdcall GetRefCount() const override;
 
     virtual bool __stdcall Initialize(IRendererD3D11* pRenderer) override;
-    virtual bool __stdcall CreateMesh(const void* pVertices, const uint_t vertexSize, const uint_t numVertices,
-                                      const uint16_t* pIndices, const uint_t numIndices,
+    virtual bool __stdcall CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
+                                      const uint16* pIndices, const uint numIndices,
                                       const wchar_t* pShaderFileName) override;
     virtual void __stdcall RenderMesh() override;
+
+    virtual void __stdcall Translate(const Vector4 dist) override;
+    virtual void __stdcall TranslateX(const float dist) override;
+    virtual void __stdcall TranslateY(const float dist) override;
+    virtual void __stdcall TranslateZ(const float dist) override;
+
+    virtual void __stdcall Rotate(const Vector4 angleDegrees) override;
+    virtual void __stdcall RotateX(const float angleDegree) override;
+    virtual void __stdcall RotateY(const float angleDegree) override;
+    virtual void __stdcall RotateZ(const float angleDegree) override;
+
+    virtual void __stdcall Scale(const Vector4 scale) override;
+    virtual void __stdcall ScaleX(const float scale) override;
+    virtual void __stdcall ScaleY(const float scale) override;
+    virtual void __stdcall ScaleZ(const float scale) override;
+
+    virtual void __stdcall SetPosition(const Vector4 position) override;
+    virtual void __stdcall SetRotation(const Vector4 angleDegrees) override;
+    virtual void __stdcall SetScale(const Vector4 scale) override;
+
+    virtual Vector4 __stdcall GetPosition() const override;
+    virtual Vector4 __stdcall GetRotation() const override;
+    virtual Vector4 __stdcall GetScale() const override;
 
     virtual void __stdcall SetCamera(ICamera* pCamera) override;
 
 private:
-    size_t m_refCount = 0;
+    void __stdcall updateWorldMatrix();
+
+private:
+    vsize m_refCount = 0;
 
     IRendererD3D11* m_pRenderer = nullptr;
     ID3D11InputLayout* m_pVertexLayout = nullptr;
@@ -51,22 +75,25 @@ private:
     ID3D11Buffer* m_pIndexBuffer = nullptr;
     ID3D11Buffer* m_pConstantBuffer = nullptr;
 
-    XMMATRIX m_world = {};
+    Matrix44 m_world = {};
 
-    uint_t m_numVertices = 0;
-    uint_t m_numIndices = 0;
-    uint_t m_vertexSize = 0;
+    uint m_numVertices = 0;
+    uint m_numIndices = 0;
+    uint m_vertexSize = 0;
 
     ICamera* m_pCamera = nullptr;
+    Vector4 m_position = {};
+    Vector4 m_rotationDegree = {};
+    Vector4 m_scale = {};
 };
 
-size_t __stdcall MeshObject::AddRef()
+vsize __stdcall MeshObject::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-size_t __stdcall MeshObject::Release()
+vsize __stdcall MeshObject::Release()
 {
     --m_refCount;
 
@@ -87,7 +114,7 @@ size_t __stdcall MeshObject::Release()
     return m_refCount;
 }
 
-size_t __stdcall MeshObject::GetRefCount() const
+vsize __stdcall MeshObject::GetRefCount() const
 {
     return m_refCount;
 }
@@ -96,14 +123,20 @@ bool __stdcall MeshObject::Initialize(IRendererD3D11* pRenderer)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
 
+    m_position = Vector4Zero();
+    m_rotationDegree = Vector4Zero();
+    m_scale = Vector4One();
+
+    m_world = Matrix44Identity();
+
     pRenderer->AddRef();
     m_pRenderer = pRenderer;
 
     return true;
 }
 
-bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertexSize, const uint_t numVertices,
-                                      const uint16_t* pIndices, const uint_t numIndices,
+bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
+                                      const uint16* pIndices, const uint numIndices,
                                       const wchar_t* pShaderFileName)
 {
     ASSERT(pVertices != nullptr, "pVertices == nullptr");
@@ -118,9 +151,9 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertex
     ID3DBlob* pPixelShader = nullptr;
 
 #if defined(_DEBUG)
-    uint_t compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    uint compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
-    uint_t compileFlags = 0;
+    uint compileFlags = 0;
 #endif
 
     hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShader, nullptr);
@@ -152,7 +185,7 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertex
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
-    const size_t numLayout = ARRAYSIZE(layout);
+    const vsize numLayout = ARRAYSIZE(layout);
 
     hr = pDevice->CreateInputLayout(layout, numLayout, pVertexShader->GetBufferPointer(), pVertexShader->GetBufferSize(), &m_pVertexLayout);
     if (FAILED(hr))
@@ -181,7 +214,7 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertex
     }
 
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(uint16_t) * numIndices;
+    bd.ByteWidth = sizeof(uint16) * numIndices;
     bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     bd.CPUAccessFlags = 0;
     initData.pSysMem = pIndices;
@@ -207,7 +240,7 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint_t vertex
     m_vertexSize = vertexSize;
 
     // Initialize the world matrix
-    m_world = XMMatrixIdentity();
+    m_world = Matrix44Identity();
 
     bResult = true;
 
@@ -232,9 +265,9 @@ void __stdcall MeshObject::RenderMesh()
 #endif
 
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(m_world);
-    cb.mView = XMMatrixTranspose(m_pCamera->GetView());
-    cb.mProjection = XMMatrixTranspose(m_pCamera->GetProjection());
+    cb.World = Matrix44Transpose(m_world);
+    cb.View = Matrix44Transpose(m_pCamera->GetView());
+    cb.Projection = Matrix44Transpose(m_pCamera->GetProjection());
     pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     UINT stride = m_vertexSize;
@@ -254,6 +287,115 @@ void __stdcall MeshObject::RenderMesh()
     SAFE_RELEASE(pImmediateContext);
 }
 
+void __stdcall MeshObject::Translate(const Vector4 dist)
+{
+    m_position += dist;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::TranslateX(const float dist)
+{
+    m_position.X += dist;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::TranslateY(const float dist)
+{
+    m_position.Y += dist;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::TranslateZ(const float dist)
+{
+    m_position.Z += dist;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::Rotate(const Vector4 angleDegree)
+{
+    m_rotationDegree += angleDegree;
+    m_rotationDegree = Vector4Wrap(angleDegree, Vector4Zero(), Vector4Set(360.0f, 360.0f, 360.0f, 0.0f));
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::RotateX(const float angleDegree)
+{
+    m_rotationDegree.X += angleDegree;
+    m_rotationDegree.X = Wrap(m_rotationDegree.X, 0.0f, 360.0f);
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::RotateY(const float angleDegree)
+{
+    m_rotationDegree.Y += angleDegree;
+    m_rotationDegree.Y = Wrap(m_rotationDegree.Y, 0.0f, 360.0f);
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::RotateZ(const float angleDegree)
+{
+    m_rotationDegree.Z += angleDegree;
+    m_rotationDegree.Z = Wrap(m_rotationDegree.Z, 0.0f, 360.0f);
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::Scale(const Vector4 scale)
+{
+    m_scale += scale;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::ScaleX(const float scale)
+{
+    m_scale.X += scale;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::ScaleY(const float scale)
+{
+    m_scale.Y += scale;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::ScaleZ(const float scale)
+{
+    m_scale.Z += scale;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::SetPosition(const Vector4 position)
+{
+    m_position = position;
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::SetRotation(const Vector4 angleDegrees)
+{
+    m_rotationDegree = Vector4DegreeToRad(angleDegrees);
+    updateWorldMatrix();
+}
+
+void __stdcall MeshObject::SetScale(const Vector4 scale)
+{
+    m_scale = scale;
+    updateWorldMatrix();
+}
+
+Vector4 __stdcall MeshObject::GetPosition() const
+{
+    return m_position;
+}
+
+Vector4 __stdcall MeshObject::GetRotation() const
+{
+    return m_rotationDegree;
+}
+
+Vector4 __stdcall MeshObject::GetScale() const
+{
+    return m_scale;
+}
+
 void __stdcall MeshObject::SetCamera(ICamera* pCamera)
 {
     ASSERT(pCamera != nullptr, "pCamera == nullptr");
@@ -268,4 +410,9 @@ void __stdcall Private_CreateMeshObject(IMeshObject** ppOutMeshObject)
     pMeshObject->AddRef();
 
     *ppOutMeshObject = pMeshObject;
+}
+
+void __stdcall MeshObject::updateWorldMatrix()
+{
+    m_world = Matrix44WorldFromVector(m_position, Vector4DegreeToRad(m_rotationDegree), m_scale);
 }

@@ -12,8 +12,8 @@
 struct Chunk
 {
     void* pElements;
-    uint_t* pIndexTable;
-    uint_t* pIndexTablePtr;
+    uint* pIndexTable;
+    uint* pIndexTablePtr;
 };
 
 struct Header
@@ -22,8 +22,8 @@ struct Header
 
     struct
     {
-        uint_t Index : sizeof(uint_t) * 8 - 1;
-        uint_t Alloc : 1;
+        uint Index : sizeof(uint) * 8 - 1;
+        uint Alloc : 1;
     };
 };
 #define HEADER_SIZE sizeof(Header)
@@ -38,7 +38,7 @@ public:
     ChunkedMemoryPool& operator=(ChunkedMemoryPool&&) = default;
     ~ChunkedMemoryPool();
 
-    virtual bool __stdcall Initialize(const size_t elementSize, const size_t numElementsPerChunk) override;
+    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
     virtual void __stdcall Release() override;
 
     virtual void* __stdcall AllocateOrNull() override;
@@ -46,9 +46,9 @@ public:
     virtual void __stdcall Reset() override;
     virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
 
-    virtual size_t __stdcall GetElementSize() const override;
-    virtual size_t __stdcall GetNumAllocElements() const override;
-    virtual size_t __stdcall GetNumElementsPerChunk() const override;
+    virtual vsize __stdcall GetElementSize() const override;
+    virtual vsize __stdcall GetNumAllocElements() const override;
+    virtual vsize __stdcall GetNumElementsPerChunk() const override;
 
 private:
     bool __stdcall addChunk();
@@ -57,10 +57,10 @@ private:
     ListNode* m_pChunkHead = nullptr;
     ListNode* m_pChunkTail = nullptr;
 
-    size_t m_elementSize = 0;
-    size_t m_elementSizeWithHeader = 0;
-    size_t m_numElementsPerChunk = 0;
-    size_t m_numAllocElements = 0;
+    vsize m_elementSize = 0;
+    vsize m_elementSizeWithHeader = 0;
+    vsize m_numElementsPerChunk = 0;
+    vsize m_numAllocElements = 0;
 };
 
 ChunkedMemoryPool::~ChunkedMemoryPool()
@@ -68,7 +68,7 @@ ChunkedMemoryPool::~ChunkedMemoryPool()
     Release();
 }
 
-bool __stdcall ChunkedMemoryPool::Initialize(const size_t elementSize, const size_t numElementsPerChunk)
+bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerChunk)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerChunk > 0 && numElementsPerChunk <= NUM_MAX_GENERIC_ELEMENTS, "Invalid range");
@@ -126,7 +126,7 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
     while (pNode != nullptr)
     {
         Chunk* pChunk = (Chunk*)pNode->pElement;
-        if ((size_t)(pChunk->pIndexTablePtr - pChunk->pIndexTable) < m_numElementsPerChunk)
+        if ((vsize)(pChunk->pIndexTablePtr - pChunk->pIndexTable) < m_numElementsPerChunk)
         {
             break;
         }
@@ -146,7 +146,7 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
     }
 
     Chunk* pChunk = (Chunk*)pNode->pElement;
-    const uint_t index = *pChunk->pIndexTablePtr;
+    const uint index = *pChunk->pIndexTablePtr;
 
     Header* pHeader = (Header*)((char*)pChunk->pElements + m_elementSizeWithHeader * index);
     ASSERT(IsValidMemory(pHeader), "Invalid memory");
@@ -171,7 +171,7 @@ void __stdcall ChunkedMemoryPool::Free(void* pMemory)
 
     Header* pHeader = (Header*)pMemory;
     Chunk* pChunk = pHeader->pChunk;
-    const size_t index = pHeader->Index;
+    const vsize index = pHeader->Index;
 
     ASSERT(pHeader->Alloc == 1, "Invalid memory");
     ASSERT(pChunk->pIndexTable[index] == index, "Invalid memory");
@@ -189,13 +189,13 @@ void __stdcall ChunkedMemoryPool::Reset()
     while (pNode != nullptr)
     {
         Chunk* pChunk = (Chunk*)pNode->pElement;
-        for (size_t i = 0; i < m_numElementsPerChunk; ++i)
+        for (vsize i = 0; i < m_numElementsPerChunk; ++i)
         {
             Header* pHeader = (Header*)((char*)pChunk->pElements + m_elementSizeWithHeader * i);
             pHeader->pChunk = pChunk;
             pHeader->Alloc = 0;
 
-            pChunk->pIndexTable[i] = (uint_t)i;
+            pChunk->pIndexTable[i] = (uint)i;
         }
 
         pChunk->pIndexTablePtr = pChunk->pIndexTable;
@@ -217,17 +217,17 @@ bool __stdcall ChunkedMemoryPool::IsValidMemory(const void* pMemory) const
     return pHeader->Alloc == 1;
 }
 
-size_t __stdcall ChunkedMemoryPool::GetElementSize() const
+vsize __stdcall ChunkedMemoryPool::GetElementSize() const
 {
     return m_elementSize;
 }
 
-size_t __stdcall ChunkedMemoryPool::GetNumAllocElements() const
+vsize __stdcall ChunkedMemoryPool::GetNumAllocElements() const
 {
     return m_numAllocElements;
 }
 
-size_t __stdcall ChunkedMemoryPool::GetNumElementsPerChunk() const
+vsize __stdcall ChunkedMemoryPool::GetNumElementsPerChunk() const
 {
     return m_numElementsPerChunk;
 }
@@ -242,13 +242,13 @@ bool __stdcall ChunkedMemoryPool::addChunk()
     memset(pElements, 0, m_elementSizeWithHeader * m_numElementsPerChunk);
 
     // 인덱스 테이블 생성
-    uint_t* pIndexTable = (uint_t*)malloc(sizeof(uint_t) * m_numElementsPerChunk);
+    uint* pIndexTable = (uint*)malloc(sizeof(uint) * m_numElementsPerChunk);
     ASSERT(pIndexTable != nullptr, "Failed to malloc new index table");
 
     // 인덱스 테이블 초기화
-    for (size_t i = 0; i < m_numElementsPerChunk; ++i)
+    for (vsize i = 0; i < m_numElementsPerChunk; ++i)
     {
-        pIndexTable[i] = (uint_t)i;
+        pIndexTable[i] = (uint)i;
     }
 
     pChunk->pElements = pElements;

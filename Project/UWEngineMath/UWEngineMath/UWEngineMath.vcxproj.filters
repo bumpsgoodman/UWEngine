@@ -15,19 +15,21 @@
     <ClInclude Include="..\..\..\Source\UWEngineMath\Private\Precompiled.h">
       <Filter>Private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineMath\MathDefines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Math.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\MathMisc.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Vector.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Vector2.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Color.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Matrix.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMath.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathMisc.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineMath\Private\Precompiled.cpp">
       <Filter>Private</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineMath\Private\MathMisc_x86.cpp">
+    <ClCompile Include="..\..\..\Source\UWEngineMath\Private\UWMathMisc_x86.cpp">
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineMath\Private\DllMain.cpp">
@@ -35,7 +37,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\..\Source\UWEngineMath\Private\MathMisc_x64.asm">
+    <MASM Include="..\..\..\Source\UWEngineMath\Private\UWMathMisc_x64.asm">
       <Filter>Private</Filter>
     </MASM>
   </ItemGroup>

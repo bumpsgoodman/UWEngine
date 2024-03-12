@@ -7,7 +7,6 @@
 #include "Precompiled.h"
 #include "IHashMap.h"
 #include "List.h"
-#include "Util/HashFunction.h"
 
 class HashMap final : public IHashMap
 {
@@ -19,30 +18,30 @@ public:
     HashMap& operator=(HashMap&&) = default;
     ~HashMap();
 
-    virtual bool __stdcall Initialize(const size_t keySize, const size_t valueSize, const size_t numDefaultKeyValues) override;
+    virtual bool __stdcall Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
     virtual void __stdcall Release() override;
     virtual void __stdcall Clear() override;
 
-    virtual bool __stdcall Insert(const void* pKey, const size_t keySize,
-                                  const void* pValue, const size_t valueSize) override;
-    virtual bool __stdcall InsertByHash(const void* pKey, const size_t keySize,
-                                        const void* pValue, const size_t valueSize,
-                                        const uint64_t hash) override;
+    virtual bool __stdcall Insert(const void* pKey, const vsize keySize,
+                                  const void* pValue, const vsize valueSize) override;
+    virtual bool __stdcall InsertByHash(const void* pKey, const vsize keySize,
+                                        const void* pValue, const vsize valueSize,
+                                        const uint64 hash) override;
 
-    virtual bool __stdcall Remove(const void* pKey, const size_t keySize) override;
-    virtual bool __stdcall RemoveByHash(const void* pKey, const size_t keySize, const uint64_t hash) override;
+    virtual bool __stdcall Remove(const void* pKey, const vsize keySize) override;
+    virtual bool __stdcall RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) override;
 
-    virtual size_t __stdcall GetCount(const void* pKey, const size_t keySize) const override;
-    virtual size_t __stdcall GetCountByHash(const void* pKey, const size_t keySize, const uint64_t hash) const override;
+    virtual vsize __stdcall GetCount(const void* pKey, const vsize keySize) const override;
+    virtual vsize __stdcall GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const override;
 
-    virtual void* GetValueOrNull(const void* pKey, const size_t keySize) const override;
-    virtual void* GetValueByHashOrNull(const void* pKey, const size_t keySize, const uint64_t hash) const override;
+    virtual void* GetValueOrNull(const void* pKey, const vsize keySize) const override;
+    virtual void* GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const override;
 
     virtual KeyValue* GetKeyValuesOrNull() const override;
-    virtual size_t __stdcall GetKeySize() const override;
-    virtual size_t __stdcall GetValueSize() const override;
-    virtual size_t __stdcall GetNumKeyValues() const override;
-    virtual size_t __stdcall GetNumMaxKeyValues() const override;
+    virtual vsize __stdcall GetKeySize() const override;
+    virtual vsize __stdcall GetValueSize() const override;
+    virtual vsize __stdcall GetNumKeyValues() const override;
+    virtual vsize __stdcall GetNumMaxKeyValues() const override;
     virtual float __stdcall GetFactor() const override;
 
     virtual void __stdcall SetFactor(float factor) override;
@@ -51,14 +50,14 @@ private:
     bool __stdcall expand();
 
 private:
-    size_t m_keySize = 0;
-    size_t m_valueSize = 0;
-    size_t m_numMaxKeyValues = 0;
-    size_t m_numKeyValues = 0;
+    vsize m_keySize = 0;
+    vsize m_valueSize = 0;
+    vsize m_numMaxKeyValues = 0;
+    vsize m_numKeyValues = 0;
     float m_factor = 0.0f;
 
     List* m_pBucket = nullptr;
-    size_t m_bucketSize = 0;
+    vsize m_bucketSize = 0;
 
     KeyValue* m_pKeyValues = nullptr;
 
@@ -67,19 +66,19 @@ private:
     ListNode* m_pNodePool = nullptr;
 };
 
-static constexpr size_t S_BUCKET_SIZE_LIST[] =
+static constexpr vsize S_BUCKET_SIZE_LIST[] =
 {
     7u, 23u, 97u, 397u, 1597u, 6421u, 25717u, 102877u,
     411527u, 879743u, 1799639u, 6584983u, 26339969u, 52679969u
 };
-static constexpr size_t S_NUM_BUCKET_SIZE_LIST = sizeof(S_BUCKET_SIZE_LIST) / sizeof(size_t);
+static constexpr vsize S_NUM_BUCKET_SIZE_LIST = sizeof(S_BUCKET_SIZE_LIST) / sizeof(vsize);
 
 HashMap::~HashMap()
 {
     Release();
 }
 
-bool __stdcall HashMap::Initialize(const size_t keySize, const size_t valueSize, const size_t numDefaultKeyValues)
+bool __stdcall HashMap::Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues)
 {
     ASSERT(keySize > 0, "keySize == 0");
     ASSERT(valueSize > 0, "valueSize == 0");
@@ -90,10 +89,10 @@ bool __stdcall HashMap::Initialize(const size_t keySize, const size_t valueSize,
     Release();
 
     // 버켓 크기 구하기
-    const size_t baseSize = numDefaultKeyValues * 2;
-    for (size_t i = 0; i < S_NUM_BUCKET_SIZE_LIST; ++i)
+    const vsize baseSize = numDefaultKeyValues * 2;
+    for (vsize i = 0; i < S_NUM_BUCKET_SIZE_LIST; ++i)
     {
-        const size_t size = S_BUCKET_SIZE_LIST[i];
+        const vsize size = S_BUCKET_SIZE_LIST[i];
         if (size > baseSize)
         {
             m_bucketSize = size;
@@ -147,19 +146,19 @@ void __stdcall HashMap::Clear()
     memset(m_pBucket, 0, sizeof(List) * m_bucketSize);
 }
 
-bool __stdcall HashMap::Insert(const void* pKey, const size_t keySize,
-                               const void* pValue, const size_t valueSize)
+bool __stdcall HashMap::Insert(const void* pKey, const vsize keySize,
+                               const void* pValue, const vsize valueSize)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const uint64_t hash = FNV1a64((const char*)pKey, keySize);
+    const uint64 hash = FNV1a64((const char*)pKey, keySize);
     return InsertByHash(pKey, keySize, pValue, valueSize, hash);
 }
 
-bool __stdcall HashMap::InsertByHash(const void* pKey, const size_t keySize,
-                                     const void* pValue, const size_t valueSize,
-                                     const uint64_t hash)
+bool __stdcall HashMap::InsertByHash(const void* pKey, const vsize keySize,
+                                     const void* pValue, const vsize valueSize,
+                                     const uint64 hash)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -176,7 +175,7 @@ bool __stdcall HashMap::InsertByHash(const void* pKey, const size_t keySize,
         }
     }
 
-    const size_t index = hash % m_bucketSize;
+    const vsize index = hash % m_bucketSize;
     List* pList = m_pBucket + index;
 
     // 이미 같은 키가 있는지 검사
@@ -217,23 +216,23 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall HashMap::Remove(const void* pKey, const size_t keySize)
+bool __stdcall HashMap::Remove(const void* pKey, const vsize keySize)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const uint64_t hash = FNV1a64((const char*)pKey, keySize);
+    const uint64 hash = FNV1a64((const char*)pKey, keySize);
     return RemoveByHash(pKey, keySize, hash);
 }
 
-bool __stdcall HashMap::RemoveByHash(const void* pKey, const size_t keySize, const uint64_t hash)
+bool __stdcall HashMap::RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
     bool bResult = false;
 
-    const size_t index = hash % m_bucketSize;
+    const vsize index = hash % m_bucketSize;
 
     List* pList = m_pBucket + index;
 
@@ -276,22 +275,22 @@ lb_return:
     return bResult;
 }
 
-size_t __stdcall HashMap::GetCount(const void* pKey, const size_t keySize) const
+vsize __stdcall HashMap::GetCount(const void* pKey, const vsize keySize) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const uint64_t hash = FNV1a64((const char*)pKey, keySize);
+    const uint64 hash = FNV1a64((const char*)pKey, keySize);
     return GetCountByHash(pKey, keySize, hash);
 }
 
-size_t __stdcall HashMap::GetCountByHash(const void* pKey, const size_t keySize, const uint64_t hash) const
+vsize __stdcall HashMap::GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const size_t index = hash % m_bucketSize;
-    size_t count = 0;
+    const vsize index = hash % m_bucketSize;
+    vsize count = 0;
 
     List* pList = m_pBucket + index;
     ListNode* pNode = pList->pHead;
@@ -308,21 +307,21 @@ size_t __stdcall HashMap::GetCountByHash(const void* pKey, const size_t keySize,
     return count;
 }
 
-void* HashMap::GetValueOrNull(const void* pKey, const size_t keySize) const
+void* HashMap::GetValueOrNull(const void* pKey, const vsize keySize) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const uint64_t hash = FNV1a64((const char*)pKey, keySize);
+    const uint64 hash = FNV1a64((const char*)pKey, keySize);
     return GetValueByHashOrNull(pKey, keySize, hash);
 }
 
-void* HashMap::GetValueByHashOrNull(const void* pKey, const size_t keySize, const uint64_t hash) const
+void* HashMap::GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
 
-    const size_t index = hash % m_bucketSize;
+    const vsize index = hash % m_bucketSize;
 
     List* pList = m_pBucket + index;
     ListNode* pNode = pList->pHead;
@@ -345,24 +344,24 @@ KeyValue* HashMap::GetKeyValuesOrNull() const
     return m_pKeyValues;
 }
 
-size_t __stdcall HashMap::GetKeySize() const
+vsize __stdcall HashMap::GetKeySize() const
 {
     return m_keySize;
 }
 
-size_t __stdcall HashMap::GetValueSize() const
+vsize __stdcall HashMap::GetValueSize() const
 {
     return m_valueSize;
 }
 
-size_t __stdcall HashMap::GetNumKeyValues() const
+vsize __stdcall HashMap::GetNumKeyValues() const
 {
     return m_numKeyValues;
 }
 
-size_t __stdcall HashMap::GetNumMaxKeyValues() const
+vsize __stdcall HashMap::GetNumMaxKeyValues() const
 {
-    return (size_t)(m_numMaxKeyValues * m_factor);
+    return (vsize)(m_numMaxKeyValues * m_factor);
 }
 
 float __stdcall HashMap::GetFactor() const
@@ -390,14 +389,14 @@ bool __stdcall HashMap::expand()
 {
     bool bResult = false;
 
-    const size_t newNumMaxKeyValues = m_numMaxKeyValues * 2;
+    const vsize newNumMaxKeyValues = m_numMaxKeyValues * 2;
 
     // 버켓 크기 구하기
-    const size_t baseSize = m_numKeyValues * 2;
-    size_t newBucketSize = 0;
-    for (size_t i = 0; i < S_NUM_BUCKET_SIZE_LIST; ++i)
+    const vsize baseSize = m_numKeyValues * 2;
+    vsize newBucketSize = 0;
+    for (vsize i = 0; i < S_NUM_BUCKET_SIZE_LIST; ++i)
     {
-        const size_t size = S_BUCKET_SIZE_LIST[i];
+        const vsize size = S_BUCKET_SIZE_LIST[i];
         if (size > baseSize)
         {
             newBucketSize = size;
@@ -433,13 +432,13 @@ bool __stdcall HashMap::expand()
 
     // 버켓 초기화
     memset(pNewBucket, 0, sizeof(List) * newBucketSize);
-    for (size_t i = 0; i < m_numKeyValues; ++i)
+    for (vsize i = 0; i < m_numKeyValues; ++i)
     {
         const KeyValue* pKeyValue = &m_pKeyValues[i];
         KeyValue* pNewKeyValue = &pNewKeyValues[i];
 
-        const uint64_t hash = FNV1a64((const char*)pKeyValue->pKey, m_keySize);
-        const size_t index = hash % newBucketSize;
+        const uint64 hash = FNV1a64((const char*)pKeyValue->pKey, m_keySize);
+        const vsize index = hash % newBucketSize;
 
         // 키, 값 복사
         pNewKeyValue->pKey = memcpy((char*)pNewKeyPool + m_keySize * i, pKeyValue->pKey, m_keySize);

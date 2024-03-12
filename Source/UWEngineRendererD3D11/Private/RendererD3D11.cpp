@@ -23,24 +23,26 @@ public:
     RendererD3D11& operator=(RendererD3D11&&) = default;
     ~RendererD3D11() = default;
 
-    virtual size_t __stdcall AddRef() override;
-    virtual size_t __stdcall Release() override;
-    virtual size_t __stdcall GetRefCount() const override;
+    virtual vsize __stdcall AddRef() override;
+    virtual vsize __stdcall Release() override;
+    virtual vsize __stdcall GetRefCount() const override;
 
     virtual bool __stdcall Initialize(const HWND hWnd) override;
 
     virtual void __stdcall BeginRender() override;
     virtual void __stdcall EndRender() override;
-    virtual void __stdcall Present() override;
 
     virtual IMeshObject* __stdcall CreateMeshObject() override;
     virtual ICamera* __stdcall CreateCamera() override;
+
+    virtual float __stdcall GetDeltaTime() const override;
+    virtual uint __stdcall GetFPS() const override;
 
     virtual void* __stdcall Private_GetD3dDevice() const override;
     virtual void* __stdcall Private_GetImmediateContext() const override;
 
 private:
-    size_t                  m_refCount = 0;
+    vsize                   m_refCount = 0;
     HWND                    m_hWnd = nullptr;
 
     bool                    m_bDebug = true;
@@ -51,15 +53,21 @@ private:
     ID3D11DeviceContext*    m_pImmediateContext = nullptr;
     IDXGISwapChain*         m_pSwapChain = nullptr;
     ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
+    ID3D11Texture2D*        m_pDepthStencil = nullptr;
+    ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
+    
+    Timer m_frameTimer = {};
+    float m_startRenderingTime = 0.0f;
+    float m_deltaTime = 0.0f;
 };
 
-size_t __stdcall RendererD3D11::AddRef()
+vsize __stdcall RendererD3D11::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-size_t __stdcall RendererD3D11::Release()
+vsize __stdcall RendererD3D11::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
@@ -70,6 +78,8 @@ size_t __stdcall RendererD3D11::Release()
         }
 
         SAFE_RELEASE(m_pRenderTargetView);
+        SAFE_RELEASE(m_pDepthStencil);
+        SAFE_RELEASE(m_pDepthStencilView);
         SAFE_RELEASE(m_pSwapChain);
         SAFE_RELEASE(m_pImmediateContext);
         SAFE_RELEASE(m_pDevice);
@@ -81,7 +91,7 @@ size_t __stdcall RendererD3D11::Release()
     return m_refCount;
 }
 
-size_t __stdcall RendererD3D11::GetRefCount() const
+vsize __stdcall RendererD3D11::GetRefCount() const
 {
     return m_refCount;
 }
@@ -94,6 +104,9 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     HRESULT hr;
 
     m_hWnd = hWnd;
+
+    TimerInit(&m_frameTimer);
+    m_startRenderingTime = TimerGetTime(&m_frameTimer);
 
     static const D3D_DRIVER_TYPE DRIVERS[] =
     {
@@ -115,7 +128,7 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
         createDeviceFlag = D3D11_CREATE_DEVICE_DEBUG;
     }
 
-    for (size_t i = 0; i < DRIVER_COUNT; ++i)
+    for (vsize i = 0; i < DRIVER_COUNT; ++i)
     {
         const D3D_DRIVER_TYPE driver = DRIVERS[i];
         hr = D3D11CreateDevice(nullptr, driver, nullptr, createDeviceFlag,
@@ -184,6 +197,38 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     m_pDevice->CreateRenderTargetView(pBack, nullptr, &m_pRenderTargetView);
     SAFE_RELEASE(pBack);
 
+    // Create depth stencil texture
+    D3D11_TEXTURE2D_DESC descDepth;
+    memset(&descDepth, 0, sizeof(descDepth));
+    descDepth.Width = windowWidth;
+    descDepth.Height = windowHeight;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    hr = m_pDevice->CreateTexture2D(&descDepth, nullptr, &m_pDepthStencil);
+    if (FAILED(hr))
+    {
+        goto lb_return;
+    }
+
+    // Create the depth stencil view
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    memset(&descDSV, 0, sizeof(descDSV));
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    hr = m_pDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
+    if (FAILED(hr))
+    {
+        goto lb_return;
+    }
+
     m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
 
     D3D11_VIEWPORT vp;
@@ -207,16 +252,18 @@ void __stdcall RendererD3D11::BeginRender()
     const FLOAT backColor[] = { 0.18f, 0.38f, 0.37f, 1.0f };
 
     m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, backColor);
+
+    m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void __stdcall RendererD3D11::EndRender()
 {
-
-}
-
-void __stdcall RendererD3D11::Present()
-{
     m_pSwapChain->Present(0, 0);
+
+    const float endRenderingTime = TimerGetTime(&m_frameTimer);
+    m_deltaTime = endRenderingTime - m_startRenderingTime;
+
+    m_startRenderingTime = endRenderingTime;
 }
 
 IMeshObject* __stdcall RendererD3D11::CreateMeshObject()
@@ -234,6 +281,16 @@ ICamera* __stdcall RendererD3D11::CreateCamera()
     Private_CreateCamera(&pCamera);
 
     return pCamera;
+}
+
+float __stdcall RendererD3D11::GetDeltaTime() const
+{
+    return m_deltaTime;
+}
+
+uint __stdcall RendererD3D11::GetFPS() const
+{
+    return (uint)(1000.0f / m_deltaTime);
 }
 
 void* __stdcall RendererD3D11::Private_GetD3dDevice() const

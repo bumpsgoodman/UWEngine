@@ -20,14 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\Math.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\MathDefines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\MathMisc.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMath.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathMisc.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMath\Private\Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineMath\Private\DllMain.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineMath\Private\MathMisc_x86.cpp">
+    <ClCompile Include="..\..\..\Source\UWEngineMath\Private\UWMathMisc_x86.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -39,7 +41,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\..\Source\UWEngineMath\Private\MathMisc_x64.asm">
+    <MASM Include="..\..\..\Source\UWEngineMath\Private\UWMathMisc_x64.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <CallingConvention Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">0</CallingConvention>

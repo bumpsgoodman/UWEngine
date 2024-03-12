@@ -20,7 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ICamera.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />

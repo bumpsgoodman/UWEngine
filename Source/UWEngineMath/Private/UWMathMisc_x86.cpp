@@ -6,9 +6,9 @@
 */
 
 #include "Precompiled.h"
-#include "MathMisc.h"
+#include "UWMathMisc.h"
 
-GLOBAL_FUNC __declspec(naked) int __stdcall Log2Int64(const uint64_t num)
+GLOBAL_FUNC __declspec(naked) int __stdcall Log2Int64(const uint64 num)
 {
     // [esp + 4] = num의 하위 32비트
     // [esp + 8] = num의 상위 32비트

@@ -7,6 +7,9 @@
     <Filter Include="Private">
       <UniqueIdentifier>{c9211719-4499-410b-a023-4bc0b94e27d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UWEngineCommon\Util">
+      <UniqueIdentifier>{a65b19b4-5a1c-4b58-9d49-9b9aa2a9a372}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
@@ -21,6 +24,15 @@
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ICamera.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">

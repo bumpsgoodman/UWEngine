@@ -17,10 +17,12 @@ interface IRendererD3D11 : public IRefObject
 
     virtual void __stdcall BeginRender() = 0;
     virtual void __stdcall EndRender() = 0;
-    virtual void __stdcall Present() = 0;
 
     virtual IMeshObject* __stdcall CreateMeshObject() = 0;
     virtual ICamera* __stdcall CreateCamera() = 0;
+
+    virtual float __stdcall GetDeltaTime() const = 0;
+    virtual uint __stdcall GetFPS() const = 0;
 
     virtual void* __stdcall Private_GetD3dDevice() const = 0;
     virtual void* __stdcall Private_GetImmediateContext() const = 0;

@@ -7,15 +7,7 @@
 
 #pragma once
 
-// 타입 정의
-#include <climits>
-#include <cstddef>
-#include <cstdint>
-typedef unsigned int uint_t;
-#define PTR_SIZE sizeof(void*)
-
-// SSE/AVX
-#include <intrin.h>
+#include "Types.h"
 
 // switch case 문 break 생략 시 삽입
 #define FALLTHROUGH
@@ -24,7 +16,6 @@ typedef unsigned int uint_t;
 #define TO_STR(s) #s
 
 // ASSERT
-// 디버그 모드에서만 중단
 #if defined(NDEBUG)
     #define ASSERT(cond, msg) ((void)0)
 #else
@@ -59,7 +50,7 @@ typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
 
 interface IRefObject
 {
-    virtual size_t __stdcall AddRef() = 0;
-    virtual size_t __stdcall Release() = 0;
-    virtual size_t __stdcall GetRefCount() const = 0;
+    virtual vsize __stdcall AddRef() = 0;
+    virtual vsize __stdcall Release() = 0;
+    virtual vsize __stdcall GetRefCount() const = 0;
 };

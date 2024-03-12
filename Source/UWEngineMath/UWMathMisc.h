@@ -8,7 +8,7 @@
 #pragma once
 
 #include "UWEngineCommon/Defines.h"
-#include "MathDefines.h"
+#include "UWMathDefines.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -21,17 +21,19 @@
 #define FLOOR_INT(x) ((x) >= 0.0f ? (int)(x) : (int)((x) - 1.0f))
 #define TRUNC_INT(x) ((x) >= 0.0f ? (int)(x) : (int)(x))
 
-float __stdcall Mod(const float a, const float b)
+extern "C" GLOBAL_FUNC int __stdcall Log2Int64(const uint64 num);
+
+inline float __stdcall Mod(const float a, const float b)
 {
     return a - b * TRUNC(a / b);
 }
 
-float __stdcall Clamp(const float value, const float minValue, const float maxValue)
+inline float __stdcall Clamp(const float value, const float minValue, const float maxValue)
 {
     return MAX(MIN(value, maxValue), minValue);
 }
 
-float __stdcall Wrap(const float value, const float minValue, const float maxValue)
+inline float __stdcall Wrap(const float value, const float minValue, const float maxValue)
 {
     if (value > maxValue)
     {
@@ -45,10 +47,13 @@ float __stdcall Wrap(const float value, const float minValue, const float maxVal
     return value;
 }
 
-extern "C" GLOBAL_FUNC int __stdcall Log2Int64(const uint64_t num);
+inline float __stdcall DegreeToRad(const float degree)
+{
+    return degree * PI_DIV_180;
+}
 
 // DirectXMath에서 가져옴
-void __stdcall GetSinCos(const float rad, float* pOutSin, float* pOutCos)
+inline void __stdcall GetSinCos(const float rad, float* pOutSin, float* pOutCos)
 {
     ASSERT(pOutSin != NULL, "pOutSin == NULL");
     ASSERT(pOutCos != NULL, "pOutCos == NULL");
