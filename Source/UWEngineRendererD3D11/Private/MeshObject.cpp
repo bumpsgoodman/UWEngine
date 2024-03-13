@@ -11,9 +11,7 @@
 
 struct ConstantBuffer
 {
-    Matrix44 World;
-    Matrix44 View;
-    Matrix44 Projection;
+    Matrix44 WVP;
 };
 
 ALIGN16 class MeshObject : public IMeshObject
@@ -22,8 +20,6 @@ public:
     MeshObject() = default;
     MeshObject(const MeshObject&) = delete;
     MeshObject& operator=(const MeshObject&) = delete;
-    MeshObject(MeshObject&&) = default;
-    MeshObject& operator=(MeshObject&&) = default;
     ~MeshObject() = default;
 
     virtual vsize __stdcall AddRef() override;
@@ -265,9 +261,7 @@ void __stdcall MeshObject::RenderMesh()
 #endif
 
     ConstantBuffer cb;
-    cb.World = Matrix44Transpose(m_world);
-    cb.View = Matrix44Transpose(m_pCamera->GetView());
-    cb.Projection = Matrix44Transpose(m_pCamera->GetProjection());
+    cb.WVP = Matrix44Transpose(m_world * m_pCamera->GetView() * m_pCamera->GetProjection());
     pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     UINT stride = m_vertexSize;

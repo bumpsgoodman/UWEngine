@@ -19,8 +19,6 @@ public:
     RendererD3D11() = default;
     RendererD3D11(const RendererD3D11&) = delete;
     RendererD3D11& operator=(const RendererD3D11&) = delete;
-    RendererD3D11(RendererD3D11&&) = default;
-    RendererD3D11& operator=(RendererD3D11&&) = default;
     ~RendererD3D11() = default;
 
     virtual vsize __stdcall AddRef() override;

@@ -13,7 +13,7 @@
 
 interface IRendererD3D11;
 
-class IMeshObject : public IRefObject
+interface IMeshObject : public IRefObject
 {
 public:
     virtual bool __stdcall Initialize(IRendererD3D11* pRenderer) = 0;
