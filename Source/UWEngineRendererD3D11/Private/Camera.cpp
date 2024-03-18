@@ -6,7 +6,7 @@
 */
 
 #include "Precompiled.h"
-#include "Camera.h"
+#include "ICamera.h"
 
 #include <DirectXMath.h>
 using namespace DirectX;
