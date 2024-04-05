@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />

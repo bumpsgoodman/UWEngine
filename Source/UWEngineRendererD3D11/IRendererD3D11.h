@@ -13,17 +13,17 @@
 
 interface IRendererD3D11 : public IRefObject
 {
-    virtual bool __stdcall Initialize(const HWND hWnd) = 0;
+    UWMETHOD(bool) Initialize(const HWND hWnd) PURE;
 
-    virtual void __stdcall BeginRender() = 0;
-    virtual void __stdcall EndRender() = 0;
+    UWMETHOD(void) BeginRender() PURE;
+    UWMETHOD(void) EndRender() PURE;
 
-    virtual IMeshObject* __stdcall CreateMeshObject() = 0;
-    virtual ICamera* __stdcall CreateCamera() = 0;
+    UWMETHOD(IMeshObject*) CreateMeshObject() PURE;
+    UWMETHOD(ICamera*) CreateCamera() PURE;
 
-    virtual float __stdcall GetDeltaTime() const = 0;
-    virtual uint __stdcall GetFPS() const = 0;
+    UWMETHOD(float) GetDeltaTime() const PURE;
+    UWMETHOD(uint) GetFPS() const PURE;
 
-    virtual void* __stdcall Private_GetD3dDevice() const = 0;
-    virtual void* __stdcall Private_GetImmediateContext() const = 0;
+    UWMETHOD(void*) Private_GetD3dDevice() const PURE;
+    UWMETHOD(void*) Private_GetImmediateContext() const PURE;
 };

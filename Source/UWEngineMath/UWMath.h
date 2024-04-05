@@ -38,7 +38,7 @@ ALIGN16 union Vector4
         float Z;
         float W;
     };
-    float XYZW[4];
+    ALIGN16 float XYZW[4];
     __m128 MM_XYZW;
 
     inline Vector4() = default;
@@ -89,7 +89,7 @@ ALIGN16 union Matrix44
         __m128 MM_R2;
         __m128 MM_R3;
     };
-    float M[4][4];
+    ALIGN16 float M[4][4];
 
 
     Matrix44() = default;

@@ -17,7 +17,7 @@ struct Timer
     uint64 PrevCounter;
 };
 
-inline bool __stdcall TimerInit(Timer* pTimer)
+inline bool UWAPI TimerInit(Timer* pTimer)
 {
     ASSERT(pTimer != nullptr, "pTimer == nullptr");
 
@@ -27,7 +27,7 @@ inline bool __stdcall TimerInit(Timer* pTimer)
     return true;
 }
 
-inline float __stdcall TimerGetTime(const Timer* pTimer)
+inline float UWAPI TimerGetTime(const Timer* pTimer)
 {
     ASSERT(pTimer != nullptr, "pTimer == nullptr");
 

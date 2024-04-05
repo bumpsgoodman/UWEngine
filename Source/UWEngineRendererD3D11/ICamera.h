@@ -12,30 +12,30 @@
 
 interface ICamera : public IRefObject
 {
-    virtual bool __stdcall Initailize() = 0;
-    virtual void __stdcall Update(const float fovY, const float aspectRatio, const float nearZ, const float farZ) = 0;
+    UWMETHOD(bool) Initailize() PURE;
+    UWMETHOD(void) Update(const float fovY, const float aspectRatio, const float nearZ, const float farZ) PURE;
 
-    virtual void __stdcall Translate(const Vector4 dist) = 0;
-    virtual void __stdcall TranslateX(const float dist) = 0;
-    virtual void __stdcall TranslateY(const float dist) = 0;
-    virtual void __stdcall TranslateZ(const float dist) = 0;
+    UWMETHOD(void) Translate(const Vector4 dist) PURE;
+    UWMETHOD(void) TranslateX(const float dist) PURE;
+    UWMETHOD(void) TranslateY(const float dist) PURE;
+    UWMETHOD(void) TranslateZ(const float dist) PURE;
 
-    virtual void __stdcall Rotate(const Vector4 angleDegrees) = 0;
-    virtual void __stdcall RotateX(const float angleDegree) = 0;
-    virtual void __stdcall RotateY(const float angleDegree) = 0;
-    virtual void __stdcall RotateZ(const float angleDegree) = 0;
+    UWMETHOD(void) Rotate(const Vector4 angleDegrees) PURE;
+    UWMETHOD(void) RotateX(const float angleDegree) PURE;
+    UWMETHOD(void) RotateY(const float angleDegree) PURE;
+    UWMETHOD(void) RotateZ(const float angleDegree) PURE;
 
-    virtual void __stdcall SetRotation(const Vector4 angleDegrees) = 0;
-    virtual Vector4 __stdcall GetRotation() const = 0;
+    UWMETHOD_VECTOR(void) SetRotation(const Vector4 angleDegrees) PURE;
+    UWMETHOD_VECTOR(Vector4) GetRotation() const PURE;
 
-    virtual void __vectorcall SetEye(const Vector4 v) = 0;
-    virtual void __vectorcall SetAt(const Vector4 v) = 0;
-    virtual void __vectorcall SetUp(const Vector4 v) = 0;
+    UWMETHOD_VECTOR(void) SetEye(const Vector4 v) PURE;
+    UWMETHOD_VECTOR(void) SetAt(const Vector4 v) PURE;
+    UWMETHOD_VECTOR(void) SetUp(const Vector4 v) PURE;
 
-    virtual Vector4 __vectorcall GetEye() const = 0;
-    virtual Vector4 __vectorcall GetAt() const = 0;
-    virtual Vector4 __vectorcall GetUp() const = 0;
+    UWMETHOD_VECTOR(Vector4) GetEye() const PURE;
+    UWMETHOD_VECTOR(Vector4) GetAt() const PURE;
+    UWMETHOD_VECTOR(Vector4) GetUp() const PURE;
 
-    virtual Matrix44 __vectorcall GetView() const = 0;
-    virtual Matrix44 __vectorcall GetProjection() const = 0;
+    UWMETHOD_VECTOR(Matrix44) GetView() const PURE;
+    UWMETHOD_VECTOR(Matrix44) GetProjection() const PURE;
 };

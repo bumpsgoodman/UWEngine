@@ -71,6 +71,8 @@ private:
     ID3D11Buffer* m_pIndexBuffer = nullptr;
     ID3D11Buffer* m_pConstantBuffer = nullptr;
 
+    MESH_RENDER_TYPE m_renderType = MESH_RENDER_TYPE_WIREFRAME;
+
     Matrix44 m_world = {};
 
     uint m_numVertices = 0;
@@ -143,8 +145,8 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     HRESULT hr;
 
     ID3D11Device* pDevice = (ID3D11Device*)m_pRenderer->Private_GetD3dDevice();
-    ID3DBlob* pVertexShader = nullptr;
-    ID3DBlob* pPixelShader = nullptr;
+    ID3DBlob* pVertexShaderBlob = nullptr;
+    ID3DBlob* pPixelShaderBlob = nullptr;
 
 #if defined(_DEBUG)
     uint compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -152,25 +154,25 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     uint compileFlags = 0;
 #endif
 
-    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShader, nullptr);
+    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShaderBlob, nullptr);
     if (FAILED(hr))
     {
         goto lb_return;
     }
 
-    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pPixelShader, nullptr);
+    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pPixelShaderBlob, nullptr);
     if (FAILED(hr))
     {
         goto lb_return;
     }
 
-    hr = pDevice->CreateVertexShader(pVertexShader->GetBufferPointer(), pVertexShader->GetBufferSize(), nullptr, &m_pVertexShader);
+    hr = pDevice->CreateVertexShader(pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader);
     if (FAILED(hr))
     {
         goto lb_return;
     }
 
-    hr = pDevice->CreatePixelShader(pPixelShader->GetBufferPointer(), pPixelShader->GetBufferSize(), nullptr, &m_pPixelShader);
+    hr = pDevice->CreatePixelShader(pPixelShaderBlob->GetBufferPointer(), pPixelShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader);
     if (FAILED(hr))
     {
         goto lb_return;
@@ -183,14 +185,14 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     };
     const vsize numLayout = ARRAYSIZE(layout);
 
-    hr = pDevice->CreateInputLayout(layout, numLayout, pVertexShader->GetBufferPointer(), pVertexShader->GetBufferSize(), &m_pVertexLayout);
+    hr = pDevice->CreateInputLayout(layout, numLayout, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pVertexLayout);
     if (FAILED(hr))
     {
         goto lb_return;
     }
 
-    SAFE_RELEASE(pVertexShader);
-    SAFE_RELEASE(pPixelShader);
+    SAFE_RELEASE(pVertexShaderBlob);
+    SAFE_RELEASE(pPixelShaderBlob);
 
     D3D11_BUFFER_DESC bd;
     memset(&bd, 0, sizeof(bd));

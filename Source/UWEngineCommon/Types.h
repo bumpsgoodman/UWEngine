@@ -7,16 +7,16 @@
 
 #pragma once
 
-typedef signed char         int8;
-typedef short               int16;
-typedef int                 int32;
-typedef long long           int64;
-typedef unsigned char       uint8;
-typedef unsigned short      uint16;
-typedef unsigned int        uint32;
-typedef unsigned long long  uint64;
-
-typedef unsigned int        uint;
+// fixed int
+typedef unsigned int                uint;
+typedef signed char                 int8;
+typedef short                       int16;
+typedef int                         int32;
+typedef long long                   int64;
+typedef unsigned char               uint8;
+typedef unsigned short              uint16;
+typedef unsigned int                uint32;
+typedef unsigned long long          uint64;
 
 // variadic size
 #if defined (_WIN64)
@@ -45,4 +45,20 @@ typedef unsigned int        uint;
     #define UW_VSIZE_MAX   0xffffffffu
 #endif
 
-#define PTR_SIZE sizeof(void*)
+#define UW_PTR_SIZE sizeof(void*)
+
+// 타입 검증
+static_assert(sizeof(int8) == 1, "Mismatch size");
+static_assert(sizeof(int16) == 2, "Mismatch size");
+static_assert(sizeof(int32) == 4, "Mismatch size");
+static_assert(sizeof(int64) == 8, "Mismatch size");
+static_assert(sizeof(uint8) == 1, "Mismatch size");
+static_assert(sizeof(uint16) == 2, "Mismatch size");
+static_assert(sizeof(uint32) == 4, "Mismatch size");
+static_assert(sizeof(uint64) == 8, "Mismatch size");
+
+#if defined (_WIN64)
+    static_assert(sizeof(vsize) == 8, "Mismatch size");
+#else
+    static_assert(sizeof(vsize) == 4, "Mismatch size");
+#endif

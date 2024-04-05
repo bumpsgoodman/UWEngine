@@ -13,37 +13,44 @@
 
 interface IRendererD3D11;
 
+enum MESH_RENDER_TYPE
+{
+    MESH_RENDER_TYPE_WIREFRAME,
+    MESH_RENDER_TYPE_COLOR,
+    MESH_RENDER_TYPE_TEXTURE
+};
+
 interface IMeshObject : public IRefObject
 {
 public:
-    virtual bool __stdcall Initialize(IRendererD3D11* pRenderer) = 0;
-    virtual bool __stdcall CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
-                                      const uint16* pIndices, const uint numIndices,
-                                      const wchar_t* pShaderFileName) = 0;
-    virtual void __stdcall RenderMesh() = 0;
+    UWMETHOD(bool) Initialize(IRendererD3D11* pRenderer) PURE;
+    UWMETHOD(bool) CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
+                              const uint16* pIndices, const uint numIndices,
+                              const wchar_t* pShaderFileName) PURE;
+    UWMETHOD(void) RenderMesh() PURE;
 
-    virtual void __stdcall Translate(const Vector4 dist) = 0;
-    virtual void __stdcall TranslateX(const float dist) = 0;
-    virtual void __stdcall TranslateY(const float dist) = 0;
-    virtual void __stdcall TranslateZ(const float dist) = 0;
+    UWMETHOD(void) Translate(const Vector4 dist) PURE;
+    UWMETHOD(void) TranslateX(const float dist) PURE;
+    UWMETHOD(void) TranslateY(const float dist) PURE;
+    UWMETHOD(void) TranslateZ(const float dist) PURE;
 
-    virtual void __stdcall Rotate(const Vector4 angleDegrees) = 0;
-    virtual void __stdcall RotateX(const float angleDegree) = 0;
-    virtual void __stdcall RotateY(const float angleDegree) = 0;
-    virtual void __stdcall RotateZ(const float angleDegree) = 0;
+    UWMETHOD(void) Rotate(const Vector4 angleDegrees) PURE;
+    UWMETHOD(void) RotateX(const float angleDegree) PURE;
+    UWMETHOD(void) RotateY(const float angleDegree) PURE;
+    UWMETHOD(void) RotateZ(const float angleDegree) PURE;
 
-    virtual void __stdcall Scale(const Vector4 scale) = 0;
-    virtual void __stdcall ScaleX(const float scale) = 0;
-    virtual void __stdcall ScaleY(const float scale) = 0;
-    virtual void __stdcall ScaleZ(const float scale) = 0;
+    UWMETHOD(void) Scale(const Vector4 scale) PURE;
+    UWMETHOD(void) ScaleX(const float scale) PURE;
+    UWMETHOD(void) ScaleY(const float scale) PURE;
+    UWMETHOD(void) ScaleZ(const float scale) PURE;
 
-    virtual void __stdcall SetPosition(const Vector4 position) = 0;
-    virtual void __stdcall SetRotation(const Vector4 angleDegrees) = 0;
-    virtual void __stdcall SetScale(const Vector4 scale) = 0;
+    UWMETHOD(void) SetPosition(const Vector4 position) PURE;
+    UWMETHOD(void) SetRotation(const Vector4 angleDegrees) PURE;
+    UWMETHOD(void) SetScale(const Vector4 scale) PURE;
 
-    virtual Vector4 __stdcall GetPosition() const = 0;
-    virtual Vector4 __stdcall GetRotation() const = 0;
-    virtual Vector4 __stdcall GetScale() const = 0;
+    UWMETHOD(Vector4) GetPosition() const PURE;
+    UWMETHOD(Vector4) GetRotation() const PURE;
+    UWMETHOD(Vector4) GetScale() const PURE;
 
-    virtual void __stdcall SetCamera(ICamera* pCamera) = 0;
+    UWMETHOD(void) SetCamera(ICamera* pCamera) PURE;
 };

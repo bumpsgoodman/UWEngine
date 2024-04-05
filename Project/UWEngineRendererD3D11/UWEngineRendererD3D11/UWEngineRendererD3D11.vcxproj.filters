@@ -33,7 +33,9 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
       <Filter>UWEngineCommon\Util</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ILightObject.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
@@ -49,9 +51,6 @@
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp">
-      <Filter>Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\LightObject.cpp">
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>
