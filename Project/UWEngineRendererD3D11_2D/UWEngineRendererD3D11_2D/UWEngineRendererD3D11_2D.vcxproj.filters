@@ -15,9 +15,6 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
@@ -30,5 +27,34 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
       <Filter>UWEngineCommon\Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Precompiled.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UWEngineRendererD3D11_2D.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Precompiled.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\DllMain.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\RendererD3D11_2D.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Camera2D.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\MeshObject2D.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

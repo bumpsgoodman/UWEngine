@@ -25,11 +25,11 @@ struct List
     ListNode* pTail;
 };
 
-GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);
-GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);
+GLOBAL_FUNC UWMETHOD(void) ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);
+GLOBAL_FUNC UWMETHOD(void) ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);
 
-GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail);
-GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail);
+GLOBAL_FUNC UWMETHOD(void) ListDeleteHead(ListNode** ppHead, ListNode** ppTail);
+GLOBAL_FUNC UWMETHOD(void) ListDeleteTail(ListNode** ppHead, ListNode** ppTail);
 
-GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* pPrevNode, ListNode* pNode);
-GLOBAL_FUNC void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* pDeleteNode);
+GLOBAL_FUNC UWMETHOD(void) ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* pPrevNode, ListNode* pNode);
+GLOBAL_FUNC UWMETHOD(void) ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* pDeleteNode);

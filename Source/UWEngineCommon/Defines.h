@@ -16,14 +16,16 @@
 #define TO_STR(s) #s
 
 // 호출 규약
-#define UWAPI           __stdcall
-#define UWAPI_VECTOR    __vectorcall
-#define UWAPI_VAR       __cdecl
+#define UWAPI                   __stdcall
+#define UWAPI_VECTOR            __vectorcall
+#define UWAPI_VAR               __cdecl
 
-// 가상 함수
-#define UWMETHOD(type)          virtual type UWAPI
-#define UWMETHOD_VECTOR(type)   virtual type UWAPI_VECTOR
-#define UWMETHOD_VAR(type)      virtual type UWAPI_VAR
+// 호출 규약
+#define UWMETHOD(type)          type UWAPI
+#define UWMETHOD_VECTOR(type)   type UWAPI_VECTOR
+#define UWMETHOD_VAR(type)      type UWAPI_VAR
+
+// 순수 가상 함수
 #define PURE = 0
 
 // ASSERT
@@ -37,8 +39,9 @@
 #define SAFE_DELETE(p)              { delete (p); (p) = nullptr; }
 #define SAFE_DELETE_ARRAY(p)        { delete[] (p); (p) = nullptr; }
 #define SAFE_FREE(p)                { free((p)); (p) = nullptr; }
-#define SAFE_VIRTUAL_FREE(p)        { VirtualFree((p), 0, MEM_RELEASE); (p) = nullptr; }
 #define SAFE_RELEASE(p)             { if ((p)) { (p)->Release(); (p) = nullptr; } }
+#define SAFE_VIRTUAL_FREE(p)        { VirtualFree((p), 0, MEM_RELEASE); (p) = nullptr; }
+#define SAFE_FREE_LIBRARY(handle)   { if ((handle)) { FreeLibrary(handle); (handle) = nullptr; } }
 
 // dll export
 #ifdef UW_ENGINE_DLL
@@ -58,10 +61,3 @@
 #endif // interface
 
 typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
-
-interface IRefObject
-{
-    UWMETHOD(vsize) AddRef() PURE;
-    UWMETHOD(vsize) Release() PURE;
-    UWMETHOD(vsize) GetRefCount() const PURE;
-};

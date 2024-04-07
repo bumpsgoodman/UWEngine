@@ -18,25 +18,25 @@ public:
     DynamicArray& operator=(DynamicArray&&) = default;
     ~DynamicArray();
 
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numDefaultElements) override;
-    virtual void __stdcall Release() override;
-    virtual void __stdcall Clear() override;
+    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numDefaultElements) override;
+    virtual UWMETHOD(void) Release() override;
+    virtual UWMETHOD(void) Clear() override;
 
-    virtual bool __stdcall PushBack(const void* pElementOrNull, const vsize elementSize) override;
-    virtual bool __stdcall PopBack() override;
+    virtual UWMETHOD(bool) PushBack(const void* pElementOrNull, const vsize elementSize) override;
+    virtual UWMETHOD(bool) PopBack() override;
 
-    virtual bool __stdcall Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
-    virtual bool __stdcall Remove(const vsize index) override;
+    virtual UWMETHOD(bool) Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual UWMETHOD(bool) Remove(const vsize index) override;
 
-    virtual void* __stdcall GetBackOrNull() const override;
-    virtual void* __stdcall GetElementOrNull(const vsize index) const override;
-    virtual void* __stdcall GetElementsOrNull() const override;
-    virtual vsize __stdcall GetElementSize() const override;
-    virtual vsize __stdcall GetNumMaxElements() const override;
-    virtual vsize __stdcall GetNumElements() const override;
+    virtual UWMETHOD(void*) GetBackOrNull() const override;
+    virtual UWMETHOD(void*) GetElementOrNull(const vsize index) const override;
+    virtual UWMETHOD(void*) GetElementsOrNull() const override;
+    virtual UWMETHOD(vsize) GetElementSize() const override;
+    virtual UWMETHOD(vsize) GetNumMaxElements() const override;
+    virtual UWMETHOD(vsize) GetNumElements() const override;
 
 private:
-    bool __stdcall expand();
+    UWMETHOD(bool) expand();
 
 private:
     void* m_pElements = nullptr;
@@ -51,7 +51,7 @@ DynamicArray::~DynamicArray()
     Release();
 }
 
-bool __stdcall DynamicArray::Initialize(const vsize elementSize, const vsize numDefaultElements)
+UWMETHOD(bool) DynamicArray::Initialize(const vsize elementSize, const vsize numDefaultElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numDefaultElements > 0, "numDefaultElements == 0");
@@ -68,17 +68,17 @@ bool __stdcall DynamicArray::Initialize(const vsize elementSize, const vsize num
     return true;
 }
 
-void __stdcall DynamicArray::Release()
+UWMETHOD(void) DynamicArray::Release()
 {
     SAFE_FREE(m_pElements);
 }
 
-void __stdcall DynamicArray::Clear()
+UWMETHOD(void) DynamicArray::Clear()
 {
     m_numElements = 0;
 }
 
-bool __stdcall DynamicArray::PushBack(const void* pElementOrNull, const vsize elementSize)
+UWMETHOD(bool) DynamicArray::PushBack(const void* pElementOrNull, const vsize elementSize)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
 
@@ -105,13 +105,13 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall DynamicArray::PopBack()
+UWMETHOD(bool) DynamicArray::PopBack()
 {
     --m_numElements;
     return true;
 }
 
-bool __stdcall DynamicArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
+UWMETHOD(bool) DynamicArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
     ASSERT(index <= m_numElements, "Invalid index");
@@ -145,7 +145,7 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall DynamicArray::Remove(const vsize index)
+UWMETHOD(bool) DynamicArray::Remove(const vsize index)
 {
     ASSERT(index <= m_numElements, "Invalid index");
 
@@ -160,7 +160,7 @@ bool __stdcall DynamicArray::Remove(const vsize index)
     return true;
 }
 
-bool __stdcall DynamicArray::expand()
+UWMETHOD(bool) DynamicArray::expand()
 {
     bool bResult = false;
 
@@ -177,7 +177,7 @@ bool __stdcall DynamicArray::expand()
     return true;
 }
 
-void* __stdcall DynamicArray::GetBackOrNull() const
+UWMETHOD(void*) DynamicArray::GetBackOrNull() const
 {
     if (m_numElements == 0)
     {
@@ -187,7 +187,7 @@ void* __stdcall DynamicArray::GetBackOrNull() const
     return (char*)m_pElements + m_elementSize * (m_numElements - 1);
 }
 
-void* __stdcall DynamicArray::GetElementOrNull(vsize index) const
+UWMETHOD(void*) DynamicArray::GetElementOrNull(vsize index) const
 {
     if (index >= m_numElements)
     {
@@ -197,27 +197,27 @@ void* __stdcall DynamicArray::GetElementOrNull(vsize index) const
     return (char*)m_pElements + m_elementSize * index;
 }
 
-void* __stdcall DynamicArray::GetElementsOrNull() const
+UWMETHOD(void*) DynamicArray::GetElementsOrNull() const
 {
     return m_pElements;
 }
 
-vsize __stdcall DynamicArray::GetElementSize() const
+UWMETHOD(vsize) DynamicArray::GetElementSize() const
 {
     return m_elementSize;
 }
 
-vsize __stdcall DynamicArray::GetNumMaxElements() const
+UWMETHOD(vsize) DynamicArray::GetNumMaxElements() const
 {
     return m_numMaxElements;
 }
 
-vsize __stdcall DynamicArray::GetNumElements() const
+UWMETHOD(vsize) DynamicArray::GetNumElements() const
 {
     return m_numElements;
 }
 
-GLOBAL_FUNC bool __stdcall CreateDynamicArray(IDynamicArray** ppOutDynamicArray)
+GLOBAL_FUNC UWMETHOD(bool) CreateDynamicArray(IDynamicArray** ppOutDynamicArray)
 {
     ASSERT(ppOutDynamicArray != nullptr, "ppOutDynamicArray == nullptr");
 
@@ -227,7 +227,7 @@ GLOBAL_FUNC bool __stdcall CreateDynamicArray(IDynamicArray** ppOutDynamicArray)
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArray)
+GLOBAL_FUNC UWMETHOD(void) DestroyDynamicArray(IDynamicArray* pDynamicArray)
 {
     ASSERT(pDynamicArray != nullptr, "pDynamicArray == nullptr");
     delete (DynamicArray*)pDynamicArray;

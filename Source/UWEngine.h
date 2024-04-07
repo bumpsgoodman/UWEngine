@@ -8,8 +8,8 @@
 #pragma once
 
 #include "UWEngineCommon/Defines.h"
+#include "UWEngineCommon/Util/Timer.h"
+#include "UWEngineCommon/Util/HashFunction.h"
+#include "UWEngineCommon/Interfaces.h"
 
 #include "UWEngineGeneric/IDynamicArray.h"
-#include "UWEngineGeneric/IList.h"
-#include "UWEngineGeneric/IMap.h"
-#include "UWEngineGeneric/IStaticMemoryPool.h"

@@ -18,22 +18,22 @@ public:
     FixedArray& operator=(FixedArray&&) = default;
     ~FixedArray();
 
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numMaxElements) override;
-    virtual void __stdcall Release() override;
-    virtual void __stdcall Clear() override;
+    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numMaxElements) override;
+    virtual UWMETHOD(void) Release() override;
+    virtual UWMETHOD(void) Clear() override;
 
-    virtual bool __stdcall PushBack(const void* pElementOrNull, const vsize elementSize) override;
-    virtual bool __stdcall PopBack() override;
+    virtual UWMETHOD(bool) PushBack(const void* pElementOrNull, const vsize elementSize) override;
+    virtual UWMETHOD(bool) PopBack() override;
 
-    virtual bool __stdcall Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
-    virtual bool __stdcall Remove(const vsize index) override;
+    virtual UWMETHOD(bool) Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual UWMETHOD(bool) Remove(const vsize index) override;
 
-    virtual void* __stdcall GetBackOrNull() const override;
-    virtual void* __stdcall GetElementOrNull(const vsize index) const override;
-    virtual void* __stdcall GetElementsPtrOrNull() const override;
-    virtual vsize __stdcall GetElementSize() const override;
-    virtual vsize __stdcall GetNumMaxElements() const override;
-    virtual vsize __stdcall GetNumElements() const override;
+    virtual UWMETHOD(void*) GetBackOrNull() const override;
+    virtual UWMETHOD(void*) GetElementOrNull(const vsize index) const override;
+    virtual UWMETHOD(void*) GetElementsPtrOrNull() const override;
+    virtual UWMETHOD(vsize) GetElementSize() const override;
+    virtual UWMETHOD(vsize) GetNumMaxElements() const override;
+    virtual UWMETHOD(vsize) GetNumElements() const override;
 
 private:
     void* m_pElements = nullptr;
@@ -48,7 +48,7 @@ FixedArray::~FixedArray()
     Release();
 }
 
-bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements)
+UWMETHOD(bool) FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numMaxElements > 0, "numMaxElements == 0");
@@ -65,17 +65,17 @@ bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMa
     return true;
 }
 
-void __stdcall FixedArray::Release()
+UWMETHOD(void) FixedArray::Release()
 {
     SAFE_FREE(m_pElements);
 }
 
-void __stdcall FixedArray::Clear()
+UWMETHOD(void) FixedArray::Clear()
 {
     m_numElements = 0;
 }
 
-bool __stdcall FixedArray::PushBack(const void* pElementOrNull, const vsize elementSize)
+UWMETHOD(bool) FixedArray::PushBack(const void* pElementOrNull, const vsize elementSize)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
 
@@ -99,13 +99,13 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall FixedArray::PopBack()
+UWMETHOD(bool) FixedArray::PopBack()
 {
     --m_numElements;
     return true;
 }
 
-bool __stdcall FixedArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
+UWMETHOD(bool) FixedArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
 {
     ASSERT(pElementOrNull == nullptr || elementSize == m_elementSize, "mismatch element size");
     ASSERT(index <= m_numElements, "Invalid index");
@@ -136,7 +136,7 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall FixedArray::Remove(const vsize index)
+UWMETHOD(bool) FixedArray::Remove(const vsize index)
 {
     ASSERT(index <= m_numElements, "Invalid index");
 
@@ -151,7 +151,7 @@ bool __stdcall FixedArray::Remove(const vsize index)
     return true;
 }
 
-void* __stdcall FixedArray::GetBackOrNull() const
+UWMETHOD(void*) FixedArray::GetBackOrNull() const
 {
     if (m_numElements == 0)
     {
@@ -161,7 +161,7 @@ void* __stdcall FixedArray::GetBackOrNull() const
     return (char*)m_pElements + m_elementSize * (m_numElements - 1);
 }
 
-void* __stdcall FixedArray::GetElementOrNull(vsize index) const
+UWMETHOD(void*) FixedArray::GetElementOrNull(vsize index) const
 {
     if (index >= m_numElements)
     {
@@ -171,27 +171,27 @@ void* __stdcall FixedArray::GetElementOrNull(vsize index) const
     return (char*)m_pElements + m_elementSize * index;
 }
 
-void* __stdcall FixedArray::GetElementsPtrOrNull() const
+UWMETHOD(void*) FixedArray::GetElementsPtrOrNull() const
 {
     return m_pElements;
 }
 
-vsize __stdcall FixedArray::GetElementSize() const
+UWMETHOD(vsize) FixedArray::GetElementSize() const
 {
     return m_elementSize;
 }
 
-vsize __stdcall FixedArray::GetNumMaxElements() const
+UWMETHOD(vsize) FixedArray::GetNumMaxElements() const
 {
     return m_numMaxElements;
 }
 
-vsize __stdcall FixedArray::GetNumElements() const
+UWMETHOD(vsize) FixedArray::GetNumElements() const
 {
     return m_numElements;
 }
 
-GLOBAL_FUNC bool __stdcall CreateFixedArray(IFixedArray** ppOutFixedArray)
+GLOBAL_FUNC UWMETHOD(bool) CreateFixedArray(IFixedArray** ppOutFixedArray)
 {
     ASSERT(ppOutFixedArray != nullptr, "ppOutFixedArray == nullptr");
 
@@ -201,7 +201,7 @@ GLOBAL_FUNC bool __stdcall CreateFixedArray(IFixedArray** ppOutFixedArray)
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArray)
+GLOBAL_FUNC UWMETHOD(void) DestroyFixedArray(IFixedArray* pFixedArray)
 {
     ASSERT(pFixedArray != nullptr, "pFixedArray == nullptr");
     delete (FixedArray*)pFixedArray;

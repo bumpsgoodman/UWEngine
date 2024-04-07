@@ -11,18 +11,18 @@
 
 interface IStaticMemoryPool
 {
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) = 0;
-    virtual void __stdcall Release() = 0;
+    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) PURE;
+    virtual UWMETHOD(void) Release() PURE;
 
-    virtual void* __stdcall AllocateOrNull() = 0;
-    virtual void __stdcall Free(void* pMemory) = 0;
-    virtual void __stdcall Reset() = 0;
-    virtual bool __stdcall IsValidMemory(const void* pMemory) const = 0;
+    virtual UWMETHOD(void*) AllocateOrNull() PURE;
+    virtual UWMETHOD(void) Free(void* pMemory) PURE;
+    virtual UWMETHOD(void) Reset() PURE;
+    virtual UWMETHOD(bool) IsValidMemory(const void* pMemory) const PURE;
 
-    virtual vsize __stdcall GetElementSize() const = 0;
-    virtual vsize __stdcall GetNumAllocElements() const = 0;
-    virtual vsize __stdcall GetNumMaxElements() const = 0;
+    virtual UWMETHOD(vsize) GetElementSize() const PURE;
+    virtual UWMETHOD(vsize) GetNumAllocElements() const PURE;
+    virtual UWMETHOD(vsize) GetNumMaxElements() const PURE;
 };
 
-GLOBAL_FUNC bool __stdcall CreateStaticMemoryPool(IStaticMemoryPool** ppOutStaticMemoryPool);
-GLOBAL_FUNC void __stdcall DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPool);
+GLOBAL_FUNC UWMETHOD(bool) CreateStaticMemoryPool(IStaticMemoryPool** ppOutStaticMemoryPool);
+GLOBAL_FUNC UWMETHOD(void) DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPool);

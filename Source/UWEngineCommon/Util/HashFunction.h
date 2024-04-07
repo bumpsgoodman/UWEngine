@@ -9,7 +9,7 @@
 
 #include "../Defines.h"
 
-inline uint32 UWAPI FNV1a32(const char* pBytes, const vsize length)
+inline UWMETHOD(uint32) FNV1a32(const char* pBytes, const vsize length)
 {
     ASSERT(pBytes != nullptr, "pBytes == nullptr");
 
@@ -26,7 +26,7 @@ inline uint32 UWAPI FNV1a32(const char* pBytes, const vsize length)
     return hash;
 }
 
-inline uint64 UWAPI FNV1a64(const char* pBytes, const vsize length)
+inline UWMETHOD(uint64) FNV1a64(const char* pBytes, const vsize length)
 {
     ASSERT(pBytes != nullptr, "pBytes == nullptr");
 

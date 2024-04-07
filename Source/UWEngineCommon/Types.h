@@ -23,7 +23,7 @@ typedef unsigned long long          uint64;
     typedef uint64 vsize;
 #else
     typedef uint32 vsize;
-#endif
+#endif // _WIN64
 
 // stdint.h
 #define UW_INT8_MIN        (-127 - 1)
@@ -40,10 +40,10 @@ typedef unsigned long long          uint64;
 #define UW_UINT64_MAX      0xffffffffffffffffull
 
 #if defined (_WIN64)
-    #define UW_VSIZE_MAX   0xffffffffffffffffu
+#   define UW_VSIZE_MAX   0xffffffffffffffffu
 #else
-    #define UW_VSIZE_MAX   0xffffffffu
-#endif
+#   define UW_VSIZE_MAX   0xffffffffu
+#endif // _WIN64
 
 #define UW_PTR_SIZE sizeof(void*)
 
@@ -61,4 +61,4 @@ static_assert(sizeof(uint64) == 8, "Mismatch size");
     static_assert(sizeof(vsize) == 8, "Mismatch size");
 #else
     static_assert(sizeof(vsize) == 4, "Mismatch size");
-#endif
+#endif // _WIN64

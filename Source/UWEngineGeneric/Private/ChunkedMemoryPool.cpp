@@ -38,20 +38,20 @@ public:
     ChunkedMemoryPool& operator=(ChunkedMemoryPool&&) = default;
     ~ChunkedMemoryPool();
 
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
-    virtual void __stdcall Release() override;
+    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
+    virtual UWMETHOD(void) Release() override;
 
-    virtual void* __stdcall AllocateOrNull() override;
-    virtual void __stdcall Free(void* pMemory) override;
-    virtual void __stdcall Reset() override;
-    virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
+    virtual UWMETHOD(void*) AllocateOrNull() override;
+    virtual UWMETHOD(void) Free(void* pMemory) override;
+    virtual UWMETHOD(void) Reset() override;
+    virtual UWMETHOD(bool) IsValidMemory(const void* pMemory) const override;
 
-    virtual vsize __stdcall GetElementSize() const override;
-    virtual vsize __stdcall GetNumAllocElements() const override;
-    virtual vsize __stdcall GetNumElementsPerChunk() const override;
+    virtual UWMETHOD(vsize) GetElementSize() const override;
+    virtual UWMETHOD(vsize) GetNumAllocElements() const override;
+    virtual UWMETHOD(vsize) GetNumElementsPerChunk() const override;
 
 private:
-    bool __stdcall addChunk();
+    UWMETHOD(bool) addChunk();
 
 private:
     ListNode* m_pChunkHead = nullptr;
@@ -68,7 +68,7 @@ ChunkedMemoryPool::~ChunkedMemoryPool()
     Release();
 }
 
-bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerChunk)
+UWMETHOD(bool) ChunkedMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerChunk)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerChunk > 0 && numElementsPerChunk <= NUM_MAX_GENERIC_ELEMENTS, "Invalid range");
@@ -98,7 +98,7 @@ lb_return:
     return bResult;
 }
 
-void __stdcall ChunkedMemoryPool::Release()
+UWMETHOD(void) ChunkedMemoryPool::Release()
 {
     ListNode* pNode = m_pChunkHead;
     while (pNode != nullptr)
@@ -117,7 +117,7 @@ void __stdcall ChunkedMemoryPool::Release()
     }
 }
 
-void* __stdcall ChunkedMemoryPool::AllocateOrNull()
+UWMETHOD(void*) ChunkedMemoryPool::AllocateOrNull()
 {
     char* pMemory = nullptr;
 
@@ -162,7 +162,7 @@ lb_return:
     return pMemory;
 }
 
-void __stdcall ChunkedMemoryPool::Free(void* pMemory)
+UWMETHOD(void) ChunkedMemoryPool::Free(void* pMemory)
 {
     if (pMemory == nullptr)
     {
@@ -183,7 +183,7 @@ void __stdcall ChunkedMemoryPool::Free(void* pMemory)
     --m_numAllocElements;
 }
 
-void __stdcall ChunkedMemoryPool::Reset()
+UWMETHOD(void) ChunkedMemoryPool::Reset()
 {
     ListNode* pNode = m_pChunkHead;
     while (pNode != nullptr)
@@ -204,7 +204,7 @@ void __stdcall ChunkedMemoryPool::Reset()
     }
 }
 
-bool __stdcall ChunkedMemoryPool::IsValidMemory(const void* pMemory) const
+UWMETHOD(bool) ChunkedMemoryPool::IsValidMemory(const void* pMemory) const
 {
     const Header* pHeader = (Header*)pMemory;
     const Chunk* pChunk = pHeader->pChunk;
@@ -217,22 +217,22 @@ bool __stdcall ChunkedMemoryPool::IsValidMemory(const void* pMemory) const
     return pHeader->Alloc == 1;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetElementSize() const
+UWMETHOD(vsize) ChunkedMemoryPool::GetElementSize() const
 {
     return m_elementSize;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetNumAllocElements() const
+UWMETHOD(vsize) ChunkedMemoryPool::GetNumAllocElements() const
 {
     return m_numAllocElements;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetNumElementsPerChunk() const
+UWMETHOD(vsize) ChunkedMemoryPool::GetNumElementsPerChunk() const
 {
     return m_numElementsPerChunk;
 }
 
-bool __stdcall ChunkedMemoryPool::addChunk()
+UWMETHOD(bool) ChunkedMemoryPool::addChunk()
 {
     Chunk* pChunk = new Chunk;
 
@@ -262,7 +262,7 @@ bool __stdcall ChunkedMemoryPool::addChunk()
     return true;
 }
 
-GLOBAL_FUNC bool __stdcall CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChunkedMemoryPool)
+GLOBAL_FUNC UWMETHOD(bool) CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChunkedMemoryPool)
 {
     ASSERT(ppOutChunkedMemoryPool != nullptr, "ppOutChunkedMemoryPool == nullptr");
 
@@ -272,7 +272,7 @@ GLOBAL_FUNC bool __stdcall CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChu
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPool)
+GLOBAL_FUNC UWMETHOD(void) DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPool)
 {
     ASSERT(pChunkedMemoryPool != nullptr, "pChunkedMemoryPool == nullptr");
     delete (ChunkedMemoryPool*)pChunkedMemoryPool;

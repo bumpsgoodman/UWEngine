@@ -22,33 +22,33 @@ struct KeyValue
 
 interface IHashMap
 {
-    virtual bool __stdcall Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) = 0;
-    virtual void __stdcall Release() = 0;
-    virtual void __stdcall Clear() = 0;
+    virtual UWMETHOD(bool) Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) PURE;
+    virtual UWMETHOD(void) Release() PURE;
+    virtual UWMETHOD(void) Clear() PURE;
 
-    virtual bool __stdcall Insert(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize) = 0;
-    virtual bool __stdcall InsertByHash(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize, const uint64 hash) = 0;
+    virtual UWMETHOD(bool) Insert(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize) PURE;
+    virtual UWMETHOD(bool) InsertByHash(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize, const uint64 hash) PURE;
 
-    virtual bool __stdcall Remove(const void* pKey, const vsize keySize) = 0;
-    virtual bool __stdcall RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) = 0;
+    virtual UWMETHOD(bool) Remove(const void* pKey, const vsize keySize) PURE;
+    virtual UWMETHOD(bool) RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) PURE;
 
-    virtual vsize __stdcall GetCount(const void* pKey, const vsize keySize) const = 0;
-    virtual vsize __stdcall GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const = 0;
+    virtual UWMETHOD(vsize) GetCount(const void* pKey, const vsize keySize) const PURE;
+    virtual UWMETHOD(vsize) GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const PURE;
 
-    virtual void* GetValueOrNull(const void* pKey, const vsize keySize) const = 0;
-    virtual void* GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const = 0;
+    virtual UWMETHOD(void*) GetValueOrNull(const void* pKey, const vsize keySize) const PURE;
+    virtual UWMETHOD(void*) GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const PURE;
 
-    virtual KeyValue* GetKeyValuesOrNull() const = 0;
-    virtual vsize __stdcall GetKeySize() const = 0;
-    virtual vsize __stdcall GetValueSize() const = 0;
-    virtual vsize __stdcall GetNumKeyValues() const = 0;
-    virtual vsize __stdcall GetNumMaxKeyValues() const = 0;
+    virtual UWMETHOD(KeyValue*) GetKeyValuesOrNull() const PURE;
+    virtual UWMETHOD(vsize) GetKeySize() const PURE;
+    virtual UWMETHOD(vsize) GetValueSize() const PURE;
+    virtual UWMETHOD(vsize) GetNumKeyValues() const PURE;
+    virtual UWMETHOD(vsize) GetNumMaxKeyValues() const PURE;
 
-    virtual float __stdcall GetFactor() const = 0;
+    virtual UWMETHOD(float) GetFactor() const PURE;
 
     // [0.1, 1.0]
-    virtual void __stdcall SetFactor(float factor) = 0;
+    virtual UWMETHOD(void) SetFactor(float factor) PURE;
 };
 
-GLOBAL_FUNC bool __stdcall CreateHashMap(IHashMap** ppOutHashMap);
-GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMap);
+GLOBAL_FUNC UWMETHOD(bool) CreateHashMap(IHashMap** ppOutHashMap);
+GLOBAL_FUNC UWMETHOD(void) DestroyHashMap(IHashMap* pHashMap);

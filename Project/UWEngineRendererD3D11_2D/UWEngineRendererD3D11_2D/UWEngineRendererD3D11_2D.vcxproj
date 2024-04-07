@@ -20,11 +20,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Precompiled.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UWEngineRendererD3D11_2D.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Camera2D.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\DllMain.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\MeshObject2D.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\Precompiled.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11_2D\Private\RendererD3D11_2D.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

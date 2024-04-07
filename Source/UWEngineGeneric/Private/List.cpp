@@ -8,7 +8,7 @@
 #include "Precompiled.h"
 #include "List.h"
 
-GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
+GLOBAL_FUNC UWMETHOD(void) ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
@@ -30,7 +30,7 @@ GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, Lis
     }
 }
 
-GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
+GLOBAL_FUNC UWMETHOD(void) ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
@@ -52,7 +52,7 @@ GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, Lis
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
+GLOBAL_FUNC UWMETHOD(void) ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
@@ -74,7 +74,7 @@ GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
+GLOBAL_FUNC UWMETHOD(void) ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
@@ -96,7 +96,7 @@ GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
     }
 }
 
-GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* prevNode, ListNode* pNode)
+GLOBAL_FUNC UWMETHOD(void) ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* prevNode, ListNode* pNode)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
@@ -120,7 +120,7 @@ GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, 
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* removedNode)
+GLOBAL_FUNC UWMETHOD(void) ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* removedNode)
 {
     ASSERT(ppHead != NULL, "ppHead == NULL");
     ASSERT(ppTail != NULL, "ppTail == NULL");
