@@ -13,3 +13,5 @@
 #include "UWEngineCommon/Interfaces.h"
 
 #include "UWEngineGeneric/IDynamicArray.h"
+
+#include "UWEngineMath/UWMath.h"

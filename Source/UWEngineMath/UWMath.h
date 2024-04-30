@@ -7,11 +7,9 @@
 
 #pragma once
 
-// 테스트용
+#include <intrin.h>
 #include <DirectXMath.h>
 using namespace DirectX;
-
-#include <intrin.h>
 
 #include "UWEngineCommon/Defines.h"
 #include "UWMathDefines.h"
@@ -975,20 +973,21 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44WorldFromVector(const Vector4 translati
 
 
 
-// 테스트
-inline UWMETHOD_VECTOR(XMVECTOR) Vector4ToXMVector(const Vector4 v)
+// 테스트용
+
+inline UWMETHOD_VECTOR(XMVECTOR) UW_Vector4ToXMVector(const Vector4 v)
 {
     FXMVECTOR result = XMVectorSet(v.X, v.Y, v.Z, v.W);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) XMVectorToVector4(FXMVECTOR v)
+inline UWMETHOD_VECTOR(Vector4) UW_XMVectorToVector4(FXMVECTOR v)
 {
     const Vector4 result = Vector4Set(v.m128_f32[0], v.m128_f32[1], v.m128_f32[2], v.m128_f32[3]);
     return result;
 }
 
-inline UWMETHOD_VECTOR(XMMATRIX) Matrix44ToXMMatrix(const Matrix44 mat)
+inline UWMETHOD_VECTOR(XMMATRIX) UW_Matrix44ToXMMatrix(const Matrix44 mat)
 {
     FXMMATRIX result = XMMatrixSet(mat.M00, mat.M01, mat.M02, mat.M03,
                                    mat.M10, mat.M11, mat.M12, mat.M13,
@@ -997,8 +996,60 @@ inline UWMETHOD_VECTOR(XMMATRIX) Matrix44ToXMMatrix(const Matrix44 mat)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) XMMatrixToMatrix44(FXMMATRIX mat)
+inline UWMETHOD_VECTOR(Matrix44) UW_XMMatrixToMatrix44(FXMMATRIX mat)
 {
     const Matrix44 result = Matrix44Set(mat.r[0], mat.r[1], mat.r[2], mat.r[3]);
+    return result;
+}
+
+inline UWMETHOD_VECTOR(XMVECTOR) UW_XMVectorToRadian(const XMVECTOR degrees)
+{
+    static const XMVECTOR FACTOR = XMVectorSet(PI_DIV_180, PI_DIV_180, PI_DIV_180, PI_DIV_180);
+    const XMVECTOR result = XMVectorMultiply(degrees, FACTOR);
+    return result;
+}
+
+inline UWMETHOD_VECTOR(XMVECTOR) UW_XMVectorWrap(const XMVECTOR v, const XMVECTOR minV, const XMVECTOR maxV)
+{
+    /*
+    if (v > maxV)
+    {
+        return minV + mod(v - maxV, maxV);
+    }
+    else if (v < minV)
+    {
+        return maxV + mod(minV + v, maxV);
+    }
+    */
+
+    // v가 최대 값보다 클 때
+    XMVECTOR maxMask;
+    XMVECTOR maxResult;
+    maxMask = _mm_cmpgt_ps(v, maxV);
+    maxResult = _mm_and_ps(v, maxMask);
+    maxResult = _mm_sub_ps(maxResult, maxV);
+    maxResult = XMVectorMod(maxResult, maxV);
+    maxResult = _mm_add_ps(minV, maxResult);
+    maxResult = _mm_and_ps(maxResult, maxMask);
+
+    // v가 최소 값보다 작을 때
+    XMVECTOR minMask;
+    XMVECTOR minResult;
+    minMask = _mm_cmplt_ps(v, minV);
+    minResult = _mm_and_ps(v, minMask);
+    minResult = _mm_add_ps(minResult, minV);
+    minResult = XMVectorMod(minResult, maxV);
+    minResult = _mm_add_ps(maxV, minResult);
+    minResult = _mm_and_ps(minResult, minMask);
+
+    // 래핑되지 않은 값 추가 (범위 내에 있던 값 추가)
+    XMVECTOR result;
+    XMVECTOR zeroMask;
+    result = _mm_or_ps(minResult, maxResult);
+    zeroMask = _mm_cmpeq_ps(result, XMVectorZero());
+    result = _mm_or_ps(result, _mm_and_ps(v, zeroMask));
+
+    // and를 하고 나면 순서가 바뀌기 때문에 역순으로 바꾸기
+    result = _mm_shuffle_ps(result, result, _MM_SHUFFLE(3, 2, 1, 0));
     return result;
 }

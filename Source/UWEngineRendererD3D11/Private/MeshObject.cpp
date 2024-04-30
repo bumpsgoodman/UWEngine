@@ -1,97 +1,26 @@
 ﻿/*
-* MeshObject
+* Mesh Object
 *
 * 작성자: bumpsgoodman
-* 작성일: 2023.02.03
+* 작성일: 2024.04.17
 */
 
 #include "Precompiled.h"
-#include "IMeshObject.h"
-#include "IRendererD3D11.h"
+#include "UWEngineCommon/CoreTypes.h"
+#include "DDSTextureLoader.h"
 
 struct ConstantBuffer
 {
-    Matrix44 WVP;
+    XMMATRIX WVP;
 };
 
-ALIGN16 class MeshObject : public IMeshObject
-{
-public:
-    MeshObject() = default;
-    MeshObject(const MeshObject&) = delete;
-    MeshObject& operator=(const MeshObject&) = delete;
-    ~MeshObject() = default;
-
-    virtual vsize __stdcall AddRef() override;
-    virtual vsize __stdcall Release() override;
-    virtual vsize __stdcall GetRefCount() const override;
-
-    virtual bool __stdcall Initialize(IRendererD3D11* pRenderer) override;
-    virtual bool __stdcall CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
-                                      const uint16* pIndices, const uint numIndices,
-                                      const wchar_t* pShaderFileName) override;
-    virtual void __stdcall RenderMesh() override;
-
-    virtual void __stdcall Translate(const Vector4 dist) override;
-    virtual void __stdcall TranslateX(const float dist) override;
-    virtual void __stdcall TranslateY(const float dist) override;
-    virtual void __stdcall TranslateZ(const float dist) override;
-
-    virtual void __stdcall Rotate(const Vector4 angleDegrees) override;
-    virtual void __stdcall RotateX(const float angleDegree) override;
-    virtual void __stdcall RotateY(const float angleDegree) override;
-    virtual void __stdcall RotateZ(const float angleDegree) override;
-
-    virtual void __stdcall Scale(const Vector4 scale) override;
-    virtual void __stdcall ScaleX(const float scale) override;
-    virtual void __stdcall ScaleY(const float scale) override;
-    virtual void __stdcall ScaleZ(const float scale) override;
-
-    virtual void __stdcall SetPosition(const Vector4 position) override;
-    virtual void __stdcall SetRotation(const Vector4 angleDegrees) override;
-    virtual void __stdcall SetScale(const Vector4 scale) override;
-
-    virtual Vector4 __stdcall GetPosition() const override;
-    virtual Vector4 __stdcall GetRotation() const override;
-    virtual Vector4 __stdcall GetScale() const override;
-
-    virtual void __stdcall SetCamera(ICamera* pCamera) override;
-
-private:
-    void __stdcall updateWorldMatrix();
-
-private:
-    vsize m_refCount = 0;
-
-    IRendererD3D11* m_pRenderer = nullptr;
-    ID3D11InputLayout* m_pVertexLayout = nullptr;
-    ID3D11VertexShader* m_pVertexShader = nullptr;
-    ID3D11PixelShader* m_pPixelShader = nullptr;
-    ID3D11Buffer* m_pVertexBuffer = nullptr;
-    ID3D11Buffer* m_pIndexBuffer = nullptr;
-    ID3D11Buffer* m_pConstantBuffer = nullptr;
-
-    MESH_RENDER_TYPE m_renderType = MESH_RENDER_TYPE_WIREFRAME;
-
-    Matrix44 m_world = {};
-
-    uint m_numVertices = 0;
-    uint m_numIndices = 0;
-    uint m_vertexSize = 0;
-
-    ICamera* m_pCamera = nullptr;
-    Vector4 m_position = {};
-    Vector4 m_rotationDegree = {};
-    Vector4 m_scale = {};
-};
-
-vsize __stdcall MeshObject::AddRef()
+UWMETHOD(vsize) MeshObject::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall MeshObject::Release()
+UWMETHOD(vsize) MeshObject::Release()
 {
     --m_refCount;
 
@@ -103,6 +32,8 @@ vsize __stdcall MeshObject::Release()
         SAFE_RELEASE(m_pVertexLayout);
         SAFE_RELEASE(m_pPixelShader);
         SAFE_RELEASE(m_pVertexShader);
+
+        SAFE_RELEASE(m_pImmediateContext);
         SAFE_RELEASE(m_pRenderer);
 
         delete this;
@@ -112,30 +43,35 @@ vsize __stdcall MeshObject::Release()
     return m_refCount;
 }
 
-vsize __stdcall MeshObject::GetRefCount() const
+UWMETHOD(vsize) MeshObject::GetRefCount() const
 {
     return m_refCount;
 }
 
-bool __stdcall MeshObject::Initialize(IRendererD3D11* pRenderer)
+UWMETHOD(bool) MeshObject::Initialize(IRendererD3D11* pRenderer)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
 
-    m_position = Vector4Zero();
-    m_rotationDegree = Vector4Zero();
-    m_scale = Vector4One();
+    m_position = XMVectorZero();
+    m_rotationDegree = XMVectorZero();
+    m_scale = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 
-    m_world = Matrix44Identity();
+    m_world = XMMatrixIdentity();
 
     pRenderer->AddRef();
     m_pRenderer = pRenderer;
 
+    m_pImmediateContext = (ID3D11DeviceContext*)pRenderer->Private_GetImmediateContext();
+
+    m_renderType = MESH_RENDER_TYPE_DEFAULT;
+
     return true;
 }
 
-bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
+UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
                                       const uint16* pIndices, const uint numIndices,
-                                      const wchar_t* pShaderFileName)
+                                      const wchar_t* pShaderFileName,
+                                      const wchar_t* pTextureFileName)
 {
     ASSERT(pVertices != nullptr, "pVertices == nullptr");
     ASSERT(pIndices != nullptr, "pIndices == nullptr");
@@ -147,16 +83,19 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     ID3D11Device* pDevice = (ID3D11Device*)m_pRenderer->Private_GetD3dDevice();
     ID3DBlob* pVertexShaderBlob = nullptr;
     ID3DBlob* pPixelShaderBlob = nullptr;
+    ID3DBlob* pErrorBlob = nullptr;
 
 #if defined(_DEBUG)
-    uint compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    const uint compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
-    uint compileFlags = 0;
+    const uint compileFlags = 0;
 #endif
 
-    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShaderBlob, nullptr);
+    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShaderBlob, &pErrorBlob);
     if (FAILED(hr))
     {
+        const char* errorMsg = (const char*)pErrorBlob->GetBufferPointer();
+        MessageBoxA(nullptr, errorMsg, "Shader Compilation Error", MB_RETRYCANCEL);
         goto lb_return;
     }
 
@@ -178,12 +117,47 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
-    D3D11_INPUT_ELEMENT_DESC layout[] =
+    D3D11_INPUT_ELEMENT_DESC layout[2];
+    uint numLayout = 0;
+
+    layout[0].SemanticName = "POSITION";
+    layout[0].SemanticIndex = 0;
+    layout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    layout[0].InputSlot = 0;
+    layout[0].AlignedByteOffset = 0;
+    layout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    layout[0].InstanceDataStepRate = 0;
+
+    switch (m_renderType)
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-    const vsize numLayout = ARRAYSIZE(layout);
+    case MESH_RENDER_TYPE_DEFAULT:
+        numLayout = 1;
+        break;
+    case MESH_RENDER_TYPE_COLOR:
+        layout[1].SemanticName = "COLOR";
+        layout[1].SemanticIndex = 0;
+        layout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        layout[1].InputSlot = 0;
+        layout[1].AlignedByteOffset = 12;
+        layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        layout[1].InstanceDataStepRate = 0;
+        numLayout = 2;
+        break;
+    case MESH_RENDER_TYPE_TEXTURE:
+        layout[1].SemanticName = "TEXCOORD";
+        layout[1].SemanticIndex = 0;
+        layout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+        layout[1].InputSlot = 0;
+        layout[1].AlignedByteOffset = 12;
+        layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        layout[1].InstanceDataStepRate = 0;
+        numLayout = 2;
+
+        break;
+    default:
+        ASSERT(false, "Invalid render type");
+        break;
+    }
 
     hr = pDevice->CreateInputLayout(layout, numLayout, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pVertexLayout);
     if (FAILED(hr))
@@ -200,7 +174,7 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     bd.ByteWidth = vertexSize * numVertices;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bd.CPUAccessFlags = 0;
-    
+
     D3D11_SUBRESOURCE_DATA initData;
     memset(&initData, 0, sizeof(initData));
     initData.pSysMem = pVertices;
@@ -216,7 +190,7 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     bd.CPUAccessFlags = 0;
     initData.pSysMem = pIndices;
-    
+
     hr = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
     if (FAILED(hr))
     {
@@ -233,12 +207,31 @@ bool __stdcall MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
+    hr = CreateDDSTextureFromFile(pDevice, pTextureFileName, nullptr, &m_pTextureRV);
+    if (FAILED(hr))
+    {
+        goto lb_return;
+    }
+
+    // Create the sample state
+    D3D11_SAMPLER_DESC sampDesc;
+    memset(&sampDesc, 0, sizeof(sampDesc));
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    hr = pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
+    if (FAILED(hr))
+        goto lb_return;
+
     m_numVertices = numVertices;
     m_numIndices = numIndices;
     m_vertexSize = vertexSize;
 
-    // Initialize the world matrix
-    m_world = Matrix44Identity();
+    m_world = XMMatrixIdentity();
 
     bResult = true;
 
@@ -247,23 +240,12 @@ lb_return:
     return bResult;
 }
 
-void __stdcall MeshObject::RenderMesh()
+UWMETHOD(void) MeshObject::RenderMesh()
 {
     ID3D11DeviceContext* pImmediateContext = (ID3D11DeviceContext*)m_pRenderer->Private_GetImmediateContext();
 
-#if 0
-    static float t = 0.0f;
-    static ULONGLONG timeStart = 0;
-    ULONGLONG timeCur = GetTickCount64();
-    if (timeStart == 0)
-        timeStart = timeCur;
-    t = (timeCur - timeStart) / 1000.0f;
-
-    m_world = XMMatrixRotationY(t);
-#endif
-
     ConstantBuffer cb;
-    cb.WVP = Matrix44Transpose(m_world * m_pCamera->GetView() * m_pCamera->GetProjection());
+    cb.WVP = XMMatrixTranspose(m_world * m_pCamera->GetView() * m_pCamera->GetProjection());
     pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     UINT stride = m_vertexSize;
@@ -272,7 +254,24 @@ void __stdcall MeshObject::RenderMesh()
     pImmediateContext->IASetInputLayout(m_pVertexLayout);
     pImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
     pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    switch (m_renderType)
+    {
+    case MESH_RENDER_TYPE_DEFAULT:
+        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        break;
+    case MESH_RENDER_TYPE_COLOR:
+        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        break;
+    case MESH_RENDER_TYPE_TEXTURE:
+        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        pImmediateContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+        pImmediateContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+        break;
+    default:
+        ASSERT(false, "Invalid render type");
+        break;
+    }
 
     pImmediateContext->VSSetShader(m_pVertexShader, nullptr, 0);
     pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
@@ -283,132 +282,152 @@ void __stdcall MeshObject::RenderMesh()
     SAFE_RELEASE(pImmediateContext);
 }
 
-void __stdcall MeshObject::Translate(const Vector4 dist)
+UWMETHOD_VECTOR(void) MeshObject::Translate(const XMVECTOR dist)
 {
     m_position += dist;
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::TranslateX(const float dist)
+UWMETHOD(void) MeshObject::TranslateX(const float dist)
 {
-    m_position.X += dist;
+    m_position = XMVectorSetX(m_position, XMVectorGetX(m_position) + dist);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::TranslateY(const float dist)
+UWMETHOD(void) MeshObject::TranslateY(const float dist)
 {
-    m_position.Y += dist;
+    m_position = XMVectorSetY(m_position, XMVectorGetY(m_position) + dist);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::TranslateZ(const float dist)
+UWMETHOD(void) MeshObject::TranslateZ(const float dist)
 {
-    m_position.Z += dist;
+    m_position = XMVectorSetY(m_position, XMVectorGetZ(m_position) + dist);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::Rotate(const Vector4 angleDegree)
+UWMETHOD_VECTOR(void) MeshObject::Rotate(const XMVECTOR angleDegree)
 {
     m_rotationDegree += angleDegree;
-    m_rotationDegree = Vector4Wrap(angleDegree, Vector4Zero(), Vector4Set(360.0f, 360.0f, 360.0f, 0.0f));
+    m_rotationDegree = XMVectorSet(Wrap(XMVectorGetX(m_rotationDegree), 0.0f, 360.0f),
+                                   Wrap(XMVectorGetY(m_rotationDegree), 0.0f, 360.0f),
+                                   Wrap(XMVectorGetZ(m_rotationDegree), 0.0f, 360.0f),
+                                   0.0f);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::RotateX(const float angleDegree)
+UWMETHOD(void) MeshObject::RotateX(const float angleDegree)
 {
-    m_rotationDegree.X += angleDegree;
-    m_rotationDegree.X = Wrap(m_rotationDegree.X, 0.0f, 360.0f);
+    m_rotationDegree = XMVectorSetX(m_rotationDegree, XMVectorGetX(m_rotationDegree) + angleDegree);
+    m_rotationDegree = XMVectorSetX(m_rotationDegree, Wrap(XMVectorGetX(m_rotationDegree), 0.0f, 360.0f));
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::RotateY(const float angleDegree)
+UWMETHOD(void) MeshObject::RotateY(const float angleDegree)
 {
-    m_rotationDegree.Y += angleDegree;
-    m_rotationDegree.Y = Wrap(m_rotationDegree.Y, 0.0f, 360.0f);
+    m_rotationDegree = XMVectorSetY(m_rotationDegree, XMVectorGetY(m_rotationDegree) + angleDegree);
+    m_rotationDegree = XMVectorSetY(m_rotationDegree, Wrap(XMVectorGetY(m_rotationDegree), 0.0f, 360.0f));
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::RotateZ(const float angleDegree)
+UWMETHOD(void) MeshObject::RotateZ(const float angleDegree)
 {
-    m_rotationDegree.Z += angleDegree;
-    m_rotationDegree.Z = Wrap(m_rotationDegree.Z, 0.0f, 360.0f);
+    m_rotationDegree = XMVectorSetZ(m_rotationDegree, XMVectorGetZ(m_rotationDegree) + angleDegree);
+    m_rotationDegree = XMVectorSetZ(m_rotationDegree, Wrap(XMVectorGetZ(m_rotationDegree), 0.0f, 360.0f));
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::Scale(const Vector4 scale)
+UWMETHOD_VECTOR(void) MeshObject::Scale(const XMVECTOR scale)
 {
     m_scale += scale;
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::ScaleX(const float scale)
+UWMETHOD(void) MeshObject::ScaleX(const float scale)
 {
-    m_scale.X += scale;
+    m_scale = XMVectorSetX(m_scale, XMVectorGetX(m_scale) + scale);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::ScaleY(const float scale)
+UWMETHOD(void) MeshObject::ScaleY(const float scale)
 {
-    m_scale.Y += scale;
+    m_scale = XMVectorSetY(m_scale, XMVectorGetY(m_scale) + scale);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::ScaleZ(const float scale)
+UWMETHOD(void) MeshObject::ScaleZ(const float scale)
 {
-    m_scale.Z += scale;
+    m_scale = XMVectorSetZ(m_scale, XMVectorGetZ(m_scale) + scale);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::SetPosition(const Vector4 position)
+UWMETHOD_VECTOR(void) MeshObject::SetPosition(const XMVECTOR position)
 {
     m_position = position;
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::SetRotation(const Vector4 angleDegrees)
+UWMETHOD_VECTOR(void) MeshObject::SetRotation(const XMVECTOR angleDegrees)
 {
-    m_rotationDegree = Vector4DegreeToRad(angleDegrees);
+    m_rotationDegree = XMVectorSet(Wrap(XMVectorGetX(angleDegrees), 0.0f, 360.0f),
+                                   Wrap(XMVectorGetY(angleDegrees), 0.0f, 360.0f),
+                                   Wrap(XMVectorGetZ(angleDegrees), 0.0f, 360.0f),
+                                   0.0f);
     updateWorldMatrix();
 }
 
-void __stdcall MeshObject::SetScale(const Vector4 scale)
+UWMETHOD_VECTOR(void) MeshObject::SetScale(const XMVECTOR scale)
 {
     m_scale = scale;
     updateWorldMatrix();
 }
 
-Vector4 __stdcall MeshObject::GetPosition() const
+UWMETHOD_VECTOR(XMVECTOR) MeshObject::GetPosition() const
 {
     return m_position;
 }
 
-Vector4 __stdcall MeshObject::GetRotation() const
+UWMETHOD_VECTOR(XMVECTOR) MeshObject::GetRotation() const
 {
     return m_rotationDegree;
 }
 
-Vector4 __stdcall MeshObject::GetScale() const
+UWMETHOD_VECTOR(XMVECTOR) MeshObject::GetScale() const
 {
     return m_scale;
 }
 
-void __stdcall MeshObject::SetCamera(ICamera* pCamera)
+UWMETHOD(void) MeshObject::SetCamera(ICamera* pCamera)
 {
     ASSERT(pCamera != nullptr, "pCamera == nullptr");
     m_pCamera = pCamera;
 }
 
-void __stdcall Private_CreateMeshObject(IMeshObject** ppOutMeshObject)
+UWMETHOD(MESH_RENDER_TYPE) MeshObject::GetRenderType() const
 {
-    ASSERT(ppOutMeshObject != nullptr, "ppOutMeshObject == nullptr");
-
-    MeshObject* pMeshObject = new MeshObject;
-    pMeshObject->AddRef();
-
-    *ppOutMeshObject = pMeshObject;
+    return m_renderType;
 }
 
-void __stdcall MeshObject::updateWorldMatrix()
+UWMETHOD(void) MeshObject::SetRenderType(const MESH_RENDER_TYPE type)
 {
-    m_world = Matrix44WorldFromVector(m_position, Vector4DegreeToRad(m_rotationDegree), m_scale);
+    if (type >= NUM_MESH_RENDER_TYPE)
+    {
+        m_renderType = MESH_RENDER_TYPE_DEFAULT;
+    }
+    else
+    {
+        m_renderType = type;
+    }
+}
+
+UWMETHOD(void) MeshObject::updateWorldMatrix()
+{
+    FXMMATRIX translationMat = XMMatrixTranslationFromVector(m_position);
+    FXMMATRIX rotationMat = XMMatrixRotationRollPitchYawFromVector(XMVectorSet(DegreeToRad(XMVectorGetX(m_rotationDegree)),
+                                                                               DegreeToRad(XMVectorGetY(m_rotationDegree)),
+                                                                               DegreeToRad(XMVectorGetZ(m_rotationDegree)),
+                                                                               0.0f));
+    FXMMATRIX scaleMat = XMMatrixScalingFromVector(m_scale);
+
+    m_world = scaleMat * rotationMat * translationMat;
 }

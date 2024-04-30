@@ -19,19 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\CoreTypes.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Typedef.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\ICamera.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IRendererD3D11.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IMeshObject.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\MeshObject.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\RendererD3D11.cpp" />

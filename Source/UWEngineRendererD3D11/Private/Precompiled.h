@@ -10,24 +10,25 @@
 // D3D11 library
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
 
 // UWEngine library
 #if defined(_WIN64)
-    #if defined(_DEBUG)
-        #pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x64d.lib")
-        #pragma comment(lib, "../../../Output/LIB/UWEngineMath_x64d.lib")
-    #else
-        #pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x64.lib")
-        #pragma comment(lib, "../../../Output/LIB/UWEngineMath_x64.lib")
-    #endif
+#   if defined(_DEBUG)
+#       pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x64d.lib")
+#       pragma comment(lib, "../../../Output/LIB/UWEngineMath_x64d.lib")
+#   else
+#       pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x64.lib")
+#       pragma comment(lib, "../../../Output/LIB/UWEngineMath_x64.lib")
+#   endif
 #elif defined(_WIN32)
-    #if defined(_DEBUG)
-        #pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x86d.lib")
-        #pragma comment(lib, "../../../Output/LIB/UWEngineMath_x86d.lib")
-    #else
-        #pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x86.lib")
-        #pragma comment(lib, "../../../Output/LIB/UWEngineMath_x86.lib")
-    #endif
+#   if defined(_DEBUG)
+#       pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x86d.lib")
+#       pragma comment(lib, "../../../Output/LIB/UWEngineMath_x86d.lib")
+#   else
+#       pragma comment(lib, "../../../Output/LIB/UWEngineGeneric_x86.lib")
+#       pragma comment(lib, "../../../Output/LIB/UWEngineMath_x86.lib")
+#   endif
 #endif
 
 // Win32
@@ -36,10 +37,8 @@
 #endif
 #include <Windows.h>
 
-// D3D11
-#include <d3d11.h>
+// D3D
 #include <d3dcompiler.h>
-#include <DirectXMath.h>
 
 // CRT
 

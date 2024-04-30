@@ -1,5 +1,5 @@
 ﻿/*
-* RendererD3D11
+* RendererD3D11_2D
 *
 * 작성자: bumpsgoodman
 * 작성일: 2023.01.28

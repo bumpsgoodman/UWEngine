@@ -2,16 +2,11 @@
 * RendererD3D11
 *
 * 작성자: bumpsgoodman
-* 작성일: 2023.01.28
+* 작성일: 2023.04.17
 */
 
 #include "Precompiled.h"
-#include "IRendererD3D11.h"
-
-using namespace DirectX;
-
-extern void __stdcall Private_CreateMeshObject(IMeshObject** ppOutMeshObject);
-void __stdcall Private_CreateCamera(ICamera** ppOutCamera);
+#include "UWEngineCommon/CoreTypes.h"
 
 class RendererD3D11 final : public IRendererD3D11
 {
@@ -21,59 +16,77 @@ public:
     RendererD3D11& operator=(const RendererD3D11&) = delete;
     ~RendererD3D11() = default;
 
-    virtual vsize __stdcall AddRef() override;
-    virtual vsize __stdcall Release() override;
-    virtual vsize __stdcall GetRefCount() const override;
+    virtual UWMETHOD(vsize)     AddRef() override;
+    virtual UWMETHOD(vsize)     Release() override;
+    virtual UWMETHOD(vsize)     GetRefCount() const override;
 
-    virtual bool __stdcall Initialize(const HWND hWnd) override;
+    virtual UWMETHOD(bool)      Initialize(const HWND hWnd) override;
 
-    virtual void __stdcall BeginRender() override;
-    virtual void __stdcall EndRender() override;
+    virtual UWMETHOD(void)      BeginRender() override;
+    virtual UWMETHOD(void)      EndRender() override;
 
-    virtual IMeshObject* __stdcall CreateMeshObject() override;
-    virtual ICamera* __stdcall CreateCamera() override;
+    virtual UWMETHOD(uint)      GetWindowWidth() const override;
+    virtual UWMETHOD(uint)      GetWindowHeight() const override;
 
-    virtual float __stdcall GetDeltaTime() const override;
-    virtual uint __stdcall GetFPS() const override;
+    virtual UWMETHOD(float)     GetDeltaTime() const override;
+    virtual UWMETHOD(uint)      GetFPS() const override;
 
-    virtual void* __stdcall Private_GetD3dDevice() const override;
-    virtual void* __stdcall Private_GetImmediateContext() const override;
+    virtual UWMETHOD(void)      CreateCamera(ICamera** ppOutCamera) override;
+    virtual UWMETHOD(void)      CreateMeshObject(IMeshObject** ppOutMeshObject) override;
+
+    virtual UWMETHOD(bool)      IsWireframeMode() const override;
+    virtual UWMETHOD(void)      ToggleRenderMode() override;
+
+    virtual UWMETHOD(void*)     Private_GetD3dDevice() const override;
+    virtual UWMETHOD(void*)     Private_GetImmediateContext() const override;
 
 private:
-    vsize                   m_refCount = 0;
-    HWND                    m_hWnd = nullptr;
+    vsize                       m_refCount = 0;
+    HWND                        m_hWnd = nullptr;
 
-    bool                    m_bDebug = true;
+    bool                        m_bDebug = true;
 
-    D3D_DRIVER_TYPE         m_driver = D3D_DRIVER_TYPE_HARDWARE;
-    D3D_FEATURE_LEVEL       m_featureLevel = D3D_FEATURE_LEVEL_11_0;
-    ID3D11Device*           m_pDevice = nullptr;
-    ID3D11DeviceContext*    m_pImmediateContext = nullptr;
-    IDXGISwapChain*         m_pSwapChain = nullptr;
-    ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
-    ID3D11Texture2D*        m_pDepthStencil = nullptr;
-    ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
-    
-    Timer m_frameTimer = {};
-    float m_startRenderingTime = 0.0f;
-    float m_deltaTime = 0.0f;
+    D3D_DRIVER_TYPE             m_driver = D3D_DRIVER_TYPE_HARDWARE;
+    D3D_FEATURE_LEVEL           m_featureLevel = D3D_FEATURE_LEVEL_11_0;
+    ID3D11Device*               m_pDevice = nullptr;
+    ID3D11DeviceContext*        m_pImmediateContext = nullptr;
+    IDXGISwapChain*             m_pSwapChain = nullptr;
+    ID3D11RenderTargetView*     m_pRenderTargetView = nullptr;
+    ID3D11Texture2D*            m_pDepthStencil = nullptr;
+    ID3D11DepthStencilView*     m_pDepthStencilView = nullptr;
+
+    ID3D11RasterizerState*      m_pWireframeState = nullptr;
+    ID3D11RasterizerState*      m_pSolidState = nullptr;
+    bool                        m_bWireframe = false;
+
+    uint                        m_windowWidth = 0;
+    uint                        m_windowHeight = 0;
+
+    Timer                       m_frameTimer = {};
+    float                       m_startRenderingTime = 0.0f;
+    float                       m_deltaTime = 0.0f;
 };
 
-vsize __stdcall RendererD3D11::AddRef()
+UWMETHOD(vsize) RendererD3D11::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall RendererD3D11::Release()
+UWMETHOD(vsize) RendererD3D11::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
     {
+        m_pSwapChain->SetFullscreenState(false, nullptr);
+
         if (m_pImmediateContext != nullptr)
         {
             m_pImmediateContext->ClearState();
         }
+
+        SAFE_RELEASE(m_pWireframeState);
+        SAFE_RELEASE(m_pSolidState);
 
         SAFE_RELEASE(m_pRenderTargetView);
         SAFE_RELEASE(m_pDepthStencil);
@@ -89,12 +102,12 @@ vsize __stdcall RendererD3D11::Release()
     return m_refCount;
 }
 
-vsize __stdcall RendererD3D11::GetRefCount() const
+UWMETHOD(vsize) RendererD3D11::GetRefCount() const
 {
     return m_refCount;
 }
 
-bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
+UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
 {
     ASSERT(hWnd != nullptr, "hWnd == nullptr");
 
@@ -175,8 +188,10 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.BufferCount = 1;
     sd.OutputWindow = hWnd;
-    sd.Windowed = TRUE;
+    sd.Windowed = true;
     sd.BufferCount = 1;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    //sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
     hr = pDxgiFactory->CreateSwapChain(m_pDevice, &sd, &m_pSwapChain);
     SAFE_RELEASE(pDxgiFactory);
@@ -227,6 +242,21 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
         goto lb_return;
     }
 
+    D3D11_RASTERIZER_DESC wfdesc;
+
+    // 와이어프레임 모드 상태 생성
+    ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
+    wfdesc.FillMode = D3D11_FILL_WIREFRAME;
+    wfdesc.CullMode = D3D11_CULL_NONE;
+    hr = m_pDevice->CreateRasterizerState(&wfdesc, &m_pWireframeState);
+
+    // 기본 모드 상태 생성
+    wfdesc.FillMode = D3D11_FILL_SOLID;
+    wfdesc.CullMode = D3D11_CULL_BACK;
+    hr = m_pDevice->CreateRasterizerState(&wfdesc, &m_pSolidState);
+
+    m_pImmediateContext->RSSetState(m_pSolidState);
+
     m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
 
     D3D11_VIEWPORT vp;
@@ -245,7 +275,7 @@ lb_return:
     return bResult;
 }
 
-void __stdcall RendererD3D11::BeginRender()
+UWMETHOD(void) RendererD3D11::BeginRender()
 {
     const FLOAT backColor[] = { 0.18f, 0.38f, 0.37f, 1.0f };
 
@@ -254,7 +284,7 @@ void __stdcall RendererD3D11::BeginRender()
     m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
-void __stdcall RendererD3D11::EndRender()
+UWMETHOD(void) RendererD3D11::EndRender()
 {
     m_pSwapChain->Present(0, 0);
 
@@ -264,46 +294,80 @@ void __stdcall RendererD3D11::EndRender()
     m_startRenderingTime = endRenderingTime;
 }
 
-IMeshObject* __stdcall RendererD3D11::CreateMeshObject()
+UWMETHOD(uint) RendererD3D11::GetWindowWidth() const
 {
-    IMeshObject* pMeshObject;
-    Private_CreateMeshObject(&pMeshObject);
-
-    pMeshObject->Initialize(this);
-    return pMeshObject;
+    return m_windowWidth;
 }
 
-ICamera* __stdcall RendererD3D11::CreateCamera()
+UWMETHOD(uint) RendererD3D11::GetWindowHeight() const
 {
-    ICamera* pCamera;
-    Private_CreateCamera(&pCamera);
-
-    return pCamera;
+    return m_windowHeight;
 }
 
-float __stdcall RendererD3D11::GetDeltaTime() const
+UWMETHOD(float) RendererD3D11::GetDeltaTime() const
 {
     return m_deltaTime;
 }
 
-uint __stdcall RendererD3D11::GetFPS() const
+UWMETHOD(uint) RendererD3D11::GetFPS() const
 {
     return (uint)(1000.0f / m_deltaTime);
 }
 
-void* __stdcall RendererD3D11::Private_GetD3dDevice() const
+UWMETHOD(void) RendererD3D11::CreateCamera(ICamera** ppOutCamera)
+{
+    ASSERT(ppOutCamera != nullptr, "ppOutCamera == nullptr");
+
+    Camera* pCamera = new Camera;
+    pCamera->AddRef();
+
+    *ppOutCamera = pCamera;
+}
+
+UWMETHOD(void) RendererD3D11::CreateMeshObject(IMeshObject** ppOutMeshObject)
+{
+    ASSERT(ppOutMeshObject != nullptr, "ppOutMeshObject == nullptr");
+
+    MeshObject* pMeshObject = new MeshObject;
+    pMeshObject->AddRef();
+
+    pMeshObject->Initialize(this);
+
+    *ppOutMeshObject = pMeshObject;
+}
+
+UWMETHOD(bool) RendererD3D11::IsWireframeMode() const
+{
+    return m_bWireframe;
+}
+
+UWMETHOD(void) RendererD3D11::ToggleRenderMode()
+{
+    m_bWireframe = !m_bWireframe;
+
+    if (m_bWireframe)
+    {
+        m_pImmediateContext->RSSetState(m_pWireframeState);
+    }
+    else
+    {
+        m_pImmediateContext->RSSetState(m_pSolidState);
+    }
+}
+
+UWMETHOD(void*) RendererD3D11::Private_GetD3dDevice() const
 {
     m_pDevice->AddRef();
     return m_pDevice;
 }
 
-void* __stdcall RendererD3D11::Private_GetImmediateContext() const
+UWMETHOD(void*) RendererD3D11::Private_GetImmediateContext() const
 {
     m_pImmediateContext->AddRef();
     return m_pImmediateContext;
 }
 
-bool __stdcall CreateDllInstance(void** ppOutInstance)
+UWMETHOD(bool) CreateDllInstance(void** ppOutInstance)
 {
     ASSERT(ppOutInstance != nullptr, "ppOutInstance == nullptr");
 

@@ -20,7 +20,6 @@
 #define UWAPI_VECTOR            __vectorcall
 #define UWAPI_VAR               __cdecl
 
-// 호출 규약
 #define UWMETHOD(type)          type UWAPI
 #define UWMETHOD_VECTOR(type)   type UWAPI_VECTOR
 #define UWMETHOD_VAR(type)      type UWAPI_VAR
@@ -60,4 +59,4 @@
 #   define interface struct
 #endif // interface
 
-typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
+typedef void(UWAPI* CreateDllInstanceFunc)(void** ppOutInstance);
