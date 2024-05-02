@@ -52,3 +52,5 @@
 #include "UWEngineGeneric/IChunkedMemoryPool.h"
 
 #include "UWEngineMath/UWMath.h"
+
+#include "D3D11Helper.h"

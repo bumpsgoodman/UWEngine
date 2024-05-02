@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h">
       <Filter>Private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.h">
+      <Filter>Private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
@@ -57,6 +60,9 @@
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.cpp">
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>

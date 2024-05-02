@@ -12,6 +12,7 @@
 struct ConstantBuffer
 {
     XMMATRIX WVP;
+    XMMATRIX World;
 };
 
 UWMETHOD(vsize) MeshObject::AddRef()
@@ -26,6 +27,9 @@ UWMETHOD(vsize) MeshObject::Release()
 
     if (m_refCount == 0)
     {
+        SAFE_RELEASE(m_pTextureRV);
+        SAFE_RELEASE(m_pSamplerLinear);
+
         SAFE_RELEASE(m_pConstantBuffer);
         SAFE_RELEASE(m_pIndexBuffer);
         SAFE_RELEASE(m_pVertexBuffer);
@@ -83,23 +87,14 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     ID3D11Device* pDevice = (ID3D11Device*)m_pRenderer->Private_GetD3dDevice();
     ID3DBlob* pVertexShaderBlob = nullptr;
     ID3DBlob* pPixelShaderBlob = nullptr;
-    ID3DBlob* pErrorBlob = nullptr;
 
-#if defined(_DEBUG)
-    const uint compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-    const uint compileFlags = 0;
-#endif
-
-    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &pVertexShaderBlob, &pErrorBlob);
+    hr = CompileShaderFromFile(pShaderFileName, "VSMain", "vs_5_0", &pVertexShaderBlob);
     if (FAILED(hr))
     {
-        const char* errorMsg = (const char*)pErrorBlob->GetBufferPointer();
-        MessageBoxA(nullptr, errorMsg, "Shader Compilation Error", MB_RETRYCANCEL);
         goto lb_return;
     }
 
-    hr = D3DCompileFromFile(pShaderFileName, nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pPixelShaderBlob, nullptr);
+    hr = CompileShaderFromFile(pShaderFileName, "PSMain", "ps_5_0", &pPixelShaderBlob);
     if (FAILED(hr))
     {
         goto lb_return;
@@ -117,7 +112,7 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
-    D3D11_INPUT_ELEMENT_DESC layout[2];
+    D3D11_INPUT_ELEMENT_DESC layout[3];
     uint numLayout = 0;
 
     layout[0].SemanticName = "POSITION";
@@ -128,31 +123,38 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     layout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     layout[0].InstanceDataStepRate = 0;
 
+    layout[1].SemanticName = "NORMAL";
+    layout[1].SemanticIndex = 0;
+    layout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    layout[1].InputSlot = 0;
+    layout[1].AlignedByteOffset = 12;
+    layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    layout[1].InstanceDataStepRate = 0;
+
     switch (m_renderType)
     {
     case MESH_RENDER_TYPE_DEFAULT:
-        numLayout = 1;
+        numLayout = 2;
         break;
     case MESH_RENDER_TYPE_COLOR:
-        layout[1].SemanticName = "COLOR";
-        layout[1].SemanticIndex = 0;
-        layout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-        layout[1].InputSlot = 0;
-        layout[1].AlignedByteOffset = 12;
-        layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-        layout[1].InstanceDataStepRate = 0;
-        numLayout = 2;
+        layout[2].SemanticName = "COLOR";
+        layout[2].SemanticIndex = 0;
+        layout[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        layout[2].InputSlot = 0;
+        layout[2].AlignedByteOffset = 24;
+        layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        layout[2].InstanceDataStepRate = 0;
+        numLayout = 3;
         break;
     case MESH_RENDER_TYPE_TEXTURE:
-        layout[1].SemanticName = "TEXCOORD";
-        layout[1].SemanticIndex = 0;
-        layout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-        layout[1].InputSlot = 0;
-        layout[1].AlignedByteOffset = 12;
-        layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-        layout[1].InstanceDataStepRate = 0;
-        numLayout = 2;
-
+        layout[2].SemanticName = "TEXCOORD";
+        layout[2].SemanticIndex = 0;
+        layout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+        layout[2].InputSlot = 0;
+        layout[2].AlignedByteOffset = 24;
+        layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        layout[2].InstanceDataStepRate = 0;
+        numLayout = 3;
         break;
     default:
         ASSERT(false, "Invalid render type");
@@ -207,25 +209,30 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
-    hr = CreateDDSTextureFromFile(pDevice, pTextureFileName, nullptr, &m_pTextureRV);
-    if (FAILED(hr))
+    if (m_renderType == MESH_RENDER_TYPE_TEXTURE)
     {
-        goto lb_return;
-    }
+        hr = CreateDDSTextureFromFile(pDevice, pTextureFileName, nullptr, &m_pTextureRV);
+        if (FAILED(hr))
+        {
+            goto lb_return;
+        }
 
-    // Create the sample state
-    D3D11_SAMPLER_DESC sampDesc;
-    memset(&sampDesc, 0, sizeof(sampDesc));
-    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    sampDesc.MinLOD = 0;
-    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    hr = pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
-    if (FAILED(hr))
-        goto lb_return;
+        // Create the sample state
+        D3D11_SAMPLER_DESC sampDesc;
+        memset(&sampDesc, 0, sizeof(sampDesc));
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sampDesc.MinLOD = 0;
+        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        hr = pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
+        if (FAILED(hr))
+        {
+            goto lb_return;
+        }
+    }
 
     m_numVertices = numVertices;
     m_numIndices = numIndices;
@@ -236,7 +243,23 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     bResult = true;
 
 lb_return:
+    SAFE_RELEASE(pVertexShaderBlob);
+    SAFE_RELEASE(pPixelShaderBlob);
+
+    if (!bResult)
+    {
+        SAFE_RELEASE(m_pVertexShader);
+        SAFE_RELEASE(m_pPixelShader);
+        SAFE_RELEASE(m_pVertexLayout);
+        SAFE_RELEASE(m_pVertexBuffer);
+        SAFE_RELEASE(m_pIndexBuffer);
+        SAFE_RELEASE(m_pConstantBuffer);
+        SAFE_RELEASE(m_pTextureRV);
+        SAFE_RELEASE(m_pSamplerLinear);
+    }
+
     SAFE_RELEASE(pDevice);
+    
     return bResult;
 }
 

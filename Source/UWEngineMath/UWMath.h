@@ -27,40 +27,6 @@ ALIGN16 union ColorF
     float RGBA[4];
 };
 
-union Vector2
-{
-    struct
-    {
-        float X;
-        float Y;
-    };
-    float XY[2];
-
-    inline Vector2() = default;
-    inline Vector2(const float x, const float y);
-    inline Vector2(const float* pXY);
-
-    inline UWMETHOD(Vector2) operator+(const Vector2& v) const;
-    inline UWMETHOD(Vector2) operator-(const Vector2& v) const;
-    inline UWMETHOD(Vector2) operator*(const Vector2& v) const;
-    inline UWMETHOD(Vector2) operator/(const Vector2& v) const;
-
-    inline UWMETHOD(Vector2) operator+(const float scalar) const;
-    inline UWMETHOD(Vector2) operator-(const float scalar) const;
-    inline UWMETHOD(Vector2) operator*(const float scalar) const;
-    inline UWMETHOD(Vector2) operator/(const float scalar) const;
-
-    inline UWMETHOD(Vector2&) operator+=(const Vector2& v);
-    inline UWMETHOD(Vector2&) operator-=(const Vector2& v);
-    inline UWMETHOD(Vector2&) operator*=(const Vector2& v);
-    inline UWMETHOD(Vector2&) operator/=(const Vector2& v);
-
-    inline UWMETHOD(Vector2&) operator+=(const float scalar);
-    inline UWMETHOD(Vector2&) operator-=(const float scalar);
-    inline UWMETHOD(Vector2&) operator*=(const float scalar);
-    inline UWMETHOD(Vector2&) operator/=(const float scalar);
-};
-
 ALIGN16 union Vector4
 {
     ALIGN16 struct
@@ -141,10 +107,6 @@ ALIGN16 union Matrix44
     inline UWMETHOD_VECTOR(Matrix44&) operator*=(const Matrix44 mat);
 };
 
-// Vector2
-static const Vector2 s_zeroVector2 = { 0.0f, 0.0f };
-static const Vector2 s_oneVector2 = { 1.0f, 1.0f };
-
 // Vector4
 static const Vector4 s_zeroVector4 = { 0.0f, 0.0f, 0.0f, 0.0f };
 static const Vector4 s_oneVector4 = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -155,125 +117,6 @@ static const float s_identity44R1[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 static const float s_identity44R2[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
 static const float s_identity44R3[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 static const Matrix44 s_identity44 = { s_identity44R0, s_identity44R1, s_identity44R2, s_identity44R3 };
-
-// -------------------------------------------------------------------------------------
-// Vector2
-
-inline Vector2::Vector2(const float x, const float y)
-    : X(x)
-    , Y(y)
-{
-}
-
-inline Vector2::Vector2(const float* pXY)
-    : X(pXY[0])
-    , Y(pXY[1])
-{
-}
-
-inline UWMETHOD(Vector2) Vector2::operator+(const Vector2& v) const
-{
-    const Vector2 result = { X + v.X, Y + v.Y };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator-(const Vector2& v) const
-{
-    const Vector2 result = { X - v.X, Y - v.Y };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator*(const Vector2& v) const
-{
-    const Vector2 result = { X * v.X, Y * v.Y };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator/(const Vector2& v) const
-{
-    const Vector2 result = { X / v.X, Y / v.Y };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator+(const float scalar) const
-{
-    const Vector2 result = { X + scalar, Y + scalar };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator-(const float scalar) const
-{
-    const Vector2 result = { X - scalar, Y - scalar };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator*(const float scalar) const
-{
-    const Vector2 result = { X * scalar, Y * scalar };
-    return result;
-}
-
-inline UWMETHOD(Vector2) Vector2::operator/(const float scalar) const
-{
-    const Vector2 result = { X / scalar, Y / scalar };
-    return result;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator+=(const Vector2& v)
-{
-    X += v.X;
-    Y += v.Y;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator-=(const Vector2& v)
-{
-    X -= v.X;
-    Y -= v.Y;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator*=(const Vector2& v)
-{
-    X *= v.X;
-    Y *= v.Y;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator/=(const Vector2& v)
-{
-    X /= v.X;
-    Y /= v.Y;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator+=(const float scalar)
-{
-    X += scalar;
-    Y += scalar;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator-=(const float scalar)
-{
-    X -= scalar;
-    Y -= scalar;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator*=(const float scalar)
-{
-    X *= scalar;
-    Y *= scalar;
-    return *this;
-}
-
-inline UWMETHOD(Vector2&) Vector2::operator/=(const float scalar)
-{
-    X /= scalar;
-    Y /= scalar;
-    return *this;
-}
 
 // -------------------------------------------------------------------------------------
 // Vector4

@@ -26,11 +26,13 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
