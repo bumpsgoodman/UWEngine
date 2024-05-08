@@ -70,10 +70,11 @@ public:
 
     virtual UWMETHOD(bool)              Initialize(IRendererD3D11* pRenderer) override;
 
-    virtual UWMETHOD(bool)              CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
-                                                   const uint16* pIndices, const uint numIndices,
-                                                   const wchar_t* pShaderFileName,
-                                                   const wchar_t* pTextureFileName) override;
+    virtual UWMETHOD(bool)              CreateMesh(const int includeFlag,
+                                                   const void* pVertices, const uint vertexSize, const uint numVertices,
+                                                   const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                                   const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
+                                                   const wchar_t* pShaderFileName) override;
     virtual UWMETHOD(void)              RenderMesh() override;
 
     virtual UWMETHOD_VECTOR(void)       Translate(const XMVECTOR dist) override;
@@ -101,9 +102,6 @@ public:
 
     virtual UWMETHOD(void)              SetCamera(ICamera* pCamera) override;
 
-    virtual UWMETHOD(MESH_RENDER_TYPE)  GetRenderType() const override;
-    virtual UWMETHOD(void)              SetRenderType(const MESH_RENDER_TYPE type) override;
-
 private:
     UWMETHOD(void)                      updateWorldMatrix();
 
@@ -116,19 +114,23 @@ private:
     ID3D11InputLayout*          m_pVertexLayout = nullptr;
     ID3D11VertexShader*         m_pVertexShader = nullptr;
     ID3D11PixelShader*          m_pPixelShader = nullptr;
-    ID3D11Buffer*               m_pVertexBuffer = nullptr;
-    ID3D11Buffer*               m_pIndexBuffer = nullptr;
     ID3D11Buffer*               m_pConstantBuffer = nullptr;
-    ID3D11ShaderResourceView*   m_pTextureRV = nullptr;
-    ID3D11SamplerState*         m_pSamplerLinear = nullptr;
-
-    MESH_RENDER_TYPE            m_renderType = MESH_RENDER_TYPE_DEFAULT;
 
     XMMATRIX                    m_world = {};
 
+    // 모델 데이터
+    ID3D11ShaderResourceView**  m_ppTextureResourceViews = nullptr;
+    ID3D11SamplerState*         m_pSamplerLinear = nullptr;
+
+    uint                        m_numTextures = 0;
+    uint                        m_includeFlag = 0;
     uint                        m_numVertices = 0;
-    uint                        m_numIndices = 0;
     uint                        m_vertexSize = 0;
+    uint                        m_numIndexBuffers = 0;
+
+    ID3D11Buffer*               m_pVertexBuffer = nullptr;
+    ID3D11Buffer**              m_ppIndexBuffers = nullptr;
+    uint16*                     m_pNumIndices = 0;
 
     ICamera*                    m_pCamera = nullptr;
     XMVECTOR                    m_position = {};

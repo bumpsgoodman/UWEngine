@@ -253,6 +253,8 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
     // 기본 모드 상태 생성
     wfdesc.FillMode = D3D11_FILL_SOLID;
     wfdesc.CullMode = D3D11_CULL_BACK;
+    wfdesc.DepthClipEnable = true;
+    wfdesc.ScissorEnable = false;
     hr = m_pDevice->CreateRasterizerState(&wfdesc, &m_pSolidState);
 
     m_pImmediateContext->RSSetState(m_pSolidState);
@@ -279,9 +281,8 @@ UWMETHOD(void) RendererD3D11::BeginRender()
 {
     const FLOAT backColor[] = { 0.18f, 0.38f, 0.37f, 1.0f };
 
-    m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, backColor);
-
     m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, backColor);
 }
 
 UWMETHOD(void) RendererD3D11::EndRender()

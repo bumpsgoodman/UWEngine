@@ -8,10 +8,6 @@
 #include "Precompiled.h"
 #include "UWEngineCommon/CoreTypes.h"
 
-static const XMVECTOR DEFAULT_RIGHT;
-static const XMVECTOR DEFAULT_FORWARD;
-static const XMVECTOR DEFAULT_UP;
-
 UWMETHOD(vsize) Camera::AddRef()
 {
     ++m_refCount;

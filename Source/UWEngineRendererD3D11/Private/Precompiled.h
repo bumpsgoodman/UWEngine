@@ -41,6 +41,9 @@
 #include <d3dcompiler.h>
 
 // CRT
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
 
 // UWEngine
 #include "UWEngineCommon/Defines.h"

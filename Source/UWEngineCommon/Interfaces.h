@@ -49,23 +49,15 @@ interface ICamera : public IRefObject
     virtual UWMETHOD_VECTOR(XMMATRIX)   GetProjection() const PURE;
 };
 
-enum MESH_RENDER_TYPE
-{
-    MESH_RENDER_TYPE_DEFAULT,
-    MESH_RENDER_TYPE_COLOR,
-    MESH_RENDER_TYPE_TEXTURE,
-
-    NUM_MESH_RENDER_TYPE
-};
-
 interface IMeshObject : public IRefObject
 {
     virtual UWMETHOD(bool)              Initialize(IRendererD3D11* pRenderer) PURE;
 
-    virtual UWMETHOD(bool)              CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
-                                                   const uint16* pIndices, const uint numIndices,
-                                                   const wchar_t* pShaderFileName,
-                                                   const wchar_t* pTextureFileName) PURE;
+    virtual UWMETHOD(bool)              CreateMesh(const int includeFlag,
+                                                   const void* pVertices, const uint vertexSize, const uint numVertices,
+                                                   const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                                   const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
+                                                   const wchar_t* pShaderFileName) PURE;
     virtual UWMETHOD(void)              RenderMesh() PURE;
 
     virtual UWMETHOD_VECTOR(void)       Translate(const XMVECTOR dist) PURE;
@@ -92,9 +84,6 @@ interface IMeshObject : public IRefObject
     virtual UWMETHOD_VECTOR(void)       SetScale(const XMVECTOR scale) PURE;
 
     virtual UWMETHOD(void)              SetCamera(ICamera* pCamera) PURE;
-
-    virtual UWMETHOD(MESH_RENDER_TYPE)  GetRenderType() const PURE;
-    virtual UWMETHOD(void)              SetRenderType(const MESH_RENDER_TYPE type) PURE;
 };
 
 interface IRendererD3D11 : public IRefObject

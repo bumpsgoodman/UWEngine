@@ -27,11 +27,19 @@ UWMETHOD(vsize) MeshObject::Release()
 
     if (m_refCount == 0)
     {
-        SAFE_RELEASE(m_pTextureRV);
+        for (vsize i = 0; i < m_numTextures; ++i)
+        {
+            SAFE_RELEASE(m_ppTextureResourceViews[i]);
+        }
+
+        for (vsize i = 0; i < m_numIndexBuffers; ++i)
+        {
+            SAFE_RELEASE(m_ppIndexBuffers[i]);
+        }
+
         SAFE_RELEASE(m_pSamplerLinear);
 
         SAFE_RELEASE(m_pConstantBuffer);
-        SAFE_RELEASE(m_pIndexBuffer);
         SAFE_RELEASE(m_pVertexBuffer);
         SAFE_RELEASE(m_pVertexLayout);
         SAFE_RELEASE(m_pPixelShader);
@@ -67,18 +75,21 @@ UWMETHOD(bool) MeshObject::Initialize(IRendererD3D11* pRenderer)
 
     m_pImmediateContext = (ID3D11DeviceContext*)pRenderer->Private_GetImmediateContext();
 
-    m_renderType = MESH_RENDER_TYPE_DEFAULT;
-
     return true;
 }
 
-UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSize, const uint numVertices,
-                                      const uint16* pIndices, const uint numIndices,
-                                      const wchar_t* pShaderFileName,
-                                      const wchar_t* pTextureFileName)
+UWMETHOD(bool) MeshObject::CreateMesh(const int includeFlag,
+                                      const void* pVertices, const uint vertexSize, const uint numVertices,
+                                      const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                      const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
+                                      const wchar_t* pShaderFileName)
 {
     ASSERT(pVertices != nullptr, "pVertices == nullptr");
-    ASSERT(pIndices != nullptr, "pIndices == nullptr");
+    ASSERT(vertexSize > 0, "vertexSize == 0");
+    ASSERT(numVertices > 0, "numVertices == 0");
+    ASSERT(ppIndices != nullptr, "ppIndices == nullptr");
+    ASSERT(pNumIndices != nullptr, "pNumIndices == nullptr");
+    ASSERT(numIndexBuffers > 0, "numIndexBuffers == 0");
     ASSERT(pShaderFileName != nullptr, "pShaderFileName == nullptr");
 
     bool bResult = false;
@@ -113,7 +124,7 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     }
 
     D3D11_INPUT_ELEMENT_DESC layout[3];
-    uint numLayout = 0;
+    uint numLayout = 2;
 
     layout[0].SemanticName = "POSITION";
     layout[0].SemanticIndex = 0;
@@ -131,22 +142,8 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
     layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     layout[1].InstanceDataStepRate = 0;
 
-    switch (m_renderType)
+    if (UW3D_HAS_INCLUDE_FLAG(includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
     {
-    case MESH_RENDER_TYPE_DEFAULT:
-        numLayout = 2;
-        break;
-    case MESH_RENDER_TYPE_COLOR:
-        layout[2].SemanticName = "COLOR";
-        layout[2].SemanticIndex = 0;
-        layout[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-        layout[2].InputSlot = 0;
-        layout[2].AlignedByteOffset = 24;
-        layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-        layout[2].InstanceDataStepRate = 0;
-        numLayout = 3;
-        break;
-    case MESH_RENDER_TYPE_TEXTURE:
         layout[2].SemanticName = "TEXCOORD";
         layout[2].SemanticIndex = 0;
         layout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
@@ -155,10 +152,46 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
-        break;
-    default:
-        ASSERT(false, "Invalid render type");
-        break;
+
+        m_ppTextureResourceViews = (ID3D11ShaderResourceView**)malloc(sizeof(UW_PTR_SIZE) * numIndexBuffers);
+        ASSERT(m_ppTextureResourceViews != nullptr, "Failed to malloc texture resource views");
+
+        for (vsize i = 0; i < numTextures; ++i)
+        {
+            const wchar_t* pTextureFileName = ppTextureFileNamesOrNull[i];
+            hr = CreateDDSTextureFromFile(pDevice, ppTextureFileNamesOrNull[i], nullptr, &m_ppTextureResourceViews[i]);
+            if (FAILED(hr))
+            {
+                goto lb_return;
+            }
+        }
+
+        // Create the sample state
+        D3D11_SAMPLER_DESC sampDesc;
+        memset(&sampDesc, 0, sizeof(sampDesc));
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sampDesc.MinLOD = 0;
+        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        hr = pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
+        if (FAILED(hr))
+        {
+            goto lb_return;
+        }
+    }
+    else if (UW3D_HAS_INCLUDE_FLAG(includeFlag, UW3D_INCLUDE_FLAG_COLOR))
+    {
+        layout[2].SemanticName = "COLOR";
+        layout[2].SemanticIndex = 0;
+        layout[2].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        layout[2].InputSlot = 0;
+        layout[2].AlignedByteOffset = 24;
+        layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        layout[2].InstanceDataStepRate = 0;
+        numLayout = 3;
     }
 
     hr = pDevice->CreateInputLayout(layout, numLayout, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pVertexLayout);
@@ -187,16 +220,28 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(uint16) * numIndices;
-    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-    initData.pSysMem = pIndices;
+    m_ppIndexBuffers = (ID3D11Buffer**)malloc(sizeof(UW_PTR_SIZE) * numIndexBuffers);
+    ASSERT(m_ppIndexBuffers != nullptr, "Failed to malloc index buffers");
 
-    hr = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
-    if (FAILED(hr))
+    m_pNumIndices = (uint16*)malloc(sizeof(uint16) * numIndexBuffers);
+    ASSERT(m_pNumIndices != nullptr, "Failed to malloc m_pNumIndices");
+
+    for (vsize i = 0; i < numIndexBuffers; ++i)
     {
-        goto lb_return;
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.ByteWidth = sizeof(uint16) * pNumIndices[i];
+        bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        bd.CPUAccessFlags = 0;
+        initData.pSysMem = ppIndices[i];
+
+        m_ppIndexBuffers[i] = nullptr;
+        hr = pDevice->CreateBuffer(&bd, &initData, &m_ppIndexBuffers[i]);
+        if (FAILED(hr))
+        {
+            goto lb_return;
+        }
+
+        m_pNumIndices[i] = pNumIndices[i];
     }
 
     bd.Usage = D3D11_USAGE_DEFAULT;
@@ -209,34 +254,11 @@ UWMETHOD(bool) MeshObject::CreateMesh(const void* pVertices, const uint vertexSi
         goto lb_return;
     }
 
-    if (m_renderType == MESH_RENDER_TYPE_TEXTURE)
-    {
-        hr = CreateDDSTextureFromFile(pDevice, pTextureFileName, nullptr, &m_pTextureRV);
-        if (FAILED(hr))
-        {
-            goto lb_return;
-        }
-
-        // Create the sample state
-        D3D11_SAMPLER_DESC sampDesc;
-        memset(&sampDesc, 0, sizeof(sampDesc));
-        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-        sampDesc.MinLOD = 0;
-        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-        hr = pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
-        if (FAILED(hr))
-        {
-            goto lb_return;
-        }
-    }
-
+    m_numTextures = numTextures;
+    m_includeFlag = includeFlag;
     m_numVertices = numVertices;
-    m_numIndices = numIndices;
     m_vertexSize = vertexSize;
+    m_numIndexBuffers = numIndexBuffers;
 
     m_world = XMMatrixIdentity();
 
@@ -246,6 +268,7 @@ lb_return:
     SAFE_RELEASE(pVertexShaderBlob);
     SAFE_RELEASE(pPixelShaderBlob);
 
+#if 0
     if (!bResult)
     {
         SAFE_RELEASE(m_pVertexShader);
@@ -257,6 +280,7 @@ lb_return:
         SAFE_RELEASE(m_pTextureRV);
         SAFE_RELEASE(m_pSamplerLinear);
     }
+#endif
 
     SAFE_RELEASE(pDevice);
     
@@ -276,31 +300,25 @@ UWMETHOD(void) MeshObject::RenderMesh()
 
     pImmediateContext->IASetInputLayout(m_pVertexLayout);
     pImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-    pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-    switch (m_renderType)
-    {
-    case MESH_RENDER_TYPE_DEFAULT:
-        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        break;
-    case MESH_RENDER_TYPE_COLOR:
-        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        break;
-    case MESH_RENDER_TYPE_TEXTURE:
-        pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        pImmediateContext->PSSetShaderResources(0, 1, &m_pTextureRV);
-        pImmediateContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
-        break;
-    default:
-        ASSERT(false, "Invalid render type");
-        break;
-    }
 
     pImmediateContext->VSSetShader(m_pVertexShader, nullptr, 0);
     pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     pImmediateContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
-    pImmediateContext->DrawIndexed(m_numIndices, 0, 0);
+    pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    for (vsize i = 0; i < m_numIndexBuffers; ++i)
+    {
+        pImmediateContext->IASetIndexBuffer(m_ppIndexBuffers[i], DXGI_FORMAT_R16_UINT, 0);
+
+        if (UW3D_HAS_INCLUDE_FLAG(m_includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
+        {
+            pImmediateContext->PSSetShaderResources(0, 1, &m_ppTextureResourceViews[i]);
+            pImmediateContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+        }
+
+        pImmediateContext->DrawIndexed(m_pNumIndices[i], 0, 0);
+    }
 
     SAFE_RELEASE(pImmediateContext);
 }
@@ -424,23 +442,6 @@ UWMETHOD(void) MeshObject::SetCamera(ICamera* pCamera)
 {
     ASSERT(pCamera != nullptr, "pCamera == nullptr");
     m_pCamera = pCamera;
-}
-
-UWMETHOD(MESH_RENDER_TYPE) MeshObject::GetRenderType() const
-{
-    return m_renderType;
-}
-
-UWMETHOD(void) MeshObject::SetRenderType(const MESH_RENDER_TYPE type)
-{
-    if (type >= NUM_MESH_RENDER_TYPE)
-    {
-        m_renderType = MESH_RENDER_TYPE_DEFAULT;
-    }
-    else
-    {
-        m_renderType = type;
-    }
 }
 
 UWMETHOD(void) MeshObject::updateWorldMatrix()
