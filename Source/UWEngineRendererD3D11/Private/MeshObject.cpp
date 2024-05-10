@@ -169,7 +169,7 @@ UWMETHOD(bool) MeshObject::CreateMesh(const int includeFlag,
         // Create the sample state
         D3D11_SAMPLER_DESC sampDesc;
         memset(&sampDesc, 0, sizeof(sampDesc));
-        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
         sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
         sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

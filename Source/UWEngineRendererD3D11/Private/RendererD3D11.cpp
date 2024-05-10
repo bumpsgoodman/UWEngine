@@ -259,7 +259,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
 
     m_pImmediateContext->RSSetState(m_pSolidState);
 
-    m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
+    m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
     D3D11_VIEWPORT vp;
     ZeroMemory(&vp, sizeof(vp));
