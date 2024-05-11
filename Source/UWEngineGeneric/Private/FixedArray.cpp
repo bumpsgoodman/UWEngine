@@ -6,7 +6,44 @@
 */
 
 #include "Precompiled.h"
-#include "FixedArray.h"
+#include "IFixedArray.h"
+
+class FixedArray final : public IFixedArray
+{
+public:
+    FixedArray() = default;
+    FixedArray(const FixedArray&) = delete;
+    FixedArray& operator=(const FixedArray&) = delete;
+    FixedArray(FixedArray&&) = default;
+    FixedArray& operator=(FixedArray&&) = default;
+    ~FixedArray();
+
+    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) override;
+    virtual void    __stdcall   Release() override;
+    virtual void    __stdcall   Clear() override;
+
+    // element가 nullptr이면 elementSize에 상관없이 공간만 예약
+    virtual bool    __stdcall   PushBack(const void* pElementOrNull, const vsize elementSize) override;
+    virtual bool    __stdcall   PopBack() override;
+
+    // element가 nullptr이면 elementSize에 상관없이 공간만 예약
+    virtual bool    __stdcall   Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual bool    __stdcall   Remove(const vsize index) override;
+
+    virtual void* __stdcall   GetBackOrNull() const override;
+    virtual void* __stdcall   GetElementOrNull(const vsize index) const override;
+    virtual void* __stdcall   GetElementsPtrOrNull() const override;
+    virtual vsize   __stdcall   GetElementSize() const override;
+    virtual vsize   __stdcall   GetNumMaxElements() const override;
+    virtual vsize   __stdcall   GetNumElements() const override;
+
+private:
+    void* m_pElements = nullptr;
+
+    vsize m_elementSize = 0;
+    vsize m_numMaxElements = 0;
+    vsize m_numElements = 0;
+};
 
 FixedArray::~FixedArray()
 {
@@ -154,4 +191,20 @@ vsize __stdcall FixedArray::GetNumMaxElements() const
 vsize __stdcall FixedArray::GetNumElements() const
 {
     return m_numElements;
+}
+
+GLOBAL_FUNC bool __stdcall CreateFixedArray(IFixedArray** ppOutFixedArray)
+{
+    ASSERT(ppOutFixedArray != nullptr, "ppOutFixedArray == nullptr");
+
+    IFixedArray* pFixedArray = new FixedArray;
+    *ppOutFixedArray = pFixedArray;
+
+    return true;
+}
+
+GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArray)
+{
+    ASSERT(pFixedArray != nullptr, "pFixedArray == nullptr");
+    delete (FixedArray*)pFixedArray;
 }

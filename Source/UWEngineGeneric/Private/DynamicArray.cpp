@@ -6,7 +6,47 @@
 */
 
 #include "Precompiled.h"
-#include "DynamicArray.h"
+#include "IDynamicArray.h"
+
+class DynamicArray final : public IDynamicArray
+{
+public:
+    DynamicArray() = default;
+    DynamicArray(const DynamicArray&) = delete;
+    DynamicArray& operator=(const DynamicArray&) = delete;
+    DynamicArray(DynamicArray&&) = default;
+    DynamicArray& operator=(DynamicArray&&) = default;
+    ~DynamicArray();
+
+    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numDefaultElements) override;
+    virtual void    __stdcall   Release() override;
+    virtual void    __stdcall   Clear() override;
+
+    // element가 nullptr이면 elementSize에 상관없이 공간만 예약
+    virtual bool    __stdcall   PushBack(const void* pElementOrNull, const vsize elementSize) override;
+    virtual bool    __stdcall   PopBack() override;
+
+    // element가 nullptr이면 elementSize에 상관없이 공간만 예약
+    virtual bool    __stdcall   Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
+    virtual bool    __stdcall   Remove(const vsize index) override;
+
+    virtual void*   __stdcall   GetBackOrNull() const override;
+    virtual void*   __stdcall   GetElementOrNull(const vsize index) const override;
+    virtual void*   __stdcall   GetElementsOrNull() const override;
+    virtual vsize   __stdcall   GetElementSize() const override;
+    virtual vsize   __stdcall   GetNumMaxElements() const override;
+    virtual vsize   __stdcall   GetNumElements() const override;
+
+private:
+    bool            __stdcall   expand();
+
+private:
+    void* m_pElements = nullptr;
+
+    vsize m_elementSize = 0;
+    vsize m_numElements = 0;
+    vsize m_numMaxElements = 0;
+};
 
 DynamicArray::~DynamicArray()
 {
@@ -177,4 +217,20 @@ vsize __stdcall DynamicArray::GetNumMaxElements() const
 vsize __stdcall DynamicArray::GetNumElements() const
 {
     return m_numElements;
+}
+
+GLOBAL_FUNC bool __stdcall CreateDynamicArray(IDynamicArray** ppOutDynamicArray)
+{
+    ASSERT(ppOutDynamicArray != nullptr, "ppOutDynamicArray == nullptr");
+
+    IDynamicArray* pDynamicArray = new DynamicArray;
+    *ppOutDynamicArray = pDynamicArray;
+
+    return true;
+}
+
+GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArray)
+{
+    ASSERT(pDynamicArray != nullptr, "pDynamicArray == nullptr");
+    delete (DynamicArray*)pDynamicArray;
 }

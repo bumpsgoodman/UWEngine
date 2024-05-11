@@ -6,7 +6,64 @@
 */
 #include "Precompiled.h"
 #include "List.h"
-#include "HashMap.h"
+#include "IHashMap.h"
+
+class HashMap final : public IHashMap
+{
+public:
+    HashMap() = default;
+    HashMap(const HashMap&) = delete;
+    HashMap& operator=(const HashMap&) = delete;
+    HashMap(HashMap&&) = default;
+    HashMap& operator=(HashMap&&) = default;
+    ~HashMap();
+
+    virtual bool        __stdcall   Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
+    virtual void        __stdcall   Release() override;
+    virtual void        __stdcall   Clear() override;
+
+    virtual bool        __stdcall   Insert(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize) override;
+    virtual bool        __stdcall   InsertByHash(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize, const uint64 hash) override;
+
+    virtual bool        __stdcall   Remove(const void* pKey, const vsize keySize) override;
+    virtual bool        __stdcall   RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) override;
+
+    virtual vsize       __stdcall   GetCount(const void* pKey, const vsize keySize) const override;
+    virtual vsize       __stdcall   GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const override;
+
+    virtual void* __stdcall   GetValueOrNull(const void* pKey, const vsize keySize) const override;
+    virtual void* __stdcall   GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const override;
+
+    virtual KeyValue* __stdcall   GetKeyValuesOrNull() const override;
+    virtual vsize       __stdcall   GetKeySize() const override;
+    virtual vsize       __stdcall   GetValueSize() const override;
+    virtual vsize       __stdcall   GetNumKeyValues() const override;
+    virtual vsize       __stdcall   GetNumMaxKeyValues() const override;
+
+    virtual float       __stdcall   GetFactor() const override;
+
+    // [0.1, 1.0]
+    virtual void        __stdcall   SetFactor(float factor) override;
+
+private:
+    bool        __stdcall   expand();
+
+private:
+    vsize       m_keySize = 0;
+    vsize       m_valueSize = 0;
+    vsize       m_numMaxKeyValues = 0;
+    vsize       m_numKeyValues = 0;
+    float       m_factor = 0.0f;
+
+    List* m_pBucket = nullptr;
+    vsize       m_bucketSize = 0;
+
+    KeyValue* m_pKeyValues = nullptr;
+
+    void* m_pKeyPool = nullptr;
+    void* m_pValuePool = nullptr;
+    ListNode* m_pNodePool = nullptr;
+};
 
 static constexpr vsize S_BUCKET_SIZE_LIST[] =
 {
@@ -408,4 +465,20 @@ bool __stdcall HashMap::expand()
     bResult = true;
 
     return bResult;
+}
+
+GLOBAL_FUNC bool __stdcall CreateHashMap(IHashMap** ppOutHashMap)
+{
+    ASSERT(ppOutHashMap != nullptr, "ppOutHashMap == nullptr");
+
+    IHashMap* pHashMap = new HashMap;
+    *ppOutHashMap = pHashMap;
+
+    return true;
+}
+
+GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMap)
+{
+    ASSERT(pHashMap != nullptr, "pHashMap == nullptr");
+    delete (HashMap*)pHashMap;
 }

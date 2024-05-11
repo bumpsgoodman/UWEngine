@@ -441,19 +441,19 @@ void __stdcall MeshObject::SetCamera(ICamera* pCamera)
 
 void __stdcall MeshObject::updateWorldMatrix()
 {
-    FXMMATRIX translationMat = XMMatrixTranslationFromVector(m_position);
-    FXMMATRIX rotationMat = XMMatrixRotationRollPitchYawFromVector(XMVectorSet(DegreeToRad(XMVectorGetX(m_rotationDegree)),
-                                                                               DegreeToRad(XMVectorGetY(m_rotationDegree)),
-                                                                               DegreeToRad(XMVectorGetZ(m_rotationDegree)),
-                                                                               0.0f));
-    FXMMATRIX scaleMat = XMMatrixScalingFromVector(m_scale);
+    const XMMATRIX translationMat = XMMatrixTranslationFromVector(m_position);
+    const XMMATRIX rotationMat = XMMatrixRotationRollPitchYawFromVector(XMVectorSet(DegreeToRad(XMVectorGetX(m_rotationDegree)),
+                                                                                    DegreeToRad(XMVectorGetY(m_rotationDegree)),
+                                                                                    DegreeToRad(XMVectorGetZ(m_rotationDegree)),
+                                                                                    0.0f));
+    const XMMATRIX scaleMat = XMMatrixScalingFromVector(m_scale);
 
     m_world = scaleMat * rotationMat * translationMat;
 }
 
 void* MeshObject::operator new(const vsize count)
 {
-    return _aligned_malloc(sizeof(MeshObject), 16);
+    return _aligned_malloc(sizeof(MeshObject), DEFAULT_ALIGN);
 }
 
 void MeshObject::operator delete(void* pBlock)

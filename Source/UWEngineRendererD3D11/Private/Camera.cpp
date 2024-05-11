@@ -150,7 +150,7 @@ Matrix44 __vectorcall Camera::GetProjection() const
 
 void* Camera::operator new(const vsize count)
 {
-    return _aligned_malloc(sizeof(Camera), 16);
+    return _aligned_malloc(sizeof(Camera), DEFAULT_ALIGN);
 }
 
 void Camera::operator delete(void* pBlock)

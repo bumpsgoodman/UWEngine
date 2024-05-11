@@ -41,6 +41,7 @@
 #endif // UW_ENGINE_DLL
 
 // Alignment
+#define DEFAULT_ALIGN 16
 #define ALIGN8 _declspec(align(8))
 #define ALIGN16 _declspec(align(16))
 #define ALIGN32 _declspec(align(32))
