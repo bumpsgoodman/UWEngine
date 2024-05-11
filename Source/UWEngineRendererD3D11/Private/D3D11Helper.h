@@ -11,4 +11,4 @@
 #include <Windows.h>
 #include <d3d11.h>
 
-UWMETHOD(HRESULT) CompileShaderFromFile(const wchar_t* pFileName, const char* pEntrypoint, const char* pShaderModel, ID3DBlob** ppShaderBlob);
+HRESULT __stdcall CompileShaderFromFile(const wchar_t* pFileName, const char* pEntrypoint, const char* pShaderModel, ID3DBlob** ppShaderBlob);

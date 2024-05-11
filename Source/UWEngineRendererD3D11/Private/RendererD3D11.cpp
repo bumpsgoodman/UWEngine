@@ -6,39 +6,43 @@
 */
 
 #include "Precompiled.h"
-#include "UWEngineCommon/CoreTypes.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
+#include "Camera.h"
+#include "MeshObject.h"
 
-class RendererD3D11 final : public IRendererD3D11
+class RendererD3D11 final : public IRenderer
 {
 public:
     RendererD3D11() = default;
     RendererD3D11(const RendererD3D11&) = delete;
     RendererD3D11& operator=(const RendererD3D11&) = delete;
+    RendererD3D11(RendererD3D11&&) = default;
+    RendererD3D11& operator=(RendererD3D11&&) = default;
     ~RendererD3D11() = default;
 
-    virtual UWMETHOD(vsize)     AddRef() override;
-    virtual UWMETHOD(vsize)     Release() override;
-    virtual UWMETHOD(vsize)     GetRefCount() const override;
+    virtual vsize   __stdcall   AddRef() override;
+    virtual vsize   __stdcall   Release() override;
+    virtual vsize   __stdcall   GetRefCount() const override;
 
-    virtual UWMETHOD(bool)      Initialize(const HWND hWnd) override;
+    virtual bool    __stdcall   Initialize(const HWND hWnd) override;
 
-    virtual UWMETHOD(void)      BeginRender() override;
-    virtual UWMETHOD(void)      EndRender() override;
+    virtual void    __stdcall   BeginRender() override;
+    virtual void    __stdcall   EndRender() override;
 
-    virtual UWMETHOD(uint)      GetWindowWidth() const override;
-    virtual UWMETHOD(uint)      GetWindowHeight() const override;
+    virtual uint    __stdcall   GetWindowWidth() const override;
+    virtual uint    __stdcall   GetWindowHeight() const override;
 
-    virtual UWMETHOD(float)     GetDeltaTime() const override;
-    virtual UWMETHOD(uint)      GetFPS() const override;
+    virtual float   __stdcall   GetDeltaTime() const override;
+    virtual uint    __stdcall   GetFPS() const override;
 
-    virtual UWMETHOD(void)      CreateCamera(ICamera** ppOutCamera) override;
-    virtual UWMETHOD(void)      CreateMeshObject(IMeshObject** ppOutMeshObject) override;
+    virtual void    __stdcall   CreateCamera(ICamera** ppOutCamera) override;
+    virtual void    __stdcall   CreateMeshObject(IMeshObject** ppOutMeshObject) override;
 
-    virtual UWMETHOD(bool)      IsWireframeMode() const override;
-    virtual UWMETHOD(void)      ToggleRenderMode() override;
+    virtual uint    __stdcall   GetRenderMode() const override;
+    virtual void    __stdcall   SetRenderMode(const uint mode) override;
 
-    virtual UWMETHOD(void*)     Private_GetD3dDevice() const override;
-    virtual UWMETHOD(void*)     Private_GetImmediateContext() const override;
+    virtual void*   __stdcall   GetD3DDevice() const override;
+    virtual void*   __stdcall   GetD3DImmediateContext() const override;
 
 private:
     vsize                       m_refCount = 0;
@@ -57,7 +61,7 @@ private:
 
     ID3D11RasterizerState*      m_pWireframeState = nullptr;
     ID3D11RasterizerState*      m_pSolidState = nullptr;
-    bool                        m_bWireframe = false;
+    bool                        m_renderMode = false;
 
     uint                        m_windowWidth = 0;
     uint                        m_windowHeight = 0;
@@ -67,13 +71,13 @@ private:
     float                       m_deltaTime = 0.0f;
 };
 
-UWMETHOD(vsize) RendererD3D11::AddRef()
+vsize __stdcall RendererD3D11::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-UWMETHOD(vsize) RendererD3D11::Release()
+vsize __stdcall RendererD3D11::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
@@ -102,12 +106,12 @@ UWMETHOD(vsize) RendererD3D11::Release()
     return m_refCount;
 }
 
-UWMETHOD(vsize) RendererD3D11::GetRefCount() const
+vsize __stdcall RendererD3D11::GetRefCount() const
 {
     return m_refCount;
 }
 
-UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
+bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
 {
     ASSERT(hWnd != nullptr, "hWnd == nullptr");
 
@@ -153,6 +157,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
 
     if (FAILED(hr))
     {
+        CRASH();
         goto lb_return;
     }
 
@@ -197,6 +202,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
     SAFE_RELEASE(pDxgiFactory);
     if (FAILED(hr))
     {
+        CRASH();
         goto lb_return;
     }
 
@@ -204,6 +210,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
     hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBack);
     if (FAILED(hr))
     {
+        CRASH();
         goto lb_return;
     }
 
@@ -227,6 +234,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
     hr = m_pDevice->CreateTexture2D(&descDepth, nullptr, &m_pDepthStencil);
     if (FAILED(hr))
     {
+        CRASH();
         goto lb_return;
     }
 
@@ -239,6 +247,7 @@ UWMETHOD(bool) RendererD3D11::Initialize(const HWND hWnd)
     hr = m_pDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
     if (FAILED(hr))
     {
+        CRASH();
         goto lb_return;
     }
 
@@ -277,7 +286,7 @@ lb_return:
     return bResult;
 }
 
-UWMETHOD(void) RendererD3D11::BeginRender()
+void __stdcall RendererD3D11::BeginRender()
 {
     const FLOAT backColor[] = { 0.18f, 0.38f, 0.37f, 1.0f };
 
@@ -285,7 +294,7 @@ UWMETHOD(void) RendererD3D11::BeginRender()
     m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, backColor);
 }
 
-UWMETHOD(void) RendererD3D11::EndRender()
+void __stdcall RendererD3D11::EndRender()
 {
     m_pSwapChain->Present(0, 0);
 
@@ -295,27 +304,27 @@ UWMETHOD(void) RendererD3D11::EndRender()
     m_startRenderingTime = endRenderingTime;
 }
 
-UWMETHOD(uint) RendererD3D11::GetWindowWidth() const
+uint __stdcall RendererD3D11::GetWindowWidth() const
 {
     return m_windowWidth;
 }
 
-UWMETHOD(uint) RendererD3D11::GetWindowHeight() const
+uint __stdcall RendererD3D11::GetWindowHeight() const
 {
     return m_windowHeight;
 }
 
-UWMETHOD(float) RendererD3D11::GetDeltaTime() const
+float __stdcall RendererD3D11::GetDeltaTime() const
 {
     return m_deltaTime;
 }
 
-UWMETHOD(uint) RendererD3D11::GetFPS() const
+uint __stdcall RendererD3D11::GetFPS() const
 {
     return (uint)(1000.0f / m_deltaTime);
 }
 
-UWMETHOD(void) RendererD3D11::CreateCamera(ICamera** ppOutCamera)
+void __stdcall RendererD3D11::CreateCamera(ICamera** ppOutCamera)
 {
     ASSERT(ppOutCamera != nullptr, "ppOutCamera == nullptr");
 
@@ -325,7 +334,7 @@ UWMETHOD(void) RendererD3D11::CreateCamera(ICamera** ppOutCamera)
     *ppOutCamera = pCamera;
 }
 
-UWMETHOD(void) RendererD3D11::CreateMeshObject(IMeshObject** ppOutMeshObject)
+void __stdcall RendererD3D11::CreateMeshObject(IMeshObject** ppOutMeshObject)
 {
     ASSERT(ppOutMeshObject != nullptr, "ppOutMeshObject == nullptr");
 
@@ -337,38 +346,43 @@ UWMETHOD(void) RendererD3D11::CreateMeshObject(IMeshObject** ppOutMeshObject)
     *ppOutMeshObject = pMeshObject;
 }
 
-UWMETHOD(bool) RendererD3D11::IsWireframeMode() const
+void __stdcall RendererD3D11::SetRenderMode(const uint mode)
 {
-    return m_bWireframe;
+    ID3D11RasterizerState* pState = nullptr;
+    switch (mode)
+    {
+    case RENDER_MODE_SOLID:
+        pState = m_pSolidState;
+        break;
+    case RENDER_MODE_WIREFRAME:
+        pState = m_pWireframeState;
+        break;
+    default:
+        return;
+    }
+
+    m_renderMode = mode;
+    m_pImmediateContext->RSSetState(pState);
 }
 
-UWMETHOD(void) RendererD3D11::ToggleRenderMode()
+uint __stdcall RendererD3D11::GetRenderMode() const
 {
-    m_bWireframe = !m_bWireframe;
-
-    if (m_bWireframe)
-    {
-        m_pImmediateContext->RSSetState(m_pWireframeState);
-    }
-    else
-    {
-        m_pImmediateContext->RSSetState(m_pSolidState);
-    }
+    return m_renderMode;
 }
 
-UWMETHOD(void*) RendererD3D11::Private_GetD3dDevice() const
+void* __stdcall RendererD3D11::GetD3DDevice() const
 {
     m_pDevice->AddRef();
     return m_pDevice;
 }
 
-UWMETHOD(void*) RendererD3D11::Private_GetImmediateContext() const
+void* __stdcall RendererD3D11::GetD3DImmediateContext() const
 {
     m_pImmediateContext->AddRef();
     return m_pImmediateContext;
 }
 
-UWMETHOD(bool) CreateDllInstance(void** ppOutInstance)
+bool __stdcall CreateDllInstance(void** ppOutInstance)
 {
     ASSERT(ppOutInstance != nullptr, "ppOutInstance == nullptr");
 

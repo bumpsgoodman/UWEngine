@@ -25,17 +25,17 @@ public:
     StaticMemoryPool& operator=(StaticMemoryPool&&) = default;
     ~StaticMemoryPool();
 
-    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
-    virtual UWMETHOD(void) Release() override;
-    virtual UWMETHOD(void) Reset() override;
+    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
+    virtual void __stdcall Release() override;
+    virtual void __stdcall Reset() override;
 
-    virtual UWMETHOD(void*) AllocateOrNull() override;
-    virtual UWMETHOD(void) Free(void* pMemory) override;
-    virtual UWMETHOD(bool) IsValidMemory(const void* pMemory) const override;
+    virtual void* __stdcall AllocateOrNull() override;
+    virtual void __stdcall Free(void* pMemory) override;
+    virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
 
-    virtual UWMETHOD(vsize) GetElementSize() const override;
-    virtual UWMETHOD(vsize) GetNumAllocElements() const override;
-    virtual UWMETHOD(vsize) GetNumMaxElements() const override;
+    virtual vsize __stdcall GetElementSize() const override;
+    virtual vsize __stdcall GetNumAllocElements() const override;
+    virtual vsize __stdcall GetNumMaxElements() const override;
 
 private:
     void** m_ppBlocks = nullptr;
@@ -54,7 +54,7 @@ StaticMemoryPool::~StaticMemoryPool()
     Release();
 }
 
-UWMETHOD(bool) StaticMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements)
+bool __stdcall StaticMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerBlock > 0, "numElementsPerBlock == 0");
@@ -95,13 +95,13 @@ UWMETHOD(bool) StaticMemoryPool::Initialize(const vsize elementSize, const vsize
     return true;
 }
 
-UWMETHOD(void) StaticMemoryPool::Release()
+void __stdcall StaticMemoryPool::Release()
 {
     SAFE_FREE(m_pIndexTable);
     SAFE_FREE(m_ppBlocks);
 }
 
-UWMETHOD(void*) StaticMemoryPool::AllocateOrNull()
+void* __stdcall StaticMemoryPool::AllocateOrNull()
 {
     void* pMemory = nullptr;
 
@@ -139,7 +139,7 @@ lb_return:
     return pMemory;
 }
 
-UWMETHOD(void) StaticMemoryPool::Free(void* pMemory)
+void __stdcall StaticMemoryPool::Free(void* pMemory)
 {
     if (pMemory == nullptr)
     {
@@ -157,7 +157,7 @@ UWMETHOD(void) StaticMemoryPool::Free(void* pMemory)
     *(--m_pIndexTablePtr) = index;
 }
 
-UWMETHOD(void) StaticMemoryPool::Reset()
+void __stdcall StaticMemoryPool::Reset()
 {
     uint index = 0;
 
@@ -186,7 +186,7 @@ lb_return:
     m_pIndexTablePtr = m_pIndexTable;
 }
 
-UWMETHOD(bool) StaticMemoryPool::IsValidMemory(const void* pMemory) const
+bool __stdcall StaticMemoryPool::IsValidMemory(const void* pMemory) const
 {
     const Header* pHeader = (Header*)pMemory - 1;
     const vsize index = pHeader->Index;
@@ -199,22 +199,22 @@ UWMETHOD(bool) StaticMemoryPool::IsValidMemory(const void* pMemory) const
     return pHeader->Alloc == 1;
 }
 
-UWMETHOD(vsize) StaticMemoryPool::GetElementSize() const
+vsize __stdcall StaticMemoryPool::GetElementSize() const
 {
     return m_elementSize;
 }
 
-UWMETHOD(vsize) StaticMemoryPool::GetNumAllocElements() const
+vsize __stdcall StaticMemoryPool::GetNumAllocElements() const
 {
     return m_pIndexTablePtr - m_pIndexTable;
 }
 
-UWMETHOD(vsize) StaticMemoryPool::GetNumMaxElements() const
+vsize __stdcall StaticMemoryPool::GetNumMaxElements() const
 {
     return m_numElementsPerBlock;
 }
 
-GLOBAL_FUNC UWMETHOD(bool) CreateStaticMemoryPool(IStaticMemoryPool** ppOutStaticMemoryPool)
+GLOBAL_FUNC bool __stdcall CreateStaticMemoryPool(IStaticMemoryPool** ppOutStaticMemoryPool)
 {
     ASSERT(ppOutStaticMemoryPool != nullptr, "ppOutStaticMemoryPool == nullptr");
 
@@ -224,7 +224,7 @@ GLOBAL_FUNC UWMETHOD(bool) CreateStaticMemoryPool(IStaticMemoryPool** ppOutStati
     return true;
 }
 
-GLOBAL_FUNC UWMETHOD(void) DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPool)
+GLOBAL_FUNC void __stdcall DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPool)
 {
     ASSERT(pStaticMemoryPool != nullptr, "pStaticMemoryPool == nullptr");
     delete (StaticMemoryPool*)pStaticMemoryPool;

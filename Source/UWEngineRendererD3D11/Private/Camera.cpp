@@ -1,20 +1,21 @@
 ﻿/*
-* Camera
+* D3D11 카메라
 *
 * 작성자: bumpsgoodman
 * 작성일: 2024.04.17
 */
 
 #include "Precompiled.h"
-#include "UWEngineCommon/CoreTypes.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
+#include "Camera.h"
 
-UWMETHOD(vsize) Camera::AddRef()
+vsize __stdcall Camera::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-UWMETHOD(vsize) Camera::Release()
+vsize __stdcall Camera::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
@@ -26,12 +27,12 @@ UWMETHOD(vsize) Camera::Release()
     return m_refCount;
 }
 
-UWMETHOD(vsize) Camera::GetRefCount() const
+vsize __stdcall Camera::GetRefCount() const
 {
     return m_refCount;
 }
 
-UWMETHOD(bool) Camera::Initailize(const float fovY, const float aspectRatio, const float nearZ, const float farZ)
+bool __stdcall Camera::Initailize(const float fovY, const float aspectRatio, const float nearZ, const float farZ)
 {
     m_up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     m_at = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -45,7 +46,7 @@ UWMETHOD(bool) Camera::Initailize(const float fovY, const float aspectRatio, con
     return true;
 }
 
-UWMETHOD(void) Camera::Update()
+void __stdcall Camera::Update()
 {
     static const XMVECTOR DEFAULT_FORWARD = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -61,12 +62,12 @@ UWMETHOD(void) Camera::Update()
     m_view = XMMatrixLookAtLH(m_position, m_at, m_up);
 }
 
-UWMETHOD_VECTOR(void) Camera::Translate(const XMVECTOR dist)
+void __vectorcall Camera::Translate(const Vector4 dist)
 {
-    m_position += dist;
+    m_position += UW_Vector4ToXMVector(dist);
 }
 
-UWMETHOD(void) Camera::TranslateX(const float dist)
+void __stdcall Camera::TranslateX(const float dist)
 {
     static const XMVECTOR DEFAULT_RIGHT = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 
@@ -76,7 +77,7 @@ UWMETHOD(void) Camera::TranslateX(const float dist)
     m_position += dist * right;
 }
 
-UWMETHOD(void) Camera::TranslateY(const float dist)
+void __stdcall Camera::TranslateY(const float dist)
 {
     static const XMVECTOR DEFAULT_UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -86,7 +87,7 @@ UWMETHOD(void) Camera::TranslateY(const float dist)
     m_position += dist * up;
 }
 
-UWMETHOD(void) Camera::TranslateZ(const float dist)
+void __stdcall Camera::TranslateZ(const float dist)
 {
     static const XMVECTOR DEFAULT_FORWARD = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -96,53 +97,63 @@ UWMETHOD(void) Camera::TranslateZ(const float dist)
     m_position += dist * forward;
 }
 
-UWMETHOD_VECTOR(void) Camera::Rotate(const XMVECTOR angleDegrees)
+void __vectorcall Camera::Rotate(const Vector4 angleDegrees)
 {
-    m_rotationDegree += angleDegrees;
+    m_rotationDegree += UW_Vector4ToXMVector(angleDegrees);
     m_rotationDegree = UW_XMVectorWrap(m_rotationDegree, XMVectorZero(), XMVectorSet(360.0f, 360.0f, 360.0f, 360.0f));
 }
 
-UWMETHOD(void) Camera::RotateX(const float angleDegree)
+void __stdcall Camera::RotateX(const float angleDegree)
 {
     m_rotationDegree = XMVectorSetX(m_rotationDegree, Wrap(XMVectorGetX(m_rotationDegree) + angleDegree, 0.0f, 360.0f));
 }
 
-UWMETHOD(void) Camera::RotateY(const float angleDegree)
+void __stdcall Camera::RotateY(const float angleDegree)
 {
     m_rotationDegree = XMVectorSetY(m_rotationDegree, Wrap(XMVectorGetY(m_rotationDegree) + angleDegree, 0.0f, 360.0f));
 }
 
-UWMETHOD(void) Camera::RotateZ(const float angleDegree)
+void __stdcall Camera::RotateZ(const float angleDegree)
 {
     m_rotationDegree = XMVectorSetZ(m_rotationDegree, Wrap(XMVectorGetZ(m_rotationDegree) + angleDegree, 0.0f, 360.0f));
 }
 
-UWMETHOD_VECTOR(XMVECTOR) Camera::GetPosition() const
+Vector4 __vectorcall Camera::GetPosition() const
 {
-    return m_position;
+    return UW_XMVectorToVector4(m_position);
 }
 
-UWMETHOD_VECTOR(void) Camera::SetPosition(const XMVECTOR position)
+void __vectorcall Camera::SetPosition(const Vector4 position)
 {
-    m_position = position;
+    m_position = UW_Vector4ToXMVector(position);
 }
 
-UWMETHOD_VECTOR(XMVECTOR) Camera::GetRotation() const
+Vector4 __vectorcall Camera::GetRotation() const
 {
-    return m_rotationDegree;
+    return UW_XMVectorToVector4(m_rotationDegree);
 }
 
-UWMETHOD_VECTOR(void) Camera::SetRotation(const XMVECTOR angleDegrees)
+void __vectorcall Camera::SetRotation(const Vector4 angleDegrees)
 {
-    m_rotationDegree = UW_XMVectorWrap(angleDegrees, XMVectorZero(), XMVectorSet(360.0f, 360.0f, 360.0f, 360.0f));
+    m_rotationDegree = UW_XMVectorWrap(UW_Vector4ToXMVector(angleDegrees), XMVectorZero(), XMVectorSet(360.0f, 360.0f, 360.0f, 360.0f));
 }
 
-UWMETHOD_VECTOR(XMMATRIX) Camera::GetView() const
+Matrix44 __vectorcall Camera::GetView() const
 {
-    return m_view;
+    return UW_XMMatrixToMatrix44(m_view);
 }
 
-UWMETHOD_VECTOR(XMMATRIX) Camera::GetProjection() const
+Matrix44 __vectorcall Camera::GetProjection() const
 {
-    return m_projection;
+    return UW_XMMatrixToMatrix44(m_projection);
+}
+
+void* Camera::operator new(const vsize count)
+{
+    return _aligned_malloc(sizeof(Camera), 16);
+}
+
+void Camera::operator delete(void* pBlock)
+{
+    _aligned_free(pBlock);
 }

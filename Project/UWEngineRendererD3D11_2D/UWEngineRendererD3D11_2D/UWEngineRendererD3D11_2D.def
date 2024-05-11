@@ -1,3 +1,0 @@
-﻿LIBRARY
-EXPORTS
-   CreateDllInstance       @1       PRIVATE

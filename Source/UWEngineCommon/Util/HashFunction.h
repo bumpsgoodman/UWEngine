@@ -7,9 +7,7 @@
 
 #pragma once
 
-#include "../Defines.h"
-
-inline UWMETHOD(uint32) FNV1a32(const char* pBytes, const vsize length)
+inline uint32 __stdcall FNV1a32(const char* pBytes, const vsize length)
 {
     ASSERT(pBytes != nullptr, "pBytes == nullptr");
 
@@ -17,7 +15,7 @@ inline UWMETHOD(uint32) FNV1a32(const char* pBytes, const vsize length)
     static constexpr uint32 FNV_OFFSET_32 = 2166136261U;
 
     uint32 hash = FNV_OFFSET_32;
-    for (uint32 i = 0; i < length; ++i)
+    for (vsize i = 0; i < length; ++i)
     {
         hash = hash * FNV_PRIME_32;
         hash = hash + pBytes[i];
@@ -26,7 +24,7 @@ inline UWMETHOD(uint32) FNV1a32(const char* pBytes, const vsize length)
     return hash;
 }
 
-inline UWMETHOD(uint64) FNV1a64(const char* pBytes, const vsize length)
+inline uint64 __stdcall FNV1a64(const char* pBytes, const vsize length)
 {
     ASSERT(pBytes != nullptr, "pBytes == nullptr");
 

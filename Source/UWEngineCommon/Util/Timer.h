@@ -7,17 +7,13 @@
 
 #pragma once
 
-#include <Windows.h>
-
-#include "../Defines.h"
-
 struct Timer
 {
     uint64 Frequency;
     uint64 PrevCounter;
 };
 
-inline bool UWAPI TimerInit(Timer* pTimer)
+inline bool __stdcall TimerInit(Timer* pTimer)
 {
     ASSERT(pTimer != nullptr, "pTimer == nullptr");
 
@@ -27,7 +23,7 @@ inline bool UWAPI TimerInit(Timer* pTimer)
     return true;
 }
 
-inline float UWAPI TimerGetTime(const Timer* pTimer)
+inline float __stdcall TimerGetTime(const Timer* pTimer)
 {
     ASSERT(pTimer != nullptr, "pTimer == nullptr");
 

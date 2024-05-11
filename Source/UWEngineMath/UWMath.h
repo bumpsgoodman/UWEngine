@@ -15,9 +15,9 @@ using namespace DirectX;
 #include "UWMathDefines.h"
 #include "UWMathMisc.h"
 
-ALIGN16 union ColorF
+ALIGN16 union Color4
 {
-    ALIGN16 struct
+    struct
     {
         float Red;
         float Green;
@@ -29,39 +29,39 @@ ALIGN16 union ColorF
 
 ALIGN16 union Vector4
 {
-    ALIGN16 struct
+    struct
     {
         float X;
         float Y;
         float Z;
         float W;
     };
-    ALIGN16 float XYZW[4];
+    float XYZW[4];
     __m128 MM_XYZW;
 
     inline Vector4() = default;
     inline Vector4(const float x, const float y, const float z, const float w);
     inline Vector4(const float* pXYZW);
 
-    inline UWMETHOD_VECTOR(Vector4) operator+(const Vector4 v) const;
-    inline UWMETHOD_VECTOR(Vector4) operator-(const Vector4 v) const;
-    inline UWMETHOD_VECTOR(Vector4) operator*(const Vector4 v) const;
-    inline UWMETHOD_VECTOR(Vector4) operator/(const Vector4 v) const;
+    inline Vector4      __vectorcall    operator+(const Vector4 v) const;
+    inline Vector4      __vectorcall    operator-(const Vector4 v) const;
+    inline Vector4      __vectorcall    operator*(const Vector4 v) const;
+    inline Vector4      __vectorcall    operator/(const Vector4 v) const;
 
-    inline UWMETHOD_VECTOR(Vector4) operator+(const float scalar) const;
-    inline UWMETHOD_VECTOR(Vector4) operator-(const float scalar) const;
-    inline UWMETHOD_VECTOR(Vector4) operator*(const float scalar) const;
-    inline UWMETHOD_VECTOR(Vector4) operator/(const float scalar) const;
+    inline Vector4      __vectorcall    operator+(const float scalar) const;
+    inline Vector4      __vectorcall    operator-(const float scalar) const;
+    inline Vector4      __vectorcall    operator*(const float scalar) const;
+    inline Vector4      __vectorcall    operator/(const float scalar) const;
 
-    inline UWMETHOD_VECTOR(Vector4&) operator+=(const Vector4 v);
-    inline UWMETHOD_VECTOR(Vector4&) operator-=(const Vector4 v);
-    inline UWMETHOD_VECTOR(Vector4&) operator*=(const Vector4 v);
-    inline UWMETHOD_VECTOR(Vector4&) operator/=(const Vector4 v);
+    inline Vector4&     __vectorcall    operator += (const Vector4 v);
+    inline Vector4&     __vectorcall    operator -= (const Vector4 v);
+    inline Vector4&     __vectorcall    operator *= (const Vector4 v);
+    inline Vector4&     __vectorcall    operator/=(const Vector4 v);
 
-    inline UWMETHOD_VECTOR(Vector4&) operator+=(const float scalar);
-    inline UWMETHOD_VECTOR(Vector4&) operator-=(const float scalar);
-    inline UWMETHOD_VECTOR(Vector4&) operator*=(const float scalar);
-    inline UWMETHOD_VECTOR(Vector4&) operator/=(const float scalar);
+    inline Vector4&     __vectorcall    operator+=(const float scalar);
+    inline Vector4&     __vectorcall    operator-=(const float scalar);
+    inline Vector4&     __vectorcall    operator*=(const float scalar);
+    inline Vector4&     __vectorcall    operator/=(const float scalar);
 };
 
 ALIGN16 union Matrix44
@@ -87,7 +87,7 @@ ALIGN16 union Matrix44
         __m128 MM_R2;
         __m128 MM_R3;
     };
-    ALIGN16 float M[4][4];
+    float M[4][4];
 
 
     Matrix44() = default;
@@ -98,13 +98,13 @@ ALIGN16 union Matrix44
     Matrix44(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3);
     Matrix44(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3);
 
-    inline UWMETHOD_VECTOR(Matrix44) operator+(const Matrix44 mat) const;
-    inline UWMETHOD_VECTOR(Matrix44) operator-(const Matrix44 mat) const;
-    inline UWMETHOD_VECTOR(Matrix44) operator*(const Matrix44 mat) const;
+    inline Matrix44     __vectorcall    operator+(const Matrix44 mat) const;
+    inline Matrix44     __vectorcall    operator-(const Matrix44 mat) const;
+    inline Matrix44     __vectorcall    operator*(const Matrix44 mat) const;
 
-    inline UWMETHOD_VECTOR(Matrix44&) operator+=(const Matrix44 mat);
-    inline UWMETHOD_VECTOR(Matrix44&) operator-=(const Matrix44 mat);
-    inline UWMETHOD_VECTOR(Matrix44&) operator*=(const Matrix44 mat);
+    inline Matrix44&    __vectorcall    operator+=(const Matrix44 mat);
+    inline Matrix44&    __vectorcall    operator-=(const Matrix44 mat);
+    inline Matrix44&    __vectorcall    operator*=(const Matrix44 mat);
 };
 
 // Vector4
@@ -131,35 +131,35 @@ inline Vector4::Vector4(const float* pXYZW)
 {
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator+(const Vector4 v) const
+inline Vector4 __vectorcall Vector4::operator+(const Vector4 v) const
 {
     Vector4 result;
     result.MM_XYZW = _mm_add_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator-(const Vector4 v) const
+inline Vector4 __vectorcall Vector4::operator-(const Vector4 v) const
 {
     Vector4 result;
     result.MM_XYZW = _mm_sub_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator*(const Vector4 v) const
+inline Vector4 __vectorcall Vector4::operator*(const Vector4 v) const
 {
     Vector4 result;
     result.MM_XYZW = _mm_mul_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator/(const Vector4 v) const
+inline Vector4 __vectorcall Vector4::operator/(const Vector4 v) const
 {
     Vector4 result;
     result.MM_XYZW = _mm_div_ps(MM_XYZW, v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator+(const float scalar) const
+inline Vector4 __vectorcall Vector4::operator+(const float scalar) const
 {
     const __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
@@ -167,7 +167,7 @@ inline UWMETHOD_VECTOR(Vector4) Vector4::operator+(const float scalar) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator-(const float scalar) const
+inline Vector4 __vectorcall Vector4::operator-(const float scalar) const
 {
     const __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
@@ -175,7 +175,7 @@ inline UWMETHOD_VECTOR(Vector4) Vector4::operator-(const float scalar) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator*(const float scalar) const
+inline Vector4 __vectorcall Vector4::operator*(const float scalar) const
 {
     const __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
@@ -183,7 +183,7 @@ inline UWMETHOD_VECTOR(Vector4) Vector4::operator*(const float scalar) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4::operator/(const float scalar) const
+inline Vector4 __vectorcall Vector4::operator/(const float scalar) const
 {
     const __m128 temp = _mm_set_ps1(scalar);
     Vector4 result;
@@ -191,119 +191,119 @@ inline UWMETHOD_VECTOR(Vector4) Vector4::operator/(const float scalar) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator+=(const Vector4 v)
+inline Vector4& __vectorcall Vector4::operator+=(const Vector4 v)
 {
     MM_XYZW = _mm_add_ps(MM_XYZW, v.MM_XYZW);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator-=(const Vector4 v)
+inline Vector4& __vectorcall Vector4::operator-=(const Vector4 v)
 {
     MM_XYZW = _mm_sub_ps(MM_XYZW, v.MM_XYZW);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator*=(const Vector4 v)
+inline Vector4& __vectorcall Vector4::operator*=(const Vector4 v)
 {
     MM_XYZW = _mm_mul_ps(MM_XYZW, v.MM_XYZW);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator/=(const Vector4 v)
+inline Vector4& __vectorcall Vector4::operator/=(const Vector4 v)
 {
     MM_XYZW = _mm_div_ps(MM_XYZW, v.MM_XYZW);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator+=(const float scalar)
+inline Vector4& __vectorcall Vector4::operator+=(const float scalar)
 {
     const __m128 temp = _mm_set_ps1(scalar);
     MM_XYZW = _mm_add_ps(MM_XYZW, temp);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator-=(const float scalar)
+inline Vector4& __vectorcall Vector4::operator-=(const float scalar)
 {
     const __m128 temp = _mm_set_ps1(scalar);
     MM_XYZW = _mm_sub_ps(MM_XYZW, temp);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator*=(const float scalar)
+inline Vector4& __vectorcall Vector4::operator*=(const float scalar)
 {
     const __m128 temp = _mm_set_ps1(scalar);
     MM_XYZW = _mm_mul_ps(MM_XYZW, temp);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4&) Vector4::operator/=(const float scalar)
+inline Vector4& __vectorcall Vector4::operator/=(const float scalar)
 {
     const __m128 temp = _mm_set_ps1(scalar);
     MM_XYZW = _mm_div_ps(MM_XYZW, temp);
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Set(const float x, const float y, const float z, const float w)
+inline Vector4 __vectorcall Vector4Set(const float x, const float y, const float z, const float w)
 {
     Vector4 result;
     result.MM_XYZW = _mm_set_ps(w, z, y, x);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Set(const float* pXYZW)
+inline Vector4 __vectorcall Vector4Set(const float* pXYZW)
 {
     Vector4 result;
     result.MM_XYZW = _mm_load_ps(pXYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Set(const __m128 xyzw)
+inline Vector4 __vectorcall Vector4Set(const __m128 xyzw)
 {
     Vector4 result;
     result.MM_XYZW = xyzw;
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Zero()
+inline Vector4 __vectorcall Vector4Zero()
 {
     return s_zeroVector4;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4One()
+inline Vector4 __vectorcall Vector4One()
 {
     return s_oneVector4;
 }
 
-inline UWMETHOD_VECTOR(float) Vector4Length(const Vector4 v)
+inline float __vectorcall Vector4Length(const Vector4 v)
 {
     return _mm_cvtss_f32(_mm_sqrt_ps(_mm_dp_ps(v.MM_XYZW, v.MM_XYZW, 0xff)));
 }
 
-inline UWMETHOD_VECTOR(float) Vector4LengthSquared(const Vector4 v)
+inline float __vectorcall Vector4LengthSquared(const Vector4 v)
 {
     return _mm_cvtss_f32(_mm_dp_ps(v.MM_XYZW, v.MM_XYZW, 0xff));
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Normalize(const Vector4 v)
+inline Vector4 __vectorcall Vector4Normalize(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_mul_ps(v.MM_XYZW, _mm_rsqrt_ps(_mm_dp_ps(v.MM_XYZW, v.MM_XYZW, 0xff)));
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Negate(const Vector4 v)
+inline Vector4 __vectorcall Vector4Negate(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_sub_ps(s_zeroVector4.MM_XYZW, v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(float) Vector4Dot(const Vector4 v0, const Vector4 v1)
+inline float __vectorcall Vector4Dot(const Vector4 v0, const Vector4 v1)
 {
     return _mm_cvtss_f32(_mm_dp_ps(v0.MM_XYZW, v1.MM_XYZW, 0xff));
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Cross(const Vector4 v0, const Vector4 v1)
+inline Vector4 __vectorcall Vector4Cross(const Vector4 v0, const Vector4 v1)
 {
     // (v0.y * v1.z - v0.z * v1.y
     //  v0.z * v1.x - v0.x * v1.z
@@ -322,49 +322,49 @@ inline UWMETHOD_VECTOR(Vector4) Vector4Cross(const Vector4 v0, const Vector4 v1)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Max(const Vector4 v0, const Vector4 v1)
+inline Vector4 __vectorcall Vector4Max(const Vector4 v0, const Vector4 v1)
 {
     Vector4 result;
     result.MM_XYZW = _mm_max_ps(v0.MM_XYZW, v1.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Min(const Vector4 v0, const Vector4 v1)
+inline Vector4 __vectorcall Vector4Min(const Vector4 v0, const Vector4 v1)
 {
     Vector4 result;
     result.MM_XYZW = _mm_min_ps(v0.MM_XYZW, v1.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Round(const Vector4 v)
+inline Vector4 __vectorcall Vector4Round(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_round_ps(v.MM_XYZW, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Floor(const Vector4 v)
+inline Vector4 __vectorcall Vector4Floor(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_round_ps(v.MM_XYZW, _MM_FROUND_FLOOR);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Ceil(const Vector4 v)
+inline Vector4 __vectorcall Vector4Ceil(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_round_ps(v.MM_XYZW, _MM_FROUND_CEIL);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Trunc(const Vector4 v)
+inline Vector4 __vectorcall Vector4Trunc(const Vector4 v)
 {
     Vector4 result;
     result.MM_XYZW = _mm_trunc_ps(v.MM_XYZW);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Mod(const Vector4 v0, const Vector4 v1)
+inline Vector4 __vectorcall Vector4Mod(const Vector4 v0, const Vector4 v1)
 {
     // v0 % v1 = v0 - v1 * TRUNC(v0 / v1);
     Vector4 result;
@@ -373,7 +373,7 @@ inline UWMETHOD_VECTOR(Vector4) Vector4Mod(const Vector4 v0, const Vector4 v1)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4Wrap(const Vector4 v, const Vector4 minV, const Vector4 maxV)
+inline Vector4 __vectorcall Vector4Wrap(const Vector4 v, const Vector4 minV, const Vector4 maxV)
 {
     /*
     if (v > maxV)
@@ -418,9 +418,9 @@ inline UWMETHOD_VECTOR(Vector4) Vector4Wrap(const Vector4 v, const Vector4 minV,
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Vector4DegreeToRad(const Vector4 v)
+inline Vector4 __vectorcall Vector4DegreeToRad(const Vector4 v)
 {
-    static const __m128 MM_PI_DIV_180 = _mm_set_ps1((float)PI_DIV_180);
+    static const __m128 MM_PI_DIV_180 = _mm_set_ps1(PI_DIV_180);
     Vector4 result;
     result.MM_XYZW = _mm_mul_ps(v.MM_XYZW, MM_PI_DIV_180);
     return result;
@@ -456,7 +456,7 @@ inline Matrix44::Matrix44(const __m128 r0, const __m128 r1, const __m128 r2, con
 {
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator+(const Matrix44 mat) const
+inline Matrix44 __vectorcall Matrix44::operator+(const Matrix44 mat) const
 {
     Matrix44 result;
     result.MM_R0 = _mm_add_ps(MM_R0, mat.MM_R0);
@@ -466,7 +466,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator+(const Matrix44 mat) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator-(const Matrix44 mat) const
+inline Matrix44 __vectorcall Matrix44::operator-(const Matrix44 mat) const
 {
     Matrix44 result;
     result.MM_R0 = _mm_sub_ps(MM_R0, mat.MM_R0);
@@ -476,7 +476,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator-(const Matrix44 mat) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator*(const Matrix44 mat) const
+inline Matrix44 __vectorcall Matrix44::operator*(const Matrix44 mat) const
 {
     Matrix44 result;
 
@@ -524,7 +524,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44::operator*(const Matrix44 mat) const
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator+=(const Matrix44 mat)
+inline Matrix44& __vectorcall Matrix44::operator+=(const Matrix44 mat)
 {
     MM_R0 = _mm_add_ps(MM_R0, mat.MM_R0);
     MM_R1 = _mm_add_ps(MM_R1, mat.MM_R1);
@@ -533,7 +533,7 @@ inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator+=(const Matrix44 mat)
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator-=(const Matrix44 mat)
+inline Matrix44& __vectorcall Matrix44::operator-=(const Matrix44 mat)
 {
     MM_R0 = _mm_sub_ps(MM_R0, mat.MM_R0);
     MM_R1 = _mm_sub_ps(MM_R1, mat.MM_R1);
@@ -542,7 +542,7 @@ inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator-=(const Matrix44 mat)
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator*=(const Matrix44 mat)
+inline Matrix44& __vectorcall Matrix44::operator*=(const Matrix44 mat)
 {
     float x;
     float y;
@@ -588,32 +588,32 @@ inline UWMETHOD_VECTOR(Matrix44&) Matrix44::operator*=(const Matrix44 mat)
     return *this;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Matrix44IdentityR0()
+inline Vector4 __vectorcall Matrix44IdentityR0()
 {
     return s_identity44R0;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Matrix44IdentityR1()
+inline Vector4 __vectorcall Matrix44IdentityR1()
 {
     return s_identity44R1;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Matrix44IdentityR2()
+inline Vector4 __vectorcall Matrix44IdentityR2()
 {
     return s_identity44R2;
 }
 
-inline UWMETHOD_VECTOR(Vector4) Matrix44IdentityR3()
+inline Vector4 __vectorcall Matrix44IdentityR3()
 {
     return s_identity44R3;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44Identity()
+inline Matrix44 __vectorcall Matrix44Identity()
 {
     return s_identity44;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const float r00, const float r01, const float r02, const float r03,
+inline Matrix44 __vectorcall Matrix44Set(const float r00, const float r01, const float r02, const float r03,
                                          const float r10, const float r11, const float r12, const float r13,
                                          const float r20, const float r21, const float r22, const float r23,
                                          const float r30, const float r31, const float r32, const float r33)
@@ -626,7 +626,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const float r00, const float r01, c
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3)
+inline Matrix44 __vectorcall Matrix44Set(const Vector4 r0, const Vector4 r1, const Vector4 r2, const Vector4 r3)
 {
     Matrix44 result;
     result.MM_R0 = r0.MM_XYZW;
@@ -636,7 +636,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const Vector4 r0, const Vector4 r1,
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3)
+inline Matrix44 __vectorcall Matrix44Set(const __m128 r0, const __m128 r1, const __m128 r2, const __m128 r3)
 {
     Matrix44 result;
     result.MM_R0 = r0;
@@ -646,34 +646,34 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44Set(const __m128 r0, const __m128 r1, c
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44Transpose(Matrix44 mat)
+inline Matrix44 __vectorcall Matrix44Transpose(Matrix44 mat)
 {
     _MM_TRANSPOSE4_PS(mat.MM_R0, mat.MM_R1, mat.MM_R2, mat.MM_R3);
     return mat;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44TranslateX(const float translation)
+inline Matrix44 __vectorcall Matrix44TranslateX(const float translation)
 {
     Matrix44 result = Matrix44Identity();
     result.M20 = translation;
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44TranslateY(const float translation)
+inline Matrix44 __vectorcall Matrix44TranslateY(const float translation)
 {
     Matrix44 result = Matrix44Identity();
     result.M21 = translation;
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44TranslateZ(const float translation)
+inline Matrix44 __vectorcall Matrix44TranslateZ(const float translation)
 {
     Matrix44 result = Matrix44Identity();
     result.M22 = translation;
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44TranslateFromVector(const Vector4 translation)
+inline Matrix44 __vectorcall Matrix44TranslateFromVector(const Vector4 translation)
 {
     Matrix44 result = Matrix44Identity();
     result.R3 = translation;
@@ -681,7 +681,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44TranslateFromVector(const Vector4 trans
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44RotatePitch(const float angleRad)
+inline Matrix44 __vectorcall Matrix44RotatePitch(const float angleRad)
 {
     float sin;
     float cos;
@@ -694,7 +694,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44RotatePitch(const float angleRad)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateYaw(const float angleRad)
+inline Matrix44 __vectorcall Matrix44RotateYaw(const float angleRad)
 {
     float sin;
     float cos;
@@ -707,7 +707,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateYaw(const float angleRad)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateRoll(const float angleRad)
+inline Matrix44 __vectorcall Matrix44RotateRoll(const float angleRad)
 {
     float sin;
     float cos;
@@ -723,7 +723,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateRoll(const float angleRad)
 // x: Pitch
 // y: Yaw
 // z: Roll
-inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateRollPitchYawFromVector(const Vector4 angleRad)
+inline Matrix44 __vectorcall Matrix44RotateRollPitchYawFromVector(const Vector4 angleRad)
 {
     float sr;
     float cr;
@@ -761,7 +761,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44RotateRollPitchYawFromVector(const Vect
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleX(const float scale)
+inline Matrix44 __vectorcall Matrix44ScaleX(const float scale)
 {
     Matrix44 result;
     result.R0 = Vector4Set(scale, 0.0f, 0.0f, 0.0f);
@@ -771,7 +771,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleX(const float scale)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleY(const float scale)
+inline Matrix44 __vectorcall Matrix44ScaleY(const float scale)
 {
     Matrix44 result;
     result.R0 = s_identity44R0;
@@ -781,7 +781,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleY(const float scale)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleZ(const float scale)
+inline Matrix44 __vectorcall Matrix44ScaleZ(const float scale)
 {
     Matrix44 result;
     result.R0 = s_identity44R0;
@@ -791,7 +791,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleZ(const float scale)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleFromVector(const Vector4 scale)
+inline Matrix44 __vectorcall Matrix44ScaleFromVector(const Vector4 scale)
 {
     Matrix44 result;
     result.R0 = Vector4Set(scale.X, 0.0f, 0.0f, 0.0f);
@@ -801,7 +801,7 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44ScaleFromVector(const Vector4 scale)
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) Matrix44WorldFromVector(const Vector4 translation, const Vector4 angleRad, const Vector4 scale)
+inline Matrix44 __vectorcall Matrix44WorldFromVector(const Vector4 translation, const Vector4 angleRad, const Vector4 scale)
 {
     const Matrix44 translationMat = Matrix44TranslateFromVector(translation);
     const Matrix44 rotationMat = Matrix44RotateRollPitchYawFromVector(angleRad);
@@ -818,41 +818,42 @@ inline UWMETHOD_VECTOR(Matrix44) Matrix44WorldFromVector(const Vector4 translati
 
 // 테스트용
 
-inline UWMETHOD_VECTOR(XMVECTOR) UW_Vector4ToXMVector(const Vector4 v)
+inline XMVECTOR __vectorcall UW_Vector4ToXMVector(const Vector4 v)
 {
-    FXMVECTOR result = XMVectorSet(v.X, v.Y, v.Z, v.W);
+    const XMVECTOR result = XMVectorSet(v.X, v.Y, v.Z, v.W);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Vector4) UW_XMVectorToVector4(FXMVECTOR v)
+inline Vector4 __vectorcall UW_XMVectorToVector4(const XMVECTOR v)
 {
     const Vector4 result = Vector4Set(v.m128_f32[0], v.m128_f32[1], v.m128_f32[2], v.m128_f32[3]);
     return result;
 }
 
-inline UWMETHOD_VECTOR(XMMATRIX) UW_Matrix44ToXMMatrix(const Matrix44 mat)
+inline XMMATRIX __vectorcall UW_Matrix44ToXMMatrix(const Matrix44 mat)
 {
-    FXMMATRIX result = XMMatrixSet(mat.M00, mat.M01, mat.M02, mat.M03,
-                                   mat.M10, mat.M11, mat.M12, mat.M13,
-                                   mat.M20, mat.M21, mat.M22, mat.M23,
-                                   mat.M30, mat.M31, mat.M32, mat.M33);
+    const XMMATRIX result = XMMatrixSet(mat.M00, mat.M01, mat.M02, mat.M03,
+                                        mat.M10, mat.M11, mat.M12, mat.M13,
+                                        mat.M20, mat.M21, mat.M22, mat.M23,
+                                        mat.M30, mat.M31, mat.M32, mat.M33);
     return result;
 }
 
-inline UWMETHOD_VECTOR(Matrix44) UW_XMMatrixToMatrix44(FXMMATRIX mat)
+inline Matrix44 __vectorcall UW_XMMatrixToMatrix44(const XMMATRIX mat)
 {
     const Matrix44 result = Matrix44Set(mat.r[0], mat.r[1], mat.r[2], mat.r[3]);
     return result;
 }
 
-inline UWMETHOD_VECTOR(XMVECTOR) UW_XMVectorToRadian(const XMVECTOR degrees)
+inline XMVECTOR __vectorcall UW_XMVectorToRadian(const XMVECTOR degrees)
 {
     static const XMVECTOR FACTOR = XMVectorSet(PI_DIV_180, PI_DIV_180, PI_DIV_180, PI_DIV_180);
+
     const XMVECTOR result = XMVectorMultiply(degrees, FACTOR);
     return result;
 }
 
-inline UWMETHOD_VECTOR(XMVECTOR) UW_XMVectorWrap(const XMVECTOR v, const XMVECTOR minV, const XMVECTOR maxV)
+inline XMVECTOR __vectorcall UW_XMVectorWrap(const XMVECTOR v, const XMVECTOR minV, const XMVECTOR maxV)
 {
     /*
     if (v > maxV)

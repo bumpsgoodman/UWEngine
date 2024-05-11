@@ -44,15 +44,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
+
+// intrinsic
+#include <intrin.h>
 
 // UWEngine
 #include "UWEngineCommon/Defines.h"
 #include "UWEngineCommon/Util/HashFunction.h"
 #include "UWEngineCommon/Util/Timer.h"
-
-#include "UWEngineGeneric/IDynamicArray.h"
-#include "UWEngineGeneric/IHashMap.h"
-#include "UWEngineGeneric/IChunkedMemoryPool.h"
 
 #include "UWEngineMath/UWMath.h"
 

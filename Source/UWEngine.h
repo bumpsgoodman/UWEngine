@@ -10,8 +10,8 @@
 #include "UWEngineCommon/Defines.h"
 #include "UWEngineCommon/Util/Timer.h"
 #include "UWEngineCommon/Util/HashFunction.h"
-#include "UWEngineCommon/Interfaces.h"
-
-#include "UWEngineGeneric/IDynamicArray.h"
 
 #include "UWEngineMath/UWMath.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
+
+#include "UWEngineGeneric/DynamicArray.h"

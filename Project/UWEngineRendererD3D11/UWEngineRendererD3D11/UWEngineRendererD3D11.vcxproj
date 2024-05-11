@@ -19,16 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\CoreTypes.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IRenderer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Camera.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\FaceGroup.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\MeshObject.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Camera.cpp" />
@@ -169,6 +172,7 @@
       <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineRendererD3D11;..\..\..\Source\UWEngineRendererD3D11\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

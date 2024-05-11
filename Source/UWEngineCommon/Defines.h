@@ -15,24 +15,15 @@
 // 문자열로 치환
 #define TO_STR(s) #s
 
-// 호출 규약
-#define UWAPI                   __stdcall
-#define UWAPI_VECTOR            __vectorcall
-#define UWAPI_VAR               __cdecl
-
-#define UWMETHOD(type)          type UWAPI
-#define UWMETHOD_VECTOR(type)   type UWAPI_VECTOR
-#define UWMETHOD_VAR(type)      type UWAPI_VAR
-
-// 순수 가상 함수
-#define PURE = 0
-
 // ASSERT
 #if defined(NDEBUG)
 #   define ASSERT(cond, msg) ((void)0)
 #else
 #   define ASSERT(cond, msg) { if (!(cond)) { __debugbreak(); } }
 #endif // ASSERT
+
+// Debug/Release 둘 모두 크래시
+#define CRASH __debugbreak
 
 // SAFE DELETE
 #define SAFE_DELETE(p)              { delete (p); (p) = nullptr; }
@@ -59,7 +50,14 @@
 #   define interface struct
 #endif // interface
 
-typedef void(UWAPI* CreateDllInstanceFunc)(void** ppOutInstance);
+interface IRefObject
+{
+    virtual vsize   __stdcall   AddRef() = 0;
+    virtual vsize   __stdcall   Release() = 0;
+    virtual vsize   __stdcall   GetRefCount() const = 0;
+};
+
+typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
 
 // UW3D
 enum UW3D_INCLUDE_FLAG
@@ -69,3 +67,9 @@ enum UW3D_INCLUDE_FLAG
     UW3D_INCLUDE_FLAG_COLOR = (1 << 1)
 };
 #define UW3D_HAS_INCLUDE_FLAG(flag, other) (((flag) & (other)) == (other))
+
+enum RENDER_MODE
+{
+    RENDER_MODE_SOLID,
+    RENDER_MODE_WIREFRAME
+};

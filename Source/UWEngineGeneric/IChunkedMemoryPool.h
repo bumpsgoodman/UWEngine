@@ -11,18 +11,18 @@
 
 interface IChunkedMemoryPool
 {
-    virtual UWMETHOD(bool) Initialize(const vsize elementSize, const vsize numElementsPerBlock) PURE;
-    virtual UWMETHOD(void) Release() PURE;
+    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numElementsPerBlock) = 0;
+    virtual void    __stdcall   Release() = 0;
 
-    virtual UWMETHOD(void*) AllocateOrNull() PURE;
-    virtual UWMETHOD(void) Free(void* pMemory) PURE;
-    virtual UWMETHOD(void) Reset() PURE;
-    virtual UWMETHOD(bool) IsValidMemory(const void* pMemory) const PURE;
+    virtual void*   __stdcall   AllocateOrNull() = 0;
+    virtual void    __stdcall   Free(void* pMemory) = 0;
+    virtual void    __stdcall   Reset() = 0;
+    virtual bool    __stdcall   IsValidMemory(const void* pMemory) const = 0;
 
-    virtual UWMETHOD(vsize) GetElementSize() const PURE;
-    virtual UWMETHOD(vsize) GetNumAllocElements() const PURE;
-    virtual UWMETHOD(vsize) GetNumElementsPerChunk() const PURE;
+    virtual vsize   __stdcall   GetElementSize() const = 0;
+    virtual vsize   __stdcall   GetNumAllocElements() const = 0;
+    virtual vsize   __stdcall   GetNumElementsPerChunk() const = 0;
 };
 
-GLOBAL_FUNC UWMETHOD(bool) CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChunkedMemoryPool);
-GLOBAL_FUNC UWMETHOD(void) DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPool);
+GLOBAL_FUNC bool __stdcall CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChunkedMemoryPool);
+GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPool);

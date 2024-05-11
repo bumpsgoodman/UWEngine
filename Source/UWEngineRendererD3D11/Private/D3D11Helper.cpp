@@ -1,7 +1,7 @@
 ﻿#include "Precompiled.h"
 #include "D3D11Helper.h"
 
-UWMETHOD(HRESULT) CompileShaderFromFile(const wchar_t* pFileName, const char* pEntrypoint, const char* pShaderModel, ID3DBlob** ppShaderBlob)
+HRESULT __stdcall CompileShaderFromFile(const wchar_t* pFileName, const char* pEntrypoint, const char* pShaderModel, ID3DBlob** ppShaderBlob)
 {
     HRESULT hr = S_OK;
 

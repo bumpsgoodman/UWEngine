@@ -10,7 +10,7 @@
 
 .code
 
-; UWMETHOD(int) Log2Int64(const uint64_t num);
+; int __stdcall Log2Int64(const uint64_t num);
 ; num = rcx
 Log2Int64 PROC EXPORT
     bsr rax, rcx

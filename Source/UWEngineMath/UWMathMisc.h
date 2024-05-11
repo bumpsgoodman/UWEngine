@@ -21,19 +21,19 @@
 #define FLOOR_INT(x) ((x) >= 0.0f ? (int)(x) : (int)((x) - 1.0f))
 #define TRUNC_INT(x) ((x) >= 0.0f ? (int)(x) : (int)(x))
 
-extern "C" GLOBAL_FUNC UWMETHOD(int) Log2Int64(const uint64 num);
+extern "C" GLOBAL_FUNC int __stdcall Log2Int64(const uint64 num);
 
-inline UWMETHOD(float) Mod(const float a, const float b)
+inline float __stdcall Mod(const float a, const float b)
 {
     return a - b * TRUNC(a / b);
 }
 
-inline UWMETHOD(float) Clamp(const float value, const float minValue, const float maxValue)
+inline float __stdcall Clamp(const float value, const float minValue, const float maxValue)
 {
     return MAX(MIN(value, maxValue), minValue);
 }
 
-inline UWMETHOD(float) Wrap(const float value, const float minValue, const float maxValue)
+inline float __stdcall Wrap(const float value, const float minValue, const float maxValue)
 {
     if (value > maxValue)
     {
@@ -47,19 +47,19 @@ inline UWMETHOD(float) Wrap(const float value, const float minValue, const float
     return value;
 }
 
-inline UWMETHOD(float) DegreeToRad(const float degree)
+inline float __stdcall DegreeToRad(const float degree)
 {
     return degree * PI_DIV_180;
 }
 
 // DirectXMath에서 가져옴
-inline UWMETHOD(void) GetSinCos(const float rad, float* pOutSin, float* pOutCos)
+inline void __stdcall GetSinCos(const float rad, float* pOutSin, float* pOutCos)
 {
     ASSERT(pOutSin != NULL, "pOutSin == NULL");
     ASSERT(pOutCos != NULL, "pOutCos == NULL");
 
     // Map Value to y in [-pi,pi], x = 2*pi*quotient + remainder.
-    float quotient = (float)PI_1_DIV_2PI * rad;
+    float quotient = PI_1_DIV_2PI * rad;
     if (rad >= 0.0f)
     {
         quotient = (float)((int)(quotient + 0.5f));
@@ -68,7 +68,7 @@ inline UWMETHOD(void) GetSinCos(const float rad, float* pOutSin, float* pOutCos)
     {
         quotient = (float)((int)(quotient - 0.5f));
     }
-    float y = rad - (float)TWO_PI * quotient;
+    float y = rad - TWO_PI * quotient;
 
     // Map y to [-pi/2,pi/2] with sin(y) = sin(Value).
     float sign;

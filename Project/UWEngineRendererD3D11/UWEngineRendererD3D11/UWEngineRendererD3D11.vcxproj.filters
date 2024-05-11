@@ -10,6 +10,9 @@
     <Filter Include="UWEngineCommon\Util">
       <UniqueIdentifier>{a65b19b4-5a1c-4b58-9d49-9b9aa2a9a372}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UWEngineCommon\Interfaces">
+      <UniqueIdentifier>{55924e33-e4c2-42c4-acf6-fb3eec351363}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
@@ -30,18 +33,19 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
       <Filter>UWEngineCommon\Util</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\CoreTypes.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h">
       <Filter>Private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.h">
       <Filter>Private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\FaceGroup.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\VertexBuffer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IRenderer.h">
+      <Filter>UWEngineCommon\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Camera.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\MeshObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">

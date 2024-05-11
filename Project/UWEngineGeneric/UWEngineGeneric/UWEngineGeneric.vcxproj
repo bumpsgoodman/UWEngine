@@ -24,12 +24,12 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\DynamicArray.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IHashMap.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\HashMap.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IFixedArray.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineGeneric\FixedArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\ChunkedMemoryPool.cpp" />

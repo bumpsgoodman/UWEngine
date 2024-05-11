@@ -5,66 +5,8 @@
 * 작성일: 2023.12.20
 */
 #include "Precompiled.h"
-#include "IHashMap.h"
 #include "List.h"
-
-class HashMap final : public IHashMap
-{
-public:
-    HashMap() = default;
-    HashMap(const HashMap&) = delete;
-    HashMap& operator=(const HashMap&) = delete;
-    HashMap(HashMap&&) = default;
-    HashMap& operator=(HashMap&&) = default;
-    ~HashMap();
-
-    virtual UWMETHOD(bool) Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
-    virtual UWMETHOD(void) Release() override;
-    virtual UWMETHOD(void) Clear() override;
-
-    virtual UWMETHOD(bool) Insert(const void* pKey, const vsize keySize,
-                                  const void* pValue, const vsize valueSize) override;
-    virtual UWMETHOD(bool) InsertByHash(const void* pKey, const vsize keySize,
-                                        const void* pValue, const vsize valueSize,
-                                        const uint64 hash) override;
-
-    virtual UWMETHOD(bool) Remove(const void* pKey, const vsize keySize) override;
-    virtual UWMETHOD(bool) RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash) override;
-
-    virtual UWMETHOD(vsize) GetCount(const void* pKey, const vsize keySize) const override;
-    virtual UWMETHOD(vsize) GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const override;
-
-    virtual UWMETHOD(void*) GetValueOrNull(const void* pKey, const vsize keySize) const override;
-    virtual UWMETHOD(void*) GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const override;
-
-    virtual UWMETHOD(KeyValue*) GetKeyValuesOrNull() const override;
-    virtual UWMETHOD(vsize) GetKeySize() const override;
-    virtual UWMETHOD(vsize) GetValueSize() const override;
-    virtual UWMETHOD(vsize) GetNumKeyValues() const override;
-    virtual UWMETHOD(vsize) GetNumMaxKeyValues() const override;
-    virtual UWMETHOD(float) GetFactor() const override;
-
-    virtual UWMETHOD(void) SetFactor(float factor) override;
-
-private:
-    UWMETHOD(bool) expand();
-
-private:
-    vsize m_keySize = 0;
-    vsize m_valueSize = 0;
-    vsize m_numMaxKeyValues = 0;
-    vsize m_numKeyValues = 0;
-    float m_factor = 0.0f;
-
-    List* m_pBucket = nullptr;
-    vsize m_bucketSize = 0;
-
-    KeyValue* m_pKeyValues = nullptr;
-
-    void* m_pKeyPool = nullptr;
-    void* m_pValuePool = nullptr;
-    ListNode* m_pNodePool = nullptr;
-};
+#include "HashMap.h"
 
 static constexpr vsize S_BUCKET_SIZE_LIST[] =
 {
@@ -78,7 +20,7 @@ HashMap::~HashMap()
     Release();
 }
 
-UWMETHOD(bool) HashMap::Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues)
+bool __stdcall HashMap::Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues)
 {
     ASSERT(keySize > 0, "keySize == 0");
     ASSERT(valueSize > 0, "valueSize == 0");
@@ -131,7 +73,7 @@ UWMETHOD(bool) HashMap::Initialize(const vsize keySize, const vsize valueSize, c
     return bResult;
 }
 
-UWMETHOD(void) HashMap::Release()
+void __stdcall HashMap::Release()
 {
     SAFE_FREE(m_pNodePool);
     SAFE_FREE(m_pValuePool);
@@ -140,13 +82,13 @@ UWMETHOD(void) HashMap::Release()
     SAFE_FREE(m_pBucket);
 }
 
-UWMETHOD(void) HashMap::Clear()
+void __stdcall HashMap::Clear()
 {
     m_numKeyValues = 0;
     memset(m_pBucket, 0, sizeof(List) * m_bucketSize);
 }
 
-UWMETHOD(bool) HashMap::Insert(const void* pKey, const vsize keySize,
+bool __stdcall HashMap::Insert(const void* pKey, const vsize keySize,
                                const void* pValue, const vsize valueSize)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
@@ -156,7 +98,7 @@ UWMETHOD(bool) HashMap::Insert(const void* pKey, const vsize keySize,
     return InsertByHash(pKey, keySize, pValue, valueSize, hash);
 }
 
-UWMETHOD(bool) HashMap::InsertByHash(const void* pKey, const vsize keySize,
+bool __stdcall HashMap::InsertByHash(const void* pKey, const vsize keySize,
                                      const void* pValue, const vsize valueSize,
                                      const uint64 hash)
 {
@@ -216,7 +158,7 @@ lb_return:
     return bResult;
 }
 
-UWMETHOD(bool) HashMap::Remove(const void* pKey, const vsize keySize)
+bool __stdcall HashMap::Remove(const void* pKey, const vsize keySize)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -225,7 +167,7 @@ UWMETHOD(bool) HashMap::Remove(const void* pKey, const vsize keySize)
     return RemoveByHash(pKey, keySize, hash);
 }
 
-UWMETHOD(bool) HashMap::RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash)
+bool __stdcall HashMap::RemoveByHash(const void* pKey, const vsize keySize, const uint64 hash)
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -275,7 +217,7 @@ lb_return:
     return bResult;
 }
 
-UWMETHOD(vsize) HashMap::GetCount(const void* pKey, const vsize keySize) const
+vsize __stdcall HashMap::GetCount(const void* pKey, const vsize keySize) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -284,7 +226,7 @@ UWMETHOD(vsize) HashMap::GetCount(const void* pKey, const vsize keySize) const
     return GetCountByHash(pKey, keySize, hash);
 }
 
-UWMETHOD(vsize) HashMap::GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const
+vsize __stdcall HashMap::GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -307,7 +249,7 @@ UWMETHOD(vsize) HashMap::GetCountByHash(const void* pKey, const vsize keySize, c
     return count;
 }
 
-UWMETHOD(void*) HashMap::GetValueOrNull(const void* pKey, const vsize keySize) const
+void* __stdcall HashMap::GetValueOrNull(const void* pKey, const vsize keySize) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -316,7 +258,7 @@ UWMETHOD(void*) HashMap::GetValueOrNull(const void* pKey, const vsize keySize) c
     return GetValueByHashOrNull(pKey, keySize, hash);
 }
 
-UWMETHOD(void*) HashMap::GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const
+void* __stdcall HashMap::GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const
 {
     ASSERT(pKey != nullptr, "pKey == nullptr");
     ASSERT(keySize == m_keySize, "Mismatch key size");
@@ -339,37 +281,37 @@ UWMETHOD(void*) HashMap::GetValueByHashOrNull(const void* pKey, const vsize keyS
     return pKeyValue->pValue;
 }
 
-UWMETHOD(KeyValue*) HashMap::GetKeyValuesOrNull() const
+KeyValue* __stdcall HashMap::GetKeyValuesOrNull() const
 {
     return m_pKeyValues;
 }
 
-UWMETHOD(vsize) HashMap::GetKeySize() const
+vsize __stdcall HashMap::GetKeySize() const
 {
     return m_keySize;
 }
 
-UWMETHOD(vsize) HashMap::GetValueSize() const
+vsize __stdcall HashMap::GetValueSize() const
 {
     return m_valueSize;
 }
 
-UWMETHOD(vsize) HashMap::GetNumKeyValues() const
+vsize __stdcall HashMap::GetNumKeyValues() const
 {
     return m_numKeyValues;
 }
 
-UWMETHOD(vsize) HashMap::GetNumMaxKeyValues() const
+vsize __stdcall HashMap::GetNumMaxKeyValues() const
 {
     return (vsize)(m_numMaxKeyValues * m_factor);
 }
 
-UWMETHOD(float) HashMap::GetFactor() const
+float __stdcall HashMap::GetFactor() const
 {
     return m_factor;
 }
 
-UWMETHOD(void) HashMap::SetFactor(float factor)
+void __stdcall HashMap::SetFactor(float factor)
 {
     if (factor > 1.0f)
     {
@@ -385,7 +327,7 @@ UWMETHOD(void) HashMap::SetFactor(float factor)
     }
 }
 
-UWMETHOD(bool) HashMap::expand()
+bool __stdcall HashMap::expand()
 {
     bool bResult = false;
 
@@ -466,20 +408,4 @@ UWMETHOD(bool) HashMap::expand()
     bResult = true;
 
     return bResult;
-}
-
-GLOBAL_FUNC UWMETHOD(bool) CreateHashMap(IHashMap** ppOutHashMap)
-{
-    ASSERT(ppOutHashMap != nullptr, "ppOutHashMap == nullptr");
-
-    IHashMap* pHashMap = new HashMap;
-    *ppOutHashMap = pHashMap;
-
-    return true;
-}
-
-GLOBAL_FUNC UWMETHOD(void) DestroyHashMap(IHashMap* pHashMap)
-{
-    ASSERT(pHashMap != nullptr, "pHashMap == nullptr");
-    delete (HashMap*)pHashMap;
 }
