@@ -13,8 +13,6 @@ public:
     MeshObject() = default;
     MeshObject(const MeshObject&) = delete;
     MeshObject& operator=(const MeshObject&) = delete;
-    MeshObject(MeshObject&&) = default;
-    MeshObject& operator=(MeshObject&&) = default;
     virtual ~MeshObject() = default;
 
     virtual vsize       __stdcall       AddRef() override;
@@ -54,9 +52,6 @@ public:
     virtual void        __vectorcall    SetScale(const Vector4 scale) override;
 
     virtual void        __stdcall       SetCamera(ICamera* pCamera) override;
-
-    void* operator new(const vsize count);
-    void operator delete(void* pBlock);
 
 private:
     void                __stdcall   updateWorldMatrix();

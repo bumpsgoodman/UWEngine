@@ -37,9 +37,6 @@
 #endif
 #include <Windows.h>
 
-// D3D
-#include <d3dcompiler.h>
-
 // CRT
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
@@ -49,11 +46,17 @@
 // intrinsic
 #include <intrin.h>
 
+// D3D
+#include <d3d11.h>
+#include <d3dcompiler.h>
+
 // UWEngine
 #include "UWEngineCommon/Defines.h"
 #include "UWEngineCommon/Util/HashFunction.h"
 #include "UWEngineCommon/Util/Timer.h"
 
-#include "UWEngineMath/UWMath.h"
+#include "UWEngineMath/UWMath.inl"
+
+#include "UWEngineGeneric/IFixedArray.h"
 
 #include "D3D11Helper.h"

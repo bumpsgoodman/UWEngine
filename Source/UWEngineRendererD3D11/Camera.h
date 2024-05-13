@@ -13,8 +13,6 @@ public:
     Camera() = default;
     Camera(const Camera&) = delete;
     Camera& operator=(const Camera&) = delete;
-    Camera(Camera&&) = default;
-    Camera& operator=(Camera&&) = default;
     ~Camera() = default;
 
     virtual vsize       __stdcall       AddRef() override;
@@ -42,9 +40,6 @@ public:
 
     virtual Matrix44    __vectorcall    GetView() const override;
     virtual Matrix44    __vectorcall    GetProjection() const override;
-
-    void* operator new(const vsize count);
-    void operator delete(void* pBlock);
 
 private:
     vsize m_refCount = 0;

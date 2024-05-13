@@ -21,8 +21,6 @@ public:
     StaticMemoryPool() = default;
     StaticMemoryPool(const StaticMemoryPool&) = delete;
     StaticMemoryPool& operator=(const StaticMemoryPool&) = delete;
-    StaticMemoryPool(StaticMemoryPool&&) = default;
-    StaticMemoryPool& operator=(StaticMemoryPool&&) = default;
     ~StaticMemoryPool();
 
     virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;

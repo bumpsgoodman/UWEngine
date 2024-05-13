@@ -15,6 +15,8 @@
 // 문자열로 치환
 #define TO_STR(s) #s
 
+#define GET_MASK(flag, mask) ((flag) & (mask))
+
 // ASSERT
 #if defined(NDEBUG)
 #   define ASSERT(cond, msg) ((void)0)
@@ -63,9 +65,9 @@ typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
 // UW3D
 enum UW3D_INCLUDE_FLAG
 {
-    UW3D_INCLUDE_FLAG_NONE = 0,
-    UW3D_INCLUDE_FLAG_TEXTURE = (1 << 0),
-    UW3D_INCLUDE_FLAG_COLOR = (1 << 1)
+    UW3D_INCLUDE_FLAG_NONE =        0,
+    UW3D_INCLUDE_FLAG_TEXTURE =     (1 << 0),
+    UW3D_INCLUDE_FLAG_COLOR =       (1 << 1)
 };
 #define UW3D_HAS_INCLUDE_FLAG(flag, other) (((flag) & (other)) == (other))
 
@@ -73,4 +75,14 @@ enum RENDER_MODE
 {
     RENDER_MODE_SOLID,
     RENDER_MODE_WIREFRAME
+};
+
+enum VERTEX_BUFFER_FLAG
+{
+    VERTEX_BUFFER_FLAG_POS =           (1 << 0),
+    VERTEX_BUFFER_FLAG_NORMAL =        (1 << 1),
+    VERTEX_BUFFER_FLAG_TEXCOORD =      (1 << 2),
+    VERTEX_BUFFER_FLAG_COLOR =         (1 << 3),
+
+    VERTEX_BUFFER_FLAG_DEFAULT=        (VERTEX_BUFFER_FLAG_POS | VERTEX_BUFFER_FLAG_NORMAL),
 };

@@ -16,8 +16,8 @@
       <Filter>Private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathDefines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMath.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathMisc.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMath.inl" />
+    <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathMisc.inl" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>

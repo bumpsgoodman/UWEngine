@@ -450,13 +450,3 @@ void __stdcall MeshObject::updateWorldMatrix()
 
     m_world = scaleMat * rotationMat * translationMat;
 }
-
-void* MeshObject::operator new(const vsize count)
-{
-    return _aligned_malloc(sizeof(MeshObject), DEFAULT_ALIGN);
-}
-
-void MeshObject::operator delete(void* pBlock)
-{
-    _aligned_free(pBlock);
-}

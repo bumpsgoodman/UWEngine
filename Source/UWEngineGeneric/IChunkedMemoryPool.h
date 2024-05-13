@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include "UWEngineCommon/Defines.h"
-
 interface IChunkedMemoryPool
 {
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numElementsPerBlock) = 0;

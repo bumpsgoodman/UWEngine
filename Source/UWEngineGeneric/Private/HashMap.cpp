@@ -4,9 +4,10 @@
 * 작성자: bumpsgoodman
 * 작성일: 2023.12.20
 */
+
 #include "Precompiled.h"
-#include "List.h"
 #include "IHashMap.h"
+#include "List.h"
 
 class HashMap final : public IHashMap
 {
@@ -14,8 +15,6 @@ public:
     HashMap() = default;
     HashMap(const HashMap&) = delete;
     HashMap& operator=(const HashMap&) = delete;
-    HashMap(HashMap&&) = default;
-    HashMap& operator=(HashMap&&) = default;
     ~HashMap();
 
     virtual bool        __stdcall   Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
@@ -31,10 +30,10 @@ public:
     virtual vsize       __stdcall   GetCount(const void* pKey, const vsize keySize) const override;
     virtual vsize       __stdcall   GetCountByHash(const void* pKey, const vsize keySize, const uint64 hash) const override;
 
-    virtual void* __stdcall   GetValueOrNull(const void* pKey, const vsize keySize) const override;
-    virtual void* __stdcall   GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const override;
+    virtual void*       __stdcall   GetValueOrNull(const void* pKey, const vsize keySize) const override;
+    virtual void*       __stdcall   GetValueByHashOrNull(const void* pKey, const vsize keySize, const uint64 hash) const override;
 
-    virtual KeyValue* __stdcall   GetKeyValuesOrNull() const override;
+    virtual KeyValue*   __stdcall   GetKeyValuesOrNull() const override;
     virtual vsize       __stdcall   GetKeySize() const override;
     virtual vsize       __stdcall   GetValueSize() const override;
     virtual vsize       __stdcall   GetNumKeyValues() const override;

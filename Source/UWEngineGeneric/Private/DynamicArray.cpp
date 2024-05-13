@@ -14,8 +14,6 @@ public:
     DynamicArray() = default;
     DynamicArray(const DynamicArray&) = delete;
     DynamicArray& operator=(const DynamicArray&) = delete;
-    DynamicArray(DynamicArray&&) = default;
-    DynamicArray& operator=(DynamicArray&&) = default;
     ~DynamicArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numDefaultElements) override;

@@ -13,7 +13,7 @@ using namespace DirectX;
 
 #include "UWEngineCommon/Defines.h"
 #include "UWMathDefines.h"
-#include "UWMathMisc.h"
+#include "UWMathMisc.inl"
 
 ALIGN16 union Color4
 {
@@ -25,6 +25,7 @@ ALIGN16 union Color4
         float Alpha;
     };
     float RGBA[4];
+    __m128 MM_RGBA;
 };
 
 ALIGN16 union Vector4
@@ -53,9 +54,9 @@ ALIGN16 union Vector4
     inline Vector4      __vectorcall    operator*(const float scalar) const;
     inline Vector4      __vectorcall    operator/(const float scalar) const;
 
-    inline Vector4&     __vectorcall    operator += (const Vector4 v);
-    inline Vector4&     __vectorcall    operator -= (const Vector4 v);
-    inline Vector4&     __vectorcall    operator *= (const Vector4 v);
+    inline Vector4&     __vectorcall    operator+=(const Vector4 v);
+    inline Vector4&     __vectorcall    operator-=(const Vector4 v);
+    inline Vector4&     __vectorcall    operator*=(const Vector4 v);
     inline Vector4&     __vectorcall    operator/=(const Vector4 v);
 
     inline Vector4&     __vectorcall    operator+=(const float scalar);

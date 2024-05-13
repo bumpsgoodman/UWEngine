@@ -27,10 +27,12 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Camera.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\FaceGroup.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IndexBuffer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\MeshObject.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\DDSTextureLoader.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\RendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +43,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\FaceGroup.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\IndexBuffer.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\MeshObject.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\RendererD3D11.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.cpp">
@@ -49,6 +53,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="UWEngineRendererD3D11.def" />
@@ -130,6 +135,7 @@
       <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineRendererD3D11;..\..\..\Source\UWEngineRendererD3D11\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,6 +157,7 @@
       <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineRendererD3D11;..\..\..\Source\UWEngineRendererD3D11\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,7 +179,7 @@
       <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineRendererD3D11;..\..\..\Source\UWEngineRendererD3D11\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -194,6 +201,7 @@
       <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineRendererD3D11;..\..\..\Source\UWEngineRendererD3D11\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

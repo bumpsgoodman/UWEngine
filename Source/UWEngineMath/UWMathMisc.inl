@@ -55,8 +55,8 @@ inline float __stdcall DegreeToRad(const float degree)
 // DirectXMath에서 가져옴
 inline void __stdcall GetSinCos(const float rad, float* pOutSin, float* pOutCos)
 {
-    ASSERT(pOutSin != NULL, "pOutSin == NULL");
-    ASSERT(pOutCos != NULL, "pOutCos == NULL");
+    ASSERT(pOutSin != nullptr, "pOutSin == nullptr");
+    ASSERT(pOutCos != nullptr, "pOutCos == nullptr");
 
     // Map Value to y in [-pi,pi], x = 2*pi*quotient + remainder.
     float quotient = PI_1_DIV_2PI * rad;

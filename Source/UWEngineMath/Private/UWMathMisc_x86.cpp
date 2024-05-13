@@ -6,7 +6,7 @@
 */
 
 #include "Precompiled.h"
-#include "UWMathMisc.h"
+#include "UWMathMisc.inl"
 
 GLOBAL_FUNC __declspec(naked) int __stdcall Log2Int64(const uint64 num)
 {

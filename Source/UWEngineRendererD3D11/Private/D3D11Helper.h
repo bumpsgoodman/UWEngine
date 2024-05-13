@@ -7,8 +7,4 @@
 
 #pragma once
 
-#include "UWEngineCommon/Defines.h"
-#include <Windows.h>
-#include <d3d11.h>
-
 HRESULT __stdcall CompileShaderFromFile(const wchar_t* pFileName, const char* pEntrypoint, const char* pShaderModel, ID3DBlob** ppShaderBlob);

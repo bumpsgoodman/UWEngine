@@ -34,8 +34,6 @@ public:
     ChunkedMemoryPool() = default;
     ChunkedMemoryPool(const ChunkedMemoryPool&) = delete;
     ChunkedMemoryPool& operator=(const ChunkedMemoryPool&) = delete;
-    ChunkedMemoryPool(ChunkedMemoryPool&&) = default;
-    ChunkedMemoryPool& operator=(ChunkedMemoryPool&&) = default;
     ~ChunkedMemoryPool();
 
     virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;

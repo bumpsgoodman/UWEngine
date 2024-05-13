@@ -46,6 +46,8 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Camera.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\MeshObject.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\RendererD3D11.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IndexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
@@ -69,6 +71,13 @@
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\D3D11Helper.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\VertexBuffer.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\IndexBuffer.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\FaceGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="UWEngineRendererD3D11.def" />

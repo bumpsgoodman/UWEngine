@@ -14,8 +14,6 @@ public:
     FixedArray() = default;
     FixedArray(const FixedArray&) = delete;
     FixedArray& operator=(const FixedArray&) = delete;
-    FixedArray(FixedArray&&) = default;
-    FixedArray& operator=(FixedArray&&) = default;
     ~FixedArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) override;

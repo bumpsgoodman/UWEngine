@@ -147,13 +147,3 @@ Matrix44 __vectorcall Camera::GetProjection() const
 {
     return UW_XMMatrixToMatrix44(m_projection);
 }
-
-void* Camera::operator new(const vsize count)
-{
-    return _aligned_malloc(sizeof(Camera), DEFAULT_ALIGN);
-}
-
-void Camera::operator delete(void* pBlock)
-{
-    _aligned_free(pBlock);
-}
