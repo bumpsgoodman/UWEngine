@@ -14,7 +14,7 @@ public:
     DynamicArray() = default;
     DynamicArray(const DynamicArray&) = delete;
     DynamicArray& operator=(const DynamicArray&) = delete;
-    ~DynamicArray();
+    virtual ~DynamicArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numDefaultElements) override;
     virtual void    __stdcall   Release() override;
@@ -227,8 +227,10 @@ GLOBAL_FUNC bool __stdcall CreateDynamicArray(IDynamicArray** ppOutDynamicArray)
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArray)
+GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArrayOrNull)
 {
-    ASSERT(pDynamicArray != nullptr, "pDynamicArray == nullptr");
-    delete (DynamicArray*)pDynamicArray;
+    if (pDynamicArrayOrNull != nullptr)
+    {
+        delete pDynamicArrayOrNull;
+    }
 }

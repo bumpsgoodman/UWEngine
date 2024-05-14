@@ -31,4 +31,4 @@ public:
 };
 
 GLOBAL_FUNC bool __stdcall CreateFixedArray(IFixedArray** ppOutFixedArray);
-GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArray);
+GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArrayOrNull);

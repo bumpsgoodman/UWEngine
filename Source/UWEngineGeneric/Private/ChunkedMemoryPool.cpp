@@ -34,31 +34,31 @@ public:
     ChunkedMemoryPool() = default;
     ChunkedMemoryPool(const ChunkedMemoryPool&) = delete;
     ChunkedMemoryPool& operator=(const ChunkedMemoryPool&) = delete;
-    ~ChunkedMemoryPool();
+    virtual ~ChunkedMemoryPool();
 
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
-    virtual void __stdcall Release() override;
+    virtual bool    __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
+    virtual void    __stdcall Release() override;
 
-    virtual void* __stdcall AllocateOrNull() override;
-    virtual void __stdcall Free(void* pMemory) override;
-    virtual void __stdcall Reset() override;
-    virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
+    virtual void*   __stdcall AllocateOrNull() override;
+    virtual void    __stdcall Free(void* pMemory) override;
+    virtual void    __stdcall Reset() override;
+    virtual bool    __stdcall IsValidMemory(const void* pMemory) const override;
 
-    virtual vsize __stdcall GetElementSize() const override;
-    virtual vsize __stdcall GetNumAllocElements() const override;
-    virtual vsize __stdcall GetNumElementsPerChunk() const override;
+    virtual vsize   __stdcall GetElementSize() const override;
+    virtual vsize   __stdcall GetNumAllocElements() const override;
+    virtual vsize   __stdcall GetNumElementsPerChunk() const override;
 
 private:
     bool __stdcall addChunk();
 
 private:
-    ListNode* m_pChunkHead = nullptr;
-    ListNode* m_pChunkTail = nullptr;
+    ListNode*   m_pChunkHead = nullptr;
+    ListNode*   m_pChunkTail = nullptr;
 
-    vsize m_elementSize = 0;
-    vsize m_elementSizeWithHeader = 0;
-    vsize m_numElementsPerChunk = 0;
-    vsize m_numAllocElements = 0;
+    vsize       m_elementSize = 0;
+    vsize       m_elementSizeWithHeader = 0;
+    vsize       m_numElementsPerChunk = 0;
+    vsize       m_numAllocElements = 0;
 };
 
 ChunkedMemoryPool::~ChunkedMemoryPool()
@@ -270,8 +270,10 @@ GLOBAL_FUNC bool __stdcall CreateChunkedMemoryPool(IChunkedMemoryPool** ppOutChu
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPool)
+GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunkedMemoryPoolOrNull)
 {
-    ASSERT(pChunkedMemoryPool != nullptr, "pChunkedMemoryPool == nullptr");
-    delete (ChunkedMemoryPool*)pChunkedMemoryPool;
+    if (pChunkedMemoryPoolOrNull != nullptr)
+    {
+        delete pChunkedMemoryPoolOrNull;
+    }
 }

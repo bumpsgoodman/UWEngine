@@ -15,7 +15,7 @@ public:
     HashMap() = default;
     HashMap(const HashMap&) = delete;
     HashMap& operator=(const HashMap&) = delete;
-    ~HashMap();
+    virtual ~HashMap();
 
     virtual bool        __stdcall   Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
     virtual void        __stdcall   Release() override;
@@ -54,14 +54,14 @@ private:
     vsize       m_numKeyValues = 0;
     float       m_factor = 0.0f;
 
-    List* m_pBucket = nullptr;
+    List*       m_pBucket = nullptr;
     vsize       m_bucketSize = 0;
 
-    KeyValue* m_pKeyValues = nullptr;
+    KeyValue*   m_pKeyValues = nullptr;
 
-    void* m_pKeyPool = nullptr;
-    void* m_pValuePool = nullptr;
-    ListNode* m_pNodePool = nullptr;
+    void*       m_pKeyPool = nullptr;
+    void*       m_pValuePool = nullptr;
+    ListNode*   m_pNodePool = nullptr;
 };
 
 static constexpr vsize S_BUCKET_SIZE_LIST[] =
@@ -476,8 +476,10 @@ GLOBAL_FUNC bool __stdcall CreateHashMap(IHashMap** ppOutHashMap)
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMap)
+GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMapOrNull)
 {
-    ASSERT(pHashMap != nullptr, "pHashMap == nullptr");
-    delete (HashMap*)pHashMap;
+    if (pHashMapOrNull != nullptr)
+    {
+        delete pHashMapOrNull;
+    }
 }

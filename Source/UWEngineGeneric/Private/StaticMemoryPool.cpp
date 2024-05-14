@@ -21,19 +21,19 @@ public:
     StaticMemoryPool() = default;
     StaticMemoryPool(const StaticMemoryPool&) = delete;
     StaticMemoryPool& operator=(const StaticMemoryPool&) = delete;
-    ~StaticMemoryPool();
+    virtual ~StaticMemoryPool();
 
-    virtual bool __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
-    virtual void __stdcall Release() override;
-    virtual void __stdcall Reset() override;
+    virtual bool    __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
+    virtual void    __stdcall Release() override;
+    virtual void    __stdcall Reset() override;
 
-    virtual void* __stdcall AllocateOrNull() override;
-    virtual void __stdcall Free(void* pMemory) override;
-    virtual bool __stdcall IsValidMemory(const void* pMemory) const override;
+    virtual void*   __stdcall AllocateOrNull() override;
+    virtual void    __stdcall Free(void* pMemory) override;
+    virtual bool    __stdcall IsValidMemory(const void* pMemory) const override;
 
-    virtual vsize __stdcall GetElementSize() const override;
-    virtual vsize __stdcall GetNumAllocElements() const override;
-    virtual vsize __stdcall GetNumMaxElements() const override;
+    virtual vsize   __stdcall GetElementSize() const override;
+    virtual vsize   __stdcall GetNumAllocElements() const override;
+    virtual vsize   __stdcall GetNumMaxElements() const override;
 
 private:
     void** m_ppBlocks = nullptr;
@@ -222,8 +222,10 @@ GLOBAL_FUNC bool __stdcall CreateStaticMemoryPool(IStaticMemoryPool** ppOutStati
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPool)
+GLOBAL_FUNC void __stdcall DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMemoryPoolOrNull)
 {
-    ASSERT(pStaticMemoryPool != nullptr, "pStaticMemoryPool == nullptr");
-    delete (StaticMemoryPool*)pStaticMemoryPool;
+    if (pStaticMemoryPoolOrNull != nullptr)
+    {
+        delete pStaticMemoryPoolOrNull;
+    }
 }

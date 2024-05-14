@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include "VertexBuffer.h"
+#include "TextureFaceGroup.h"
+
 ALIGN16 class MeshObject : public IMeshObject
 {
 public:
@@ -54,7 +57,7 @@ public:
     virtual void        __stdcall       SetCamera(ICamera* pCamera) override;
 
 private:
-    void                __stdcall   updateWorldMatrix();
+    void                __stdcall       updateWorldMatrix();
 
 private:
     vsize                       m_refCount = 0;
@@ -71,6 +74,9 @@ private:
     XMMATRIX                    m_world = {};
 
     // 모델 데이터
+    VertexBuffer                m_vertexBuffer;
+    TextureFaceGroup            m_faceGroup;
+
     ID3D11ShaderResourceView**  m_ppTextureResourceViews = nullptr;
     ID3D11SamplerState*         m_pSamplerLinear = nullptr;
 

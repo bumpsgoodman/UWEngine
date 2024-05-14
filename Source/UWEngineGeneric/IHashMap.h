@@ -52,4 +52,4 @@ public:
 };
 
 GLOBAL_FUNC bool __stdcall CreateHashMap(IHashMap** ppOutHashMap);
-GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMap);
+GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMapOrNull);

@@ -31,4 +31,4 @@ public:
 };
 
 GLOBAL_FUNC bool __stdcall CreateDynamicArray(IDynamicArray** ppOutDynamicArray);
-GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArray);
+GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArrayOrNull);

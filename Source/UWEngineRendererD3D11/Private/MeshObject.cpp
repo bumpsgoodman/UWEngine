@@ -160,6 +160,8 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
 
+
+
         m_ppTextureResourceViews = (ID3D11ShaderResourceView**)malloc(sizeof(UW_PTR_SIZE) * numIndexBuffers);
         ASSERT(m_ppTextureResourceViews != nullptr, "Failed to malloc texture resource views");
 
@@ -212,6 +214,8 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
 
     SAFE_RELEASE(pVertexShaderBlob);
     SAFE_RELEASE(pPixelShaderBlob);
+
+    m_vertexBuffer.Initialize(m_pRenderer,)
 
     D3D11_BUFFER_DESC bd;
     memset(&bd, 0, sizeof(bd));

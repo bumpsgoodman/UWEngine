@@ -60,3 +60,4 @@
 #include "UWEngineGeneric/IFixedArray.h"
 
 #include "D3D11Helper.h"
+#include "DDSTextureLoader.h"

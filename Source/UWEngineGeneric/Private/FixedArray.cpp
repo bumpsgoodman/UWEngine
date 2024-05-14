@@ -14,7 +14,7 @@ public:
     FixedArray() = default;
     FixedArray(const FixedArray&) = delete;
     FixedArray& operator=(const FixedArray&) = delete;
-    ~FixedArray();
+    virtual ~FixedArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) override;
     virtual void    __stdcall   Release() override;
@@ -28,9 +28,9 @@ public:
     virtual bool    __stdcall   Insert(const void* pElementOrNull, const vsize elementSize, const vsize index) override;
     virtual bool    __stdcall   Remove(const vsize index) override;
 
-    virtual void* __stdcall   GetBackOrNull() const override;
-    virtual void* __stdcall   GetElementOrNull(const vsize index) const override;
-    virtual void* __stdcall   GetElementsPtrOrNull() const override;
+    virtual void*   __stdcall   GetBackOrNull() const override;
+    virtual void*   __stdcall   GetElementOrNull(const vsize index) const override;
+    virtual void*   __stdcall   GetElementsPtrOrNull() const override;
     virtual vsize   __stdcall   GetElementSize() const override;
     virtual vsize   __stdcall   GetNumMaxElements() const override;
     virtual vsize   __stdcall   GetNumElements() const override;
@@ -201,8 +201,10 @@ GLOBAL_FUNC bool __stdcall CreateFixedArray(IFixedArray** ppOutFixedArray)
     return true;
 }
 
-GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArray)
+GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArrayOrNull)
 {
-    ASSERT(pFixedArray != nullptr, "pFixedArray == nullptr");
-    delete (FixedArray*)pFixedArray;
+    if (pFixedArrayOrNull != nullptr)
+    {
+        delete pFixedArrayOrNull;
+    }
 }
