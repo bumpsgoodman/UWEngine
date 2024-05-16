@@ -7,7 +7,7 @@
 
 #pragma once
 
-class RendererD3D11;
+interface IRenderer;
 
 class IndexBuffer final
 {
@@ -17,7 +17,7 @@ public:
     IndexBuffer& operator=(const IndexBuffer&) = delete;
     ~IndexBuffer();
 
-    bool            __stdcall   Initialize(RendererD3D11* pRenderer, const vsize numIndices);
+    bool            __stdcall   Initialize(IRenderer* pRenderer, const vsize numIndices);
     void            __stdcall   Release();
 
     vsize           __stdcall   GetStartIndex() const;
@@ -29,7 +29,7 @@ public:
     ID3D11Buffer*   __stdcall   GetBuffer() const;
 
 private:
-    RendererD3D11*      m_pRenderer = nullptr;
+    IRenderer*          m_pRenderer = nullptr;
 
     vsize               m_numIndices = 0;
     ID3D11Buffer*       m_pIndexBuffer = nullptr;

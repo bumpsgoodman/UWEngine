@@ -7,7 +7,7 @@
 
 #pragma once
 
-class RendererD3D11;
+interface IRenderer;
 
 class VertexBuffer final
 {
@@ -17,7 +17,7 @@ public:
     VertexBuffer& operator=(const VertexBuffer&) = delete;
     ~VertexBuffer();
 
-    bool            __stdcall   Initialize(RendererD3D11* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices);
+    bool            __stdcall   Initialize(IRenderer* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices);
     void            __stdcall   Release();
 
     vsize           __stdcall   GetStartIndex() const;
@@ -29,7 +29,7 @@ public:
     ID3D11Buffer*   __stdcall   GetBuffer() const;
 
 private:
-    RendererD3D11*      m_pRenderer = nullptr;
+    IRenderer*          m_pRenderer = nullptr;
 
     uint                m_flag = 0;
     vsize               m_numVertices = 0;

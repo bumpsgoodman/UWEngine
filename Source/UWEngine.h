@@ -11,7 +11,7 @@
 #include "UWEngineCommon/Util/Timer.h"
 #include "UWEngineCommon/Util/HashFunction.h"
 
-#include "UWEngineMath/UWMath.h"
+#include "UWEngineMath/UWMath.inl"
 
 #include "UWEngineCommon/Interfaces/IRenderer.h"
 

@@ -8,7 +8,7 @@
 #include "Precompiled.h"
 #include "TextureFaceGroup.h"
 #include "IndexBuffer.h"
-#include "RendererD3D11.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
 
 TextureFaceGroup::~TextureFaceGroup()
 {
@@ -21,7 +21,7 @@ void TextureFaceGroup::Release()
     DestroyFixedArray(m_pTextures);
 }
 
-bool __stdcall TextureFaceGroup::Initialize(RendererD3D11* pRenderer, const vsize numFaces)
+bool __stdcall TextureFaceGroup::Initialize(IRenderer* pRenderer, const vsize numFaces)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
     ASSERT(numFaces > 0, "numFaces == 0");

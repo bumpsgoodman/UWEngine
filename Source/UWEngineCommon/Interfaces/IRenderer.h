@@ -41,6 +41,7 @@ interface IMeshObject : public IRefObject
     virtual bool        __stdcall       CreateMesh(const int includeFlag,
                                                    const void* pVertices, const uint vertexSize, const uint numVertices,
                                                    const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                                   const void* pTexCoordsOrNull,
                                                    const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
                                                    const wchar_t* pShaderFileName) = 0;
     virtual void        __stdcall       RenderMesh() = 0;

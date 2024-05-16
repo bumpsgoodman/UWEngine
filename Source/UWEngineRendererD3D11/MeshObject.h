@@ -27,6 +27,7 @@ public:
     virtual bool        __stdcall       CreateMesh(const int includeFlag,
                                                    const void* pVertices, const uint vertexSize, const uint numVertices,
                                                    const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                                   const void* pTexCoordsOrNull,
                                                    const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
                                                    const wchar_t* pShaderFileName) override;
     virtual void        __stdcall       RenderMesh() override;
@@ -75,6 +76,7 @@ private:
 
     // 모델 데이터
     VertexBuffer                m_vertexBuffer;
+    VertexBuffer                m_uvBuffer;
     TextureFaceGroup            m_faceGroup;
 
     ID3D11ShaderResourceView**  m_ppTextureResourceViews = nullptr;
@@ -87,6 +89,7 @@ private:
     uint                        m_numIndexBuffers = 0;
 
     ID3D11Buffer*               m_pVertexBuffer = nullptr;
+    ID3D11Buffer*               m_pUVBuffer = nullptr;
     ID3D11Buffer**              m_ppIndexBuffers = nullptr;
     uint16*                     m_pNumIndices = 0;
 

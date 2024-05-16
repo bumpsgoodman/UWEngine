@@ -9,8 +9,8 @@
 
 #include "IndexBuffer.h"
 
-class RendererD3D11;
-class IFxedArray;
+interface IRenderer;
+interface IFxedArray;
 
 class TextureFaceGroup final
 {
@@ -20,7 +20,7 @@ public:
     TextureFaceGroup& operator=(const TextureFaceGroup&) = delete;
     ~TextureFaceGroup();
 
-    bool                        __stdcall   Initialize(RendererD3D11* pRenderer, const vsize numFaces);
+    bool                        __stdcall   Initialize(IRenderer* pRenderer, const vsize numFaces);
     void                        __stdcall   Release();
 
     bool                        __stdcall   AddIndexBuffer(const uint16* pIndices, const vsize numIndices);
@@ -30,7 +30,7 @@ public:
     ID3D11ShaderResourceView*   __stdcall   GetTexture(const vsize index);
 
 private:
-    RendererD3D11*     m_pRenderer = nullptr;
+    IRenderer*          m_pRenderer = nullptr;
 
     vsize               m_numFaces = 0;
     IFixedArray*        m_pIndexBuffers = nullptr;  // <IndexBuffer*>

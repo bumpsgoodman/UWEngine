@@ -85,6 +85,7 @@ bool __stdcall MeshObject::Initialize(IRenderer* pRenderer)
 bool __stdcall MeshObject::CreateMesh(const int includeFlag,
                                       const void* pVertices, const uint vertexSize, const uint numVertices,
                                       const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                      const void* pTexCoordsOrNull,
                                       const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
                                       const wchar_t* pShaderFileName)
 {
@@ -154,8 +155,8 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         layout[2].SemanticName = "TEXCOORD";
         layout[2].SemanticIndex = 0;
         layout[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-        layout[2].InputSlot = 0;
-        layout[2].AlignedByteOffset = 24;
+        layout[2].InputSlot = 1;
+        layout[2].AlignedByteOffset = 0;
         layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
@@ -215,7 +216,31 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     SAFE_RELEASE(pVertexShaderBlob);
     SAFE_RELEASE(pPixelShaderBlob);
 
-    m_vertexBuffer.Initialize(m_pRenderer,)
+    if (!m_vertexBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_DEFAULT, vertexSize, numVertices))
+    {
+        CRASH();
+        goto lb_return;
+    }
+    m_vertexBuffer.SetVertex(pVertices, numVertices, vertexSize, 0, VERTEX_BUFFER_FLAG_DEFAULT);
+
+    if (GET_MASK(includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
+    {
+        if (!m_uvBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_TEXCOORD, sizeof(float) * 2, numVertices))
+        {
+            CRASH();
+            goto lb_return;
+        }
+
+        m_uvBuffer.SetVertex(pTexCoordsOrNull, numVertices, sizeof(float) * 2, 0, VERTEX_BUFFER_FLAG_TEXCOORD);
+
+        m_faceGroup.Initialize(m_pRenderer, numIndexBuffers);
+        
+        for (vsize i = 0; i < numIndexBuffers; ++i)
+        {
+            m_faceGroup.AddIndexBuffer(ppIndices[i], pNumIndices[i]);
+            m_faceGroup.AddTexture(ppTextureFileNamesOrNull[i]);
+        }
+    }
 
     D3D11_BUFFER_DESC bd;
     memset(&bd, 0, sizeof(bd));
@@ -229,6 +254,21 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     initData.pSysMem = pVertices;
 
     hr = m_pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer);
+    if (FAILED(hr))
+    {
+        CRASH();
+        goto lb_return;
+    }
+
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(float) * 2 * numVertices;
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+
+    memset(&initData, 0, sizeof(initData));
+    initData.pSysMem = pTexCoordsOrNull;
+
+    hr = m_pDevice->CreateBuffer(&bd, &initData, &m_pUVBuffer);
     if (FAILED(hr))
     {
         CRASH();
@@ -294,11 +334,12 @@ void __stdcall MeshObject::RenderMesh()
     cb.WVP = XMMatrixTranspose(m_world * UW_Matrix44ToXMMatrix(m_pCamera->GetView()) * UW_Matrix44ToXMMatrix(m_pCamera->GetProjection()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-    UINT stride = m_vertexSize;
-    UINT offset = 0;
+    UINT strides[] = { m_vertexSize, sizeof(float) * 2 };
+    UINT offsets[] = { 0, 0 };
+    ID3D11Buffer* buffers[] = { m_vertexBuffer.GetBuffer(), m_uvBuffer.GetBuffer() };
 
     m_pImmediateContext->IASetInputLayout(m_pVertexLayout);
-    m_pImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+    m_pImmediateContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
 
     m_pImmediateContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
@@ -306,18 +347,21 @@ void __stdcall MeshObject::RenderMesh()
 
     m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+#if 1
     for (vsize i = 0; i < m_numIndexBuffers; ++i)
     {
-        m_pImmediateContext->IASetIndexBuffer(m_ppIndexBuffers[i], DXGI_FORMAT_R16_UINT, 0);
+        m_pImmediateContext->IASetIndexBuffer(m_faceGroup.GetIndexBuffer(i)->GetBuffer(), DXGI_FORMAT_R16_UINT, 0);
 
         if (UW3D_HAS_INCLUDE_FLAG(m_includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
         {
-            m_pImmediateContext->PSSetShaderResources(0, 1, &m_ppTextureResourceViews[i]);
+            ID3D11ShaderResourceView* pTexture = m_faceGroup.GetTexture(i);
+            m_pImmediateContext->PSSetShaderResources(0, 1, &pTexture);
             m_pImmediateContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
         }
 
-        m_pImmediateContext->DrawIndexed(m_pNumIndices[i], 0, 0);
+        m_pImmediateContext->DrawIndexed((UINT)m_faceGroup.GetIndexBuffer(i)->GetNumIndices(), 0, 0);
     }
+#endif
 }
 
 void __vectorcall MeshObject::Translate(const Vector4 dist)

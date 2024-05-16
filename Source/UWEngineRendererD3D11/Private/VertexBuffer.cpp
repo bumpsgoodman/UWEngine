@@ -7,14 +7,14 @@
 
 #include "Precompiled.h"
 #include "VertexBuffer.h"
-#include "RendererD3D11.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
 
 VertexBuffer::~VertexBuffer()
 {
     Release();
 }
 
-bool __stdcall VertexBuffer::Initialize(RendererD3D11* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices)
+bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
     ASSERT(flag > 0, "Invalid flag");
@@ -84,7 +84,7 @@ bool __stdcall VertexBuffer::SetVertex(const void* pVertices, const vsize num, c
     ID3D11DeviceContext* pImmediateContext = (ID3D11DeviceContext*)m_pRenderer->GetD3DImmediateContext();
 
     D3D11_MAPPED_SUBRESOURCE subResource;
-    hr = pImmediateContext->Map(m_pVertexBuffer, 0, D3D11_MAP_WRITE, 0, &subResource);
+    hr = pImmediateContext->Map(m_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
     if (FAILED(hr))
     {
         goto lb_return;

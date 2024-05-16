@@ -7,14 +7,14 @@
 
 #include "Precompiled.h"
 #include "IndexBuffer.h"
-#include "RendererD3D11.h"
+#include "UWEngineCommon/Interfaces/IRenderer.h"
 
 IndexBuffer::~IndexBuffer()
 {
     Release();
 }
 
-bool __stdcall IndexBuffer::Initialize(RendererD3D11* pRenderer, const vsize numIndices)
+bool __stdcall IndexBuffer::Initialize(IRenderer* pRenderer, const vsize numIndices)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
     ASSERT(numIndices > 0 && numIndices % 3 == 0, "Wrong numIndices") // 현재는 삼각형 단위로만 가능
@@ -77,7 +77,7 @@ bool __stdcall IndexBuffer::SetIndex(const void* pIndices, const vsize numIndice
     ID3D11DeviceContext* pImmediateContext = (ID3D11DeviceContext*)m_pRenderer->GetD3DImmediateContext();
 
     D3D11_MAPPED_SUBRESOURCE subResource;
-    hr = pImmediateContext->Map(m_pIndexBuffer, 0, D3D11_MAP_WRITE, 0, &subResource);
+    hr = pImmediateContext->Map(m_pIndexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
     if (FAILED(hr))
     {
         goto lb_return;
