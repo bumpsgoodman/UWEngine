@@ -161,8 +161,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
 
-
-
         m_ppTextureResourceViews = (ID3D11ShaderResourceView**)malloc(sizeof(UW_PTR_SIZE) * numIndexBuffers);
         ASSERT(m_ppTextureResourceViews != nullptr, "Failed to malloc texture resource views");
 
@@ -216,6 +214,7 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     SAFE_RELEASE(pVertexShaderBlob);
     SAFE_RELEASE(pPixelShaderBlob);
 
+    // 버텍스 버퍼 초기화
     if (!m_vertexBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_DEFAULT, vertexSize, numVertices))
     {
         CRASH();
@@ -244,62 +243,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
 
     D3D11_BUFFER_DESC bd;
     memset(&bd, 0, sizeof(bd));
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = vertexSize * numVertices;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA initData;
-    memset(&initData, 0, sizeof(initData));
-    initData.pSysMem = pVertices;
-
-    hr = m_pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer);
-    if (FAILED(hr))
-    {
-        CRASH();
-        goto lb_return;
-    }
-
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(float) * 2 * numVertices;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-
-    memset(&initData, 0, sizeof(initData));
-    initData.pSysMem = pTexCoordsOrNull;
-
-    hr = m_pDevice->CreateBuffer(&bd, &initData, &m_pUVBuffer);
-    if (FAILED(hr))
-    {
-        CRASH();
-        goto lb_return;
-    }
-
-    m_ppIndexBuffers = (ID3D11Buffer**)malloc(sizeof(UW_PTR_SIZE) * numIndexBuffers);
-    ASSERT(m_ppIndexBuffers != nullptr, "Failed to malloc index buffers");
-
-    m_pNumIndices = (uint16*)malloc(sizeof(uint16) * numIndexBuffers);
-    ASSERT(m_pNumIndices != nullptr, "Failed to malloc m_pNumIndices");
-
-    for (vsize i = 0; i < numIndexBuffers; ++i)
-    {
-        bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(uint16) * pNumIndices[i];
-        bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        bd.CPUAccessFlags = 0;
-        initData.pSysMem = ppIndices[i];
-
-        m_ppIndexBuffers[i] = nullptr;
-        hr = m_pDevice->CreateBuffer(&bd, &initData, &m_ppIndexBuffers[i]);
-        if (FAILED(hr))
-        {
-            CRASH();
-            goto lb_return;
-        }
-
-        m_pNumIndices[i] = pNumIndices[i];
-    }
-
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(ConstantBuffer);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -347,7 +290,6 @@ void __stdcall MeshObject::RenderMesh()
 
     m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-#if 1
     for (vsize i = 0; i < m_numIndexBuffers; ++i)
     {
         m_pImmediateContext->IASetIndexBuffer(m_faceGroup.GetIndexBuffer(i)->GetBuffer(), DXGI_FORMAT_R16_UINT, 0);
@@ -361,7 +303,6 @@ void __stdcall MeshObject::RenderMesh()
 
         m_pImmediateContext->DrawIndexed((UINT)m_faceGroup.GetIndexBuffer(i)->GetNumIndices(), 0, 0);
     }
-#endif
 }
 
 void __vectorcall MeshObject::Translate(const Vector4 dist)
