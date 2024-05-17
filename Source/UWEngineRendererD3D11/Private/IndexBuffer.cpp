@@ -38,6 +38,7 @@ bool __stdcall IndexBuffer::Initialize(IRenderer* pRenderer, const vsize numIndi
         goto lb_return;
     }
 
+    pRenderer->AddRef();
     m_pRenderer = pRenderer;
     m_numIndices = numIndices;
     m_startIndex = 0;
@@ -53,6 +54,7 @@ lb_return:
 void __stdcall IndexBuffer::Release()
 {
     SAFE_RELEASE(m_pIndexBuffer);
+    SAFE_RELEASE(m_pRenderer);
 }
 
 vsize __stdcall IndexBuffer::GetStartIndex() const

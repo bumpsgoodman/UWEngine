@@ -29,6 +29,8 @@ public:
     IndexBuffer*                __stdcall   GetIndexBuffer(const vsize index);
     ID3D11ShaderResourceView*   __stdcall   GetTexture(const vsize index);
 
+    vsize                       __stdcall   GetNumGroups() const;
+
 private:
     IRenderer*          m_pRenderer = nullptr;
 

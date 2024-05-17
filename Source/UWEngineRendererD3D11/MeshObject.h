@@ -27,9 +27,8 @@ public:
     virtual bool        __stdcall       CreateMesh(const int includeFlag,
                                                    const void* pVertices, const uint vertexSize, const uint numVertices,
                                                    const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
-                                                   const void* pTexCoordsOrNull,
-                                                   const wchar_t** ppTextureFileNamesOrNull, const uint numTextures,
-                                                   const wchar_t* pShaderFileName) override;
+                                                   const void* pTexCoordsOrNull, const wchar_t** ppTextureFileNamesOrNull,
+                                                   const wchar_t* pShaderFileName, const char* pVSEntryPoint, const char* pPSEntryPoint) override;
     virtual void        __stdcall       RenderMesh() override;
 
     virtual void        __vectorcall    Translate(const Vector4 dist) override;
@@ -61,6 +60,9 @@ private:
     void                __stdcall       updateWorldMatrix();
 
 private:
+    ID3D11SamplerState*         m_pSamplerLinear = nullptr;
+
+private:
     vsize                       m_refCount = 0;
 
     IRenderer*                  m_pRenderer = nullptr;
@@ -76,22 +78,12 @@ private:
 
     // 모델 데이터
     VertexBuffer                m_vertexBuffer;
-    VertexBuffer                m_uvBuffer;
+    VertexBuffer                m_subVertexBuffer;
     TextureFaceGroup            m_faceGroup;
 
-    ID3D11ShaderResourceView**  m_ppTextureResourceViews = nullptr;
-    ID3D11SamplerState*         m_pSamplerLinear = nullptr;
 
-    uint                        m_numTextures = 0;
     uint                        m_includeFlag = 0;
-    uint                        m_numVertices = 0;
     uint                        m_vertexSize = 0;
-    uint                        m_numIndexBuffers = 0;
-
-    ID3D11Buffer*               m_pVertexBuffer = nullptr;
-    ID3D11Buffer*               m_pUVBuffer = nullptr;
-    ID3D11Buffer**              m_ppIndexBuffers = nullptr;
-    uint16*                     m_pNumIndices = 0;
 
     ICamera*                    m_pCamera = nullptr;
     XMVECTOR                    m_position = {};

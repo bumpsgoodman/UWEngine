@@ -40,6 +40,7 @@ bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, c
         goto lb_return;
     }
 
+    pRenderer->AddRef();
     m_pRenderer = pRenderer;
     m_flag = flag;
     m_numVertices = numVertices;
@@ -57,6 +58,7 @@ lb_return:
 void __stdcall VertexBuffer::Release()
 {
     SAFE_RELEASE(m_pVertexBuffer);
+    SAFE_RELEASE(m_pRenderer);
 }
 
 vsize __stdcall VertexBuffer::GetStartIndex() const

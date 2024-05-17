@@ -69,7 +69,6 @@ enum UW3D_INCLUDE_FLAG
     UW3D_INCLUDE_FLAG_TEXTURE =     (1 << 0),
     UW3D_INCLUDE_FLAG_COLOR =       (1 << 1)
 };
-#define UW3D_HAS_INCLUDE_FLAG(flag, other) (((flag) & (other)) == (other))
 
 enum RENDER_MODE
 {
