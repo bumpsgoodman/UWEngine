@@ -19,40 +19,33 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IHashMap.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\IFixedArray.h" />
+    <None Include="UWEngineFileSystem.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\ChunkedMemoryPool.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DllMain.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DynamicArray.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\List.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\HashMap.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.cpp">
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IFileSystem.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IRenderer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineFileSystem\FileSystem.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineFileSystem\UW3D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\DllMain.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\FileSystem.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\StaticMemoryPool.cpp" />
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\FixedArray.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{33669496-0790-43c7-81a9-04eed918f6cb}</ProjectGuid>
-    <RootNamespace>UWEngineGeneric</RootNamespace>
+    <ProjectGuid>{9249465c-990e-411b-8aa3-4cd3f65b2d2f}</ProjectGuid>
+    <RootNamespace>UWEngineFileSystem</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>UWEngineGeneric</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -118,10 +111,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);UW_ENGINE_DLL</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineGeneric;..\..\..\Source\UWEngineGeneric\Private</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineFileSystem;..\..\..\Source\UWEngineFileSystem\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -131,6 +124,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\..\Output\PDB\$(TargetName).pdb</ProgramDatabaseFile>
       <ImportLibrary>..\..\..\Output\LIB\$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>UWEngineFileSystem.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -138,10 +133,10 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);UW_ENGINE_DLL</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineGeneric;..\..\..\Source\UWEngineGeneric\Private</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineFileSystem;..\..\..\Source\UWEngineFileSystem\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -153,15 +148,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\..\Output\PDB\$(TargetName).pdb</ProgramDatabaseFile>
       <ImportLibrary>..\..\..\Output\LIB\$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>UWEngineFileSystem.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);UW_ENGINE_DLL</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineGeneric;..\..\..\Source\UWEngineGeneric\Private</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineFileSystem;..\..\..\Source\UWEngineFileSystem\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -171,6 +168,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\..\Output\PDB\$(TargetName).pdb</ProgramDatabaseFile>
       <ImportLibrary>..\..\..\Output\LIB\$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>UWEngineFileSystem.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -178,10 +177,10 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);UW_ENGINE_DLL</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineGeneric;..\..\..\Source\UWEngineGeneric\Private</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Source;..\..\..\Source\UWEngineFileSystem;..\..\..\Source\UWEngineFileSystem\Private</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompiled.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -193,6 +192,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\..\Output\PDB\$(TargetName).pdb</ProgramDatabaseFile>
       <ImportLibrary>..\..\..\Output\LIB\$(TargetName).lib</ImportLibrary>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>UWEngineFileSystem.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -320,15 +320,3 @@ void* __stdcall RendererD3D11::GetD3DImmediateContext() const
     m_pImmediateContext->AddRef();
     return m_pImmediateContext;
 }
-
-bool __stdcall CreateDllInstance(void** ppOutInstance)
-{
-    ASSERT(ppOutInstance != nullptr, "ppOutInstance == nullptr");
-
-    RendererD3D11* pRenderer = new RendererD3D11;
-    pRenderer->AddRef();
-
-    *ppOutInstance = pRenderer;
-
-    return true;
-}

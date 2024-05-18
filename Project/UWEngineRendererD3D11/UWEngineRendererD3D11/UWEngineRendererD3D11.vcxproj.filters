@@ -18,9 +18,6 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\Private\Precompiled.h">
       <Filter>Private</Filter>
     </ClInclude>

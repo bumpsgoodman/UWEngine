@@ -24,9 +24,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IDynamicArray.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>

@@ -1,12 +1,12 @@
 ﻿/*
-* RendererD3D11 DllMain
+* UWEngineFileSystem DllMain
 *
 * 작성자: bumpsgoodman
-* 작성일: 2024.01.28
+* 작성일: 2024.05.17
 */
 
 #include "Precompiled.h"
-#include "RendererD3D11.h"
+#include "FileSystem.h"
 
 BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -28,10 +28,10 @@ bool __stdcall CreateDllInstance(void** ppOutInstance)
 {
     ASSERT(ppOutInstance != nullptr, "ppOutInstance == nullptr");
 
-    RendererD3D11* pRenderer = new RendererD3D11;
-    pRenderer->AddRef();
+    IFileSystem* pFileSystem = new FileSystem;
+    pFileSystem->AddRef();
 
-    *ppOutInstance = pRenderer;
+    *ppOutInstance = pFileSystem;
 
     return true;
 }

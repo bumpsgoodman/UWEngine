@@ -9,10 +9,11 @@
 
 #include "Types.h"
 
+#define UW_MAX_FILE_PATH 260
+
 // switch case 문 break 생략 시 삽입
 #define FALLTHROUGH
 
-// 문자열로 치환
 #define TO_STR(s) #s
 
 #define GET_MASK(flag, mask) ((flag) & (mask))
@@ -61,6 +62,9 @@ interface IRefObject
 };
 
 typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
+
+// 핸들 정의
+typedef void* UW3D_HANDLE;
 
 // UW3D
 enum UW3D_INCLUDE_FLAG

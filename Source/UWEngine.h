@@ -13,6 +13,7 @@
 
 #include "UWEngineMath/UWMath.inl"
 
+#include "UWEngineCommon/Interfaces/IFileSystem.h"
 #include "UWEngineCommon/Interfaces/IRenderer.h"
 
 #include "UWEngineGeneric/IDynamicArray.h"

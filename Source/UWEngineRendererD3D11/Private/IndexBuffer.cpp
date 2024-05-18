@@ -17,7 +17,7 @@ IndexBuffer::~IndexBuffer()
 bool __stdcall IndexBuffer::Initialize(IRenderer* pRenderer, const vsize numIndices)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
-    ASSERT(numIndices > 0 && numIndices % 3 == 0, "Wrong numIndices") // 현재는 삼각형 단위로만 가능
+    ASSERT(numIndices > 0 && numIndices % 3 == 0, "Wrong numIndices"); // 현재는 삼각형 단위로만 가능
     
     bool bResult = false;
     HRESULT hr;

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "UWEngineCommon/Defines.h"
+
 struct IRenderer;
 
 interface ICamera : public IRefObject

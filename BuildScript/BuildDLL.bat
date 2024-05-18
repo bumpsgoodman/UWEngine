@@ -9,6 +9,7 @@ rem -------------------------
 
 call BuildGeneric.bat
 call BuildMath.bat
+call BuildFileSystem.bat
 call BuildRendererD3D11.bat
 
 rem -------------------------

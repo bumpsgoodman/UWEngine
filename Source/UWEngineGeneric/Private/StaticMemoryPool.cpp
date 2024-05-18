@@ -56,7 +56,6 @@ bool __stdcall StaticMemoryPool::Initialize(const vsize elementSize, const vsize
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerBlock > 0, "numElementsPerBlock == 0");
-    ASSERT(numMaxElements > 0 && numMaxElements <= NUM_MAX_GENERIC_ELEMENTS, "Invalid range");
     ASSERT(numElementsPerBlock <= numMaxElements, "numElementsPerBlock > numMaxElements");
 
     Release();

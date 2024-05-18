@@ -22,5 +22,4 @@
 
 // UWEngine
 #include "UWEngineCommon/Defines.h"
-#include "UWEngineCommon/UserDefines.h"
 #include "UWEngineCommon/Util/HashFunction.h"

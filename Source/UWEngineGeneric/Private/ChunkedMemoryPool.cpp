@@ -69,7 +69,6 @@ ChunkedMemoryPool::~ChunkedMemoryPool()
 bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerChunk)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
-    ASSERT(numElementsPerChunk > 0 && numElementsPerChunk <= NUM_MAX_GENERIC_ELEMENTS, "Invalid range");
 
     bool bResult = false;
 
