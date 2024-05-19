@@ -17,7 +17,7 @@ public:
     FileSystem() = default;
     FileSystem(const FileSystem&) = delete;
     FileSystem& operator=(const FileSystem&) = delete;
-    virtual ~FileSystem() = default;
+    ~FileSystem() = default;
 
     virtual vsize   __stdcall   AddRef() override;
     virtual vsize   __stdcall   Release() override;

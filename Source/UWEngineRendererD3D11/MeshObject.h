@@ -16,7 +16,7 @@ public:
     MeshObject() = default;
     MeshObject(const MeshObject&) = delete;
     MeshObject& operator=(const MeshObject&) = delete;
-    virtual ~MeshObject() = default;
+    ~MeshObject() = default;
 
     virtual vsize       __stdcall       AddRef() override;
     virtual vsize       __stdcall       Release() override;
