@@ -50,7 +50,7 @@ bool __stdcall TextureFaceGroup::Initialize(IRenderer* pRenderer, const vsize nu
         goto lb_return;
     }
 
-    if (!m_pIndexBuffers->Initialize(sizeof(UW_PTR_SIZE), numFaces))
+    if (!m_pIndexBuffers->Initialize(UW_PTR_SIZE, numFaces))
     {
         ASSERT(false, "Failed to init index buffer array");
         goto lb_return;
@@ -62,7 +62,7 @@ bool __stdcall TextureFaceGroup::Initialize(IRenderer* pRenderer, const vsize nu
         goto lb_return;
     }
 
-    if (!m_pTextures->Initialize(sizeof(UW_PTR_SIZE), numFaces))
+    if (!m_pTextures->Initialize(UW_PTR_SIZE, numFaces))
     {
         ASSERT(false, "Failed to init texture array");
         goto lb_return;

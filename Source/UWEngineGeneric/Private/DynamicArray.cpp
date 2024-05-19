@@ -14,7 +14,7 @@ public:
     DynamicArray() = default;
     DynamicArray(const DynamicArray&) = delete;
     DynamicArray& operator=(const DynamicArray&) = delete;
-    virtual ~DynamicArray();
+    ~DynamicArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numDefaultElements) override;
     virtual void    __stdcall   Release() override;
@@ -55,8 +55,6 @@ bool __stdcall DynamicArray::Initialize(const vsize elementSize, const vsize num
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numDefaultElements > 0, "numDefaultElements == 0");
-
-    Release();
 
     m_pElements = malloc(elementSize * numDefaultElements);
     ASSERT(m_pElements != nullptr, "Failed to malloc elements");
@@ -231,6 +229,6 @@ GLOBAL_FUNC void __stdcall DestroyDynamicArray(IDynamicArray* pDynamicArrayOrNul
 {
     if (pDynamicArrayOrNull != nullptr)
     {
-        delete pDynamicArrayOrNull;
+        delete (DynamicArray*)pDynamicArrayOrNull;
     }
 }

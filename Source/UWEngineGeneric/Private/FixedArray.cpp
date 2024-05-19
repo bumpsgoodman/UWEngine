@@ -14,7 +14,7 @@ public:
     FixedArray() = default;
     FixedArray(const FixedArray&) = delete;
     FixedArray& operator=(const FixedArray&) = delete;
-    virtual ~FixedArray();
+    ~FixedArray();
 
     virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) override;
     virtual void    __stdcall   Release() override;
@@ -52,8 +52,6 @@ bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMa
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numMaxElements > 0, "numMaxElements == 0");
-
-    Release();
 
     m_pElements = malloc(elementSize * numMaxElements);
     ASSERT(m_pElements != nullptr, "Failed to malloc elements");
@@ -205,6 +203,6 @@ GLOBAL_FUNC void __stdcall DestroyFixedArray(IFixedArray* pFixedArrayOrNull)
 {
     if (pFixedArrayOrNull != nullptr)
     {
-        delete pFixedArrayOrNull;
+        delete (FixedArray*)pFixedArrayOrNull;
     }
 }

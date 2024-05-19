@@ -21,7 +21,7 @@ public:
     StaticMemoryPool() = default;
     StaticMemoryPool(const StaticMemoryPool&) = delete;
     StaticMemoryPool& operator=(const StaticMemoryPool&) = delete;
-    virtual ~StaticMemoryPool();
+    ~StaticMemoryPool();
 
     virtual bool    __stdcall Initialize(const vsize elementSize, const vsize numElementsPerBlock, const vsize numMaxElements) override;
     virtual void    __stdcall Release() override;
@@ -57,8 +57,6 @@ bool __stdcall StaticMemoryPool::Initialize(const vsize elementSize, const vsize
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numElementsPerBlock > 0, "numElementsPerBlock == 0");
     ASSERT(numElementsPerBlock <= numMaxElements, "numElementsPerBlock > numMaxElements");
-
-    Release();
 
     m_elementSize = elementSize;
     m_elementSizeWithHeader = m_elementSize + HEADER_SIZE;
@@ -225,6 +223,6 @@ GLOBAL_FUNC void __stdcall DestroyStaticMemoryPool(IStaticMemoryPool* pStaticMem
 {
     if (pStaticMemoryPoolOrNull != nullptr)
     {
-        delete pStaticMemoryPoolOrNull;
+        delete (StaticMemoryPool*)pStaticMemoryPoolOrNull;
     }
 }

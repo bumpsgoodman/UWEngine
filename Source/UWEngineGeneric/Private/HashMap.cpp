@@ -15,7 +15,7 @@ public:
     HashMap() = default;
     HashMap(const HashMap&) = delete;
     HashMap& operator=(const HashMap&) = delete;
-    virtual ~HashMap();
+    ~HashMap();
 
     virtual bool        __stdcall   Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) override;
     virtual void        __stdcall   Release() override;
@@ -83,8 +83,6 @@ bool __stdcall HashMap::Initialize(const vsize keySize, const vsize valueSize, c
     ASSERT(numDefaultKeyValues > 0, "numDefaultKeyValues == 0");
 
     bool bResult = false;
-
-    Release();
 
     // 버켓 크기 구하기
     const vsize baseSize = numDefaultKeyValues * 2;
@@ -480,6 +478,6 @@ GLOBAL_FUNC void __stdcall DestroyHashMap(IHashMap* pHashMapOrNull)
 {
     if (pHashMapOrNull != nullptr)
     {
-        delete pHashMapOrNull;
+        delete (HashMap*)pHashMapOrNull;
     }
 }

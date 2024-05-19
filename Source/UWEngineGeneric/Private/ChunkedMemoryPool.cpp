@@ -34,7 +34,7 @@ public:
     ChunkedMemoryPool() = default;
     ChunkedMemoryPool(const ChunkedMemoryPool&) = delete;
     ChunkedMemoryPool& operator=(const ChunkedMemoryPool&) = delete;
-    virtual ~ChunkedMemoryPool();
+    ~ChunkedMemoryPool();
 
     virtual bool    __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
     virtual void    __stdcall Release() override;
@@ -71,8 +71,6 @@ bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsiz
     ASSERT(elementSize > 0, "elementSize == 0");
 
     bool bResult = false;
-
-    Release();
 
     m_pChunkHead = nullptr;
     m_pChunkTail = nullptr;
@@ -273,6 +271,6 @@ GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunked
 {
     if (pChunkedMemoryPoolOrNull != nullptr)
     {
-        delete pChunkedMemoryPoolOrNull;
+        delete (ChunkedMemoryPool*)pChunkedMemoryPoolOrNull;
     }
 }

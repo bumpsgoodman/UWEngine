@@ -22,7 +22,6 @@ struct KeyValue
 
 interface IHashMap
 {
-public:
     virtual bool        __stdcall   Initialize(const vsize keySize, const vsize valueSize, const vsize numDefaultKeyValues) = 0;
     virtual void        __stdcall   Release() = 0;
     virtual void        __stdcall   Clear() = 0;

@@ -51,7 +51,7 @@ bool __stdcall FileSystem::Initialize()
     bool bResult = false;
 
     CreateHashMap(&m_pUW3DMap);
-    if (!m_pUW3DMap->Initialize(UW_PTR_SIZE, UW_PTR_SIZE, DEFAULT_UW3D_MAP_SIZE))
+    if (!m_pUW3DMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UW3D_MAP_SIZE))
     {
         CRASH();
         goto lb_return;
@@ -73,15 +73,16 @@ UW3D_HANDLE __stdcall FileSystem::UW3DLoadOrNull(const wchar_t* pFilePath)
     ASSERT(pFilePath != nullptr, "pPath == nullptr");
 
     UW3D_HANDLE handle = nullptr;
+    FILE* fp = nullptr;
 
-    void** ppUW3D = (void**)m_pUW3DMap->GetValueOrNull(pFilePath, UW_PTR_SIZE);
+    void** ppUW3D = (void**)m_pUW3DMap->GetValueOrNull(pFilePath, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUW3D != nullptr)
     {
         handle = *ppUW3D;
         goto lb_return;
     }
 
-    FILE* fp = _wfopen(pFilePath, L"rb");
+    fp = _wfopen(pFilePath, L"rb");
     if (fp == nullptr)
     {
         CRASH();
@@ -205,7 +206,7 @@ UW3D_HANDLE __stdcall FileSystem::UW3DLoadOrNull(const wchar_t* pFilePath)
         }
     }
 
-    m_pUW3DMap->Insert(pFilePath, UW_PTR_SIZE, &pDesc, UW_PTR_SIZE);
+    m_pUW3DMap->Insert(pFilePath, sizeof(wchar_t)* UW_MAX_FILE_PATH, &pDesc, UW_PTR_SIZE);
 
     handle = pDesc;
 
@@ -220,7 +221,7 @@ lb_return:
 
 void __stdcall FileSystem::UW3DUnload(const wchar_t* pFilePath)
 {
-    UW3D_DESC** ppUW3D = (UW3D_DESC**)m_pUW3DMap->GetValueOrNull(pFilePath, UW_PTR_SIZE);
+    UW3D_DESC** ppUW3D = (UW3D_DESC**)m_pUW3DMap->GetValueOrNull(pFilePath, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUW3D != nullptr)
     {
         UW3D_DESC* pDesc = *ppUW3D;
@@ -249,6 +250,10 @@ void __stdcall FileSystem::UW3DUnload(const wchar_t* pFilePath)
             SAFE_FREE(pDesc->pppIndexBuffers[i]);
             SAFE_FREE(pDesc->ppNumIndices[i]);
         }
+        SAFE_FREE(pDesc->pppIndexBuffers);
+        SAFE_FREE(pDesc->ppTexCoordsOrNull);
+        SAFE_FREE(pDesc->ppNumIndices);
+        SAFE_FREE(pDesc->ppVertices);
         SAFE_FREE(pDesc->pNumIndexBuffers);
 
         SAFE_FREE(pDesc->pIncludeFlags);
