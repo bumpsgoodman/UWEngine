@@ -18,6 +18,8 @@
 
 #define GET_MASK(flag, mask) ((flag) & (mask))
 
+#define UW_DEFAULT_PORT ("9585")
+
 // ASSERT
 #if defined(NDEBUG)
 #   define ASSERT(cond, msg) ((void)0)

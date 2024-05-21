@@ -15,8 +15,6 @@ struct ConstantBuffer
     XMMATRIX World;
 };
 
-//ID3D11SamplerState* MeshObject::m_pSamplerLinear = nullptr;
-
 vsize __stdcall MeshObject::AddRef()
 {
     ++m_refCount;
