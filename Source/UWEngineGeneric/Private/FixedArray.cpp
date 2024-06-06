@@ -16,7 +16,7 @@ public:
     FixedArray& operator=(const FixedArray&) = delete;
     ~FixedArray();
 
-    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) override;
+    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements, const bool bAddressMode) override;
     virtual void    __stdcall   Release() override;
     virtual void    __stdcall   Clear() override;
 
@@ -41,6 +41,8 @@ private:
     vsize m_elementSize = 0;
     vsize m_numMaxElements = 0;
     vsize m_numElements = 0;
+
+    bool m_bAddressMode = false;
 };
 
 FixedArray::~FixedArray()
@@ -48,7 +50,7 @@ FixedArray::~FixedArray()
     Release();
 }
 
-bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements)
+bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements, const bool bAddressMode)
 {
     ASSERT(elementSize > 0, "elementSize == 0");
     ASSERT(numMaxElements > 0, "numMaxElements == 0");
@@ -59,6 +61,8 @@ bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMa
     m_elementSize = elementSize;
     m_numMaxElements = numMaxElements;
     m_numElements = 0;
+
+    m_bAddressMode = bAddressMode;
 
     return true;
 }
@@ -86,7 +90,14 @@ bool __stdcall FixedArray::PushBack(const void* pElementOrNull, const vsize elem
 
     if (pElementOrNull != nullptr)
     {
-        memcpy((char*)m_pElements + m_elementSize * m_numElements, pElementOrNull, elementSize);
+        if (m_bAddressMode)
+        {
+            memcpy((char*)m_pElements + m_elementSize * m_numElements, &pElementOrNull, elementSize);
+        }
+        else
+        {
+            memcpy((char*)m_pElements + m_elementSize * m_numElements, pElementOrNull, elementSize);
+        }
     }
 
     ++m_numElements;
@@ -123,7 +134,14 @@ bool __stdcall FixedArray::Insert(const void* pElementOrNull, const vsize elemen
 
     if (pElementOrNull != nullptr)
     {
-        memcpy(pSrc, pElementOrNull, elementSize);
+        if (m_bAddressMode)
+        {
+            memcpy(pSrc, &pElementOrNull, elementSize);
+        }
+        else
+        {
+            memcpy(pSrc, pElementOrNull, elementSize);
+        }
     }
 
     ++m_numElements;
@@ -156,6 +174,11 @@ void* __stdcall FixedArray::GetBackOrNull() const
         return nullptr;
     }
 
+    if (m_bAddressMode)
+    {
+        return *(char**)m_pElements + m_elementSize * (m_numElements - 1);
+    }
+
     return (char*)m_pElements + m_elementSize * (m_numElements - 1);
 }
 
@@ -164,6 +187,11 @@ void* __stdcall FixedArray::GetElementOrNull(vsize index) const
     if (index >= m_numElements)
     {
         return nullptr;
+    }
+
+    if (m_bAddressMode)
+    {
+        return *(char**)m_pElements + m_elementSize * index;
     }
 
     return (char*)m_pElements + m_elementSize * index;

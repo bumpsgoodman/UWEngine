@@ -8,6 +8,42 @@
 #pragma once
 
 #include "UWEngineCommon/Defines.h"
+#include "UWEngineGeneric/IFixedArray.h"
+
+interface IModelObject
+{
+     virtual MODEL_OBJECT_TYPE  __stdcall   GetObjectType() const = 0;
+};
+
+interface ITexture : public IRefObject
+{
+    virtual uint            __stdcall   GetWidth() const = 0;
+    virtual void            __stdcall   SetWidth(const uint width) = 0;
+
+    virtual uint            __stdcall   GetHeight() const = 0;
+    virtual void            __stdcall   SetHeight(const uint height) = 0;
+
+    virtual const void*     __stdcall   GetTexture() const = 0;
+    virtual void            __stdcall   SetTexture(void* pTexture);
+};
+
+interface IMaterial : public IRefObject
+{
+    virtual uint                __stdcall   GetNumTextures() const = 0;
+
+    virtual const ITexture*     __stdcall   GetTexture(const uint textureID) const = 0;
+    virtual bool                __stdcall   AddTexture(ITexture* pTexture) = 0;
+};
+
+interface IUWMesh : public IRefObject
+{
+    virtual uint            __stdcall   GetNumMaterials() const = 0;
+    virtual IMaterial*      __stdcall   GetMaterial(const uint materialID) const = 0;
+    virtual bool            __stdcall   AddMaterial(IMaterial* pMaterial) = 0;
+
+    virtual uint            __stdcall   GetNumModels() const = 0;
+    virtual IModelObject*   __stdcall   GetRootObject(const uint objectID) = 0;
+};
 
 interface IFileSystem : public IRefObject
 {

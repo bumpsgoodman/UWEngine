@@ -36,15 +36,15 @@ public:
     virtual vsize   __stdcall GetNumMaxElements() const override;
 
 private:
-    void** m_ppBlocks = nullptr;
-    uint* m_pIndexTable = nullptr;
-    uint* m_pIndexTablePtr = nullptr;
+    void**  m_ppBlocks = nullptr;
+    uint*   m_pIndexTable = nullptr;
+    uint*   m_pIndexTablePtr = nullptr;
 
-    vsize m_elementSize = 0;
-    vsize m_elementSizeWithHeader = 0;
-    vsize m_numMaxElements = 0;
-    vsize m_numElementsPerBlock = 0;
-    vsize m_numMaxBlocks = 0;
+    vsize   m_elementSize = 0;
+    vsize   m_elementSizeWithHeader = 0;
+    vsize   m_numMaxElements = 0;
+    vsize   m_numElementsPerBlock = 0;
+    vsize   m_numMaxBlocks = 0;
 };
 
 StaticMemoryPool::~StaticMemoryPool()

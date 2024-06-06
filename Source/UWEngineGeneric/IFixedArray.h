@@ -9,7 +9,7 @@
 
 interface IFixedArray
 {
-    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements) = 0;
+    virtual bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements, const bool bAddressMode) = 0;
     virtual void    __stdcall   Release() = 0;
     virtual void    __stdcall   Clear() = 0;
 

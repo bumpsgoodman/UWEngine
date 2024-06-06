@@ -65,6 +65,12 @@ interface IRefObject
 
 typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
 
+typedef enum MODEL_OBJECT_TYPE
+{
+    MODEL_OBJECT_TYPE_MESH,
+    MODEL_OBJECT_TYPE_BONE
+} MODEL_OBJECT_TYPE;
+
 // 핸들 정의
 typedef void* UW3D_HANDLE;
 
@@ -74,6 +80,11 @@ enum UW3D_INCLUDE_FLAG
     UW3D_INCLUDE_FLAG_NONE =        0,
     UW3D_INCLUDE_FLAG_TEXTURE =     (1 << 0),
     UW3D_INCLUDE_FLAG_COLOR =       (1 << 1)
+};
+
+struct UWMeshNode
+{
+
 };
 
 enum RENDER_MODE
