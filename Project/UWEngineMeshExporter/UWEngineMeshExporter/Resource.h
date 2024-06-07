@@ -1,6 +1,6 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by UWMesh.rc
+// Used by MeshExporter.rc
 //
 #define IDS_UWMESH_EXP                  1
 #define IDS_CATEGORY                    2
@@ -16,7 +16,7 @@
 #define IDC_BUTTON1                     1001
 #define IDC_MESHDATA                    1002
 #define IDC_MATERIAL                    1004
-#define IDC_NORMALS                     1006
+#define IDC_SKIN                        1006
 #define IDC_TEXCOORDS                   1007
 #define IDC_VERTEX_COLORS               1020
 #define IDC_VERTEXCOLORS                1020

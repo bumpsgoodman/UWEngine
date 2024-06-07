@@ -65,26 +65,80 @@ interface IRefObject
 
 typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);
 
-typedef enum MODEL_OBJECT_TYPE
+struct AnimationControlBlock
 {
-    MODEL_OBJECT_TYPE_MESH,
-    MODEL_OBJECT_TYPE_BONE
-} MODEL_OBJECT_TYPE;
+    struct
+    {
+        float X;
+        float Y;
+        float Z;
+    } Position;
+
+    struct
+    {
+        float X;
+        float Y;
+        float Z;
+        float W;
+    } Rotation;
+
+    struct
+    {
+        float X;
+        float Y;
+        float Z;
+    } Scale;
+};
+
+typedef enum MODEL_TYPE
+{
+    MODEL_TYPE_MESH,
+    MODEL_TYPE_BONE
+} MODEL_TYPE;
 
 // 핸들 정의
 typedef void* UW3D_HANDLE;
 
-// UW3D
-enum UW3D_INCLUDE_FLAG
+#define UWMESH_VERTEX_SIZE    24
+#define UWMESH_TEXCOORD_SIZE  8
+
+enum UWMESH_INCLUDE_FLAG
 {
-    UW3D_INCLUDE_FLAG_NONE =        0,
-    UW3D_INCLUDE_FLAG_TEXTURE =     (1 << 0),
-    UW3D_INCLUDE_FLAG_COLOR =       (1 << 1)
+    UWMESH_INCLUDE_FLAG_COLOR =     (1 << 0),
+    UWMESH_INCLUDE_FLAG_TEXTURE =   (1 << 1),
+    UWMESH_INCLUDE_FLAG_SKINNED =   (1 << 2)
 };
 
-struct UWMeshNode
+struct UWMaterial
 {
+    uint        NumTextures;
+    wchar_t**   ppTextureFilenames;
+};
 
+struct UWMeshBlock
+{
+    UWMESH_INCLUDE_FLAG IncludeFlag;
+
+    uint                MaterialID;
+
+    uint                NumVertices;
+    void*               pVertices;          // [Position(xyz), Normal(xyz)]
+    void*               pTexCoords;         // [TexCoord(xy)]
+
+    uint                NumIndexBuffers;
+    uint16*             pNumIndices;        // 각 인덱스 버퍼에 인덱스가 몇 개인지
+    uint16**            ppIndices;          // 각 인덱스 버퍼의 저장된 인덱스
+};
+
+struct UWMesh
+{
+    char            MagicNumber[8];
+
+    uint            NumMaterials;
+    UWMaterial*     pMaterials;
+
+    uint            NumMeshBlocks;
+    UWMeshBlock*    pMeshBlocks;
 };
 
 enum RENDER_MODE

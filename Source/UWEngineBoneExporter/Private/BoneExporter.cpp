@@ -424,7 +424,7 @@ void UWBoneExporter::exportNodeRecursion(INode* pNode)
 }
 
 // 주의사항
-// 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음
+// 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음 -> 고쳐야 됨
 void UWBoneExporter::exportGeomObject(INode* pNode)
 {
     ObjectState os;

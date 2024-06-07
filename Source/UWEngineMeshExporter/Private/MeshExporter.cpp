@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "MeshExporter.h"
-#include "MeshDefines.h"
 
 using namespace std;
 
@@ -183,9 +182,9 @@ static INT_PTR CALLBACK ExportDlgProc(HWND hWnd, UINT msg,
         //CheckDlgButton(hWnd, IDC_MESHANIM, exp->GetIncludeMeshAnim());
         //CheckDlgButton(hWnd, IDC_CAMLIGHTANIM, exp->GetIncludeCamLightAnim());
         //CheckDlgButton(hWnd, IDC_IKJOINTS, exp->GetIncludeIKJoints());
-        //CheckDlgButton(hWnd, IDC_NORMALS, exp->GetIncludeNormals());
+        CheckDlgButton(hWnd, IDC_SKIN, exp->GetIncludeSkin());
         CheckDlgButton(hWnd, IDC_TEXCOORDS, exp->GetIncludeTextureCoords());
-        //CheckDlgButton(hWnd, IDC_VERTEXCOLORS, exp->GetIncludeVertexColors());
+        CheckDlgButton(hWnd, IDC_VERTEXCOLORS, exp->GetIncludeVertexColors());
         //CheckDlgButton(hWnd, IDC_OBJ_GEOM, exp->GetIncludeObjGeom());
         //CheckDlgButton(hWnd, IDC_OBJ_SHAPE, exp->GetIncludeObjShape());
         //CheckDlgButton(hWnd, IDC_OBJ_CAMERA, exp->GetIncludeObjCamera());
@@ -230,7 +229,7 @@ static INT_PTR CALLBACK ExportDlgProc(HWND hWnd, UINT msg,
         //ReleaseISpinner(spin);
 
         // Enable / disable mesh options
-        //EnableWindow(GetDlgItem(hWnd, IDC_NORMALS), true);
+        EnableWindow(GetDlgItem(hWnd, IDC_SKIN), true);
         EnableWindow(GetDlgItem(hWnd, IDC_TEXCOORDS), true);
         EnableWindow(GetDlgItem(hWnd, IDC_VERTEXCOLORS), true);
         break;
@@ -243,8 +242,8 @@ static INT_PTR CALLBACK ExportDlgProc(HWND hWnd, UINT msg,
         switch (LOWORD(wParam)) {
         case IDC_MESHDATA:
             // Enable / disable mesh options
-            //EnableWindow(GetDlgItem(hWnd, IDC_NORMALS), IsDlgButtonChecked(hWnd,
-            //             IDC_MESHDATA));
+            EnableWindow(GetDlgItem(hWnd, IDC_SKIN), IsDlgButtonChecked(hWnd,
+                         IDC_MESHDATA));
             EnableWindow(GetDlgItem(hWnd, IDC_TEXCOORDS), IsDlgButtonChecked(hWnd,
                          IDC_MESHDATA));
             EnableWindow(GetDlgItem(hWnd, IDC_VERTEXCOLORS), IsDlgButtonChecked(hWnd,
@@ -257,9 +256,9 @@ static INT_PTR CALLBACK ExportDlgProc(HWND hWnd, UINT msg,
             //exp->SetIncludeMeshAnim(IsDlgButtonChecked(hWnd, IDC_MESHANIM));
             //exp->SetIncludeCamLightAnim(IsDlgButtonChecked(hWnd, IDC_CAMLIGHTANIM));
             //exp->SetIncludeIKJoints(IsDlgButtonChecked(hWnd, IDC_IKJOINTS));
-            //exp->SetIncludeNormals(IsDlgButtonChecked(hWnd, IDC_NORMALS));
+            exp->SetIncludeSkin(IsDlgButtonChecked(hWnd, IDC_SKIN));
             exp->SetIncludeTextureCoords(IsDlgButtonChecked(hWnd, IDC_TEXCOORDS));
-            //exp->SetIncludeVertexColors(IsDlgButtonChecked(hWnd, IDC_VERTEXCOLORS));
+            exp->SetIncludeVertexColors(IsDlgButtonChecked(hWnd, IDC_VERTEXCOLORS));
             //exp->SetIncludeObjGeom(IsDlgButtonChecked(hWnd, IDC_OBJ_GEOM));
             //exp->SetIncludeObjShape(IsDlgButtonChecked(hWnd, IDC_OBJ_SHAPE));
             //exp->SetIncludeObjCamera(IsDlgButtonChecked(hWnd, IDC_OBJ_CAMERA));
@@ -320,8 +319,8 @@ int	UWMeshExporter::DoExport(const TCHAR* pName, ExpInterface* pExpInterface, In
     m_numTotalNode = 0;
 
     // 총 노드 수 계산
-    int numChildren = m_pInterface->GetRootNode()->NumberOfChildren();
-    for (int idx = 0; idx < numChildren; idx++)
+    const uint numChildren = m_pInterface->GetRootNode()->NumberOfChildren();
+    for (uint idx = 0; idx < numChildren; idx++)
     {
         if (pInterface->GetCancel())
         {
@@ -335,33 +334,30 @@ int	UWMeshExporter::DoExport(const TCHAR* pName, ExpInterface* pExpInterface, In
     const char signature[8] = "UWMesh";
     fwrite(signature, sizeof(signature), 1, m_pFile);
 
-    // 텍스쳐 파일 위치 저장
-    if (!m_texturePathList.empty())
+    // 머티리얼 개수 저장
+    const uint numMaterials = (uint)m_texturePathList.size();
+    fwrite(&numMaterials, sizeof(uint), 1, m_pFile);
+
+    for (uint i = 0; i < numMaterials; ++i)
     {
-        // 머티리얼 개수 저장
-        const DWORD listSize = m_texturePathList.size();
-        fwrite(&listSize, sizeof(DWORD), 1, m_pFile);
+        // 머티리얼에 있는 텍스처 개수 저장
+        const uint numTextures = m_texturePathList[i].size();
+        fwrite(&numTextures, sizeof(uint), 1, m_pFile);
 
-        for (DWORD i = 0; i < listSize; ++i)
+        for (uint j = 0; j < numTextures; ++j)
         {
-            // 머티리얼에 있는 텍스처 개수 저장
-            const DWORD pathSize = m_texturePathList[i].size();
-            fwrite(&pathSize, sizeof(DWORD), 1, m_pFile);
-
-            for (DWORD j = 0; j < pathSize; ++j)
-            {
-                // 텍스처 경로 저장
-                wchar_t texturePath[UWMESH_MAX_PATH];
-                wcscpy(texturePath, m_texturePathList[i][j]);
-                fwrite(texturePath, sizeof(texturePath), 1, m_pFile);
-            }
+            // 텍스처 경로 저장
+            wchar_t texturePath[UW_MAX_FILE_PATH];
+            wcscpy(texturePath, m_texturePathList[i][j]);
+            fwrite(texturePath, sizeof(texturePath), 1, m_pFile);
         }
     }
 
     // 오브젝트 개수 저장
-    fwrite(&m_numTotalNode, sizeof(DWORD), 1, m_pFile);
+    fwrite(&m_numTotalNode, sizeof(uint), 1, m_pFile);
 
-    for (int idx = 0; idx < numChildren; idx++)
+    // 오브젝트 저장
+    for (uint idx = 0; idx < numChildren; idx++)
     {
         if (m_pInterface->GetCancel())
         {
@@ -499,6 +495,25 @@ void UWMeshExporter::exportNodeRecursion(INode* pNode)
 // 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음
 void UWMeshExporter::exportGeomObject(INode* pNode)
 {
+    uint includeFlag = 0;
+
+    ObjectState os;
+    IDerivedObject* pDerivedObj = NULL;
+    int skinIndex = -1;
+    if (GetIncludeSkin() && findISkinMod(pNode->GetObjectRef(), &pDerivedObj, &skinIndex))
+    {
+        includeFlag |= UWMESH_INCLUDE_FLAG_SKINNED;
+        // We have a skin, because we export its data
+        // separately we do not want to include it in the eval
+        // Eval the derived object instead, starting at the skin idx
+        os = pDerivedObj->Eval(0, skinIndex + 1);
+    }
+    else
+    {
+        // We have no skin, evaluate the entire stack
+        os = pNode->EvalWorldState(0);
+    }
+
     ObjectState os = pNode->EvalWorldState(0);
     Object* pObject = os.obj;
     TriObject* pTri = nullptr;
@@ -521,15 +536,14 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
 
     // 법선 불러오려면 꼭 호출 해야 됨
     pMesh->buildNormals();
-
-    DWORD includeFlag = 0;
-    DWORD numMaxIndexBuffers = 1;  // 기본적으로 1개
-    DWORD materialID = 0;
+    
+    uint numMaxIndexBuffers = 1;  // 기본적으로 1개
+    uint materialID = 0;
 
     vector<Point3> vertices;
     vector<Point3> normals;
     vector<Point3> uvs;
-    vector<vector<WORD>> indexBuffers;
+    vector<vector<uint16>> indexBuffers;
 
     uvs.resize(pMesh->numTVerts);
 
@@ -539,7 +553,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         includeFlag |= UWMESH_INCLUDE_FLAG_TEXTURE;
 
         // materialID 찾기
-        for (DWORD i = 0; i < m_materials.size(); ++i)
+        for (uint i = 0; i < m_materials.size(); ++i)
         {
             if (pMtl == m_materials[i])
             {
@@ -553,9 +567,9 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         numMaxIndexBuffers = m_texturePathList[materialID].size();
 
         // 인덱스 버퍼 개수만큼 늘려주기
-        for (DWORD i = 0; i < numMaxIndexBuffers; ++i)
+        for (uint i = 0; i < numMaxIndexBuffers; ++i)
         {
-            indexBuffers.push_back(vector<WORD>());
+            indexBuffers.push_back(vector<uint16>());
         }
 
         // 추가되어야 할 부분은 아직 추가되지 않았으므로 false로 초기화
@@ -563,7 +577,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         bUseVertex.resize(pMesh->numTVerts, false);
 
         // 기존 버텍스 복사
-        for (DWORD i = 0; i < pMesh->numVerts; ++i)
+        for (uint i = 0; i < pMesh->numVerts; ++i)
         {
             vertices.push_back(pMesh->verts[i]);
         }
@@ -571,16 +585,16 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         normals.resize(pMesh->numTVerts);
 
         // 버텍스를 UV 좌표 개수만큼 늘리기
-        unordered_map<DWORD, DWORD> indexMap;
-        for (DWORD i = 0; i < pMesh->numFaces; ++i)
+        unordered_map<uint, uint> indexMap;
+        for (uint i = 0; i < pMesh->numFaces; ++i)
         {
-            const DWORD textureID = pMesh->faces[i].getMatID() % numMaxIndexBuffers;
-            vector<WORD>& indexBuffer = indexBuffers[textureID];
+            const uint textureID = pMesh->faces[i].getMatID() % numMaxIndexBuffers;
+            vector<uint16>& indexBuffer = indexBuffers[textureID];
 
-            for (DWORD j = 0; j < 3; ++j)
+            for (uint j = 0; j < 3; ++j)
             {
-                const DWORD vertexIndex = pMesh->faces[i].v[j];
-                const DWORD uvIndex = pMesh->tvFace[i].t[j];
+                const uint vertexIndex = pMesh->faces[i].v[j];
+                const uint uvIndex = pMesh->tvFace[i].t[j];
 
                 // 추가되지 않은 버텍스만 추가
                 if (indexMap.count(uvIndex) == 0)
@@ -598,7 +612,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
                         bUseVertex[vertexIndex] = true;
                     }
 
-                    const DWORD index = indexMap[uvIndex];
+                    const uint index = indexMap[uvIndex];
 
                     // 법선 추가
                     RVertex* pRVertex = pMesh->getRVertPtr(vertexIndex);
@@ -616,22 +630,22 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     else
     {
         // 인덱스 버퍼는 기본적으로 1개
-        indexBuffers.push_back(vector<WORD>());
+        indexBuffers.push_back(vector<uint16>());
 
         // 기존 버텍스 복사
-        for (DWORD i = 0; i < pMesh->numVerts; ++i)
+        for (uint i = 0; i < pMesh->numVerts; ++i)
         {
             vertices.push_back(pMesh->verts[i]);
             normals.push_back(pMesh->getNormal(i));
         }
 
         // 기존 인덱스 버퍼 복사
-        for (DWORD i = 0; i < pMesh->numFaces; ++i)
+        for (uint i = 0; i < pMesh->numFaces; ++i)
         {
-            for (DWORD j = 0; j < 3; ++j)
+            for (uint j = 0; j < 3; ++j)
             {
-                const DWORD uvIndex = pMesh->tvFace[i].t[j];
-                const DWORD vertexIndex = pMesh->faces[i].v[j];
+                const uint uvIndex = pMesh->tvFace[i].t[j];
+                const uint vertexIndex = pMesh->faces[i].v[j];
 
                 indexBuffers[0].push_back(uvIndex);
             }
@@ -639,31 +653,21 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     }
 
     // 인클루드 플래그 저장
-    fwrite(&includeFlag, sizeof(DWORD), 1, m_pFile);
-
-    // 버텍스 개수 저장
-    const DWORD numVertices = (DWORD)vertices.size();
-    fwrite(&numVertices, sizeof(DWORD), 1, m_pFile);
+    fwrite(&includeFlag, sizeof(uint), 1, m_pFile);
 
     // 머티리얼 ID 저장
     if (pMtl != nullptr && GetIncludeTextureCoords())
     {
-        fwrite(&materialID, sizeof(DWORD), 1, m_pFile);
+        fwrite(&materialID, sizeof(uint), 1, m_pFile);
     }
 
-    // 인덱스 버퍼 개수 저장
-    DWORD numIndexBuffers = 0;
-    for (DWORD i = 0; i < indexBuffers.size(); ++i)
-    {
-        if (!indexBuffers[i].empty())
-        {
-            ++numIndexBuffers;
-        }
-    }
-    fwrite(&numIndexBuffers, sizeof(DWORD), 1, m_pFile);
+    // 버텍스 개수 저장
+    const uint numVertices = (uint)vertices.size();
+    fwrite(&numVertices, sizeof(uint), 1, m_pFile);
 
+    // 버텍스 저장
     const Matrix3 tm = pNode->GetObjTMAfterWSM(0);
-    for (DWORD i = 0; i < numVertices; ++i)
+    for (uint i = 0; i < numVertices; ++i)
     {
         // 위치 저장
         const Point3 v = tm * vertices[i];
@@ -679,28 +683,40 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     // UV 저장
     if (pMtl != nullptr && GetIncludeTextureCoords())
     {
-        for (DWORD i = 0; i < numVertices; ++i)
+        for (uint i = 0; i < numVertices; ++i)
         {
             const float uv[2] = { uvs[i].x, 1.0f - uvs[i].y };
             fwrite(uv, sizeof(uv), 1, m_pFile);
         }
     }
 
-    WORD indices[3];
-    for (DWORD i = 0; i < numMaxIndexBuffers; ++i)
+    // 인덱스 버퍼 개수 저장
+    uint numIndexBuffers = 0;
+    for (uint i = 0; i < indexBuffers.size(); ++i)
     {
-        vector<WORD>& indexBuffer = indexBuffers[i];
+        if (!indexBuffers[i].empty())
+        {
+            ++numIndexBuffers;
+        }
+    }
+    fwrite(&numIndexBuffers, sizeof(uint), 1, m_pFile);
+
+    // 인덱스 버퍼 저장
+    uint16 indices[3];
+    for (uint i = 0; i < numMaxIndexBuffers; ++i)
+    {
+        vector<uint16>& indexBuffer = indexBuffers[i];
         if (indexBuffer.empty())
         {
             continue;
         }
 
         // 인덱스 개수 저장
-        const WORD numIndices = indexBuffer.size();
-        fwrite(&numIndices, sizeof(WORD), 1, m_pFile);
+        const uint16 numIndices = indexBuffer.size();
+        fwrite(&numIndices, sizeof(uint16), 1, m_pFile);
 
         // 인덱스 저장
-        for (DWORD j = 0; j < numIndices; j += 3)
+        for (uint j = 0; j < numIndices; j += 3)
         {
             indices[0] = indexBuffer[j];
             indices[1] = indexBuffer[j + 2];
@@ -716,11 +732,11 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     }
 }
 
-static Point3 GetVertexNormal(Mesh* pMesh, const DWORD faceIndex, RVertex* pRVertex)
+static Point3 GetVertexNormal(Mesh* pMesh, const uint faceIndex, RVertex* pRVertex)
 {
     Face* pFace = &pMesh->getFace(faceIndex);
-    const DWORD smGroup = pFace->smGroup;
-    const DWORD numNormals = pRVertex->rFlags & NORCT_MASK;
+    const uint smGroup = pFace->smGroup;
+    const uint numNormals = pRVertex->rFlags & NORCT_MASK;
     Point3 vertexNormal;
 
     if (numNormals != 0 && smGroup)
@@ -734,7 +750,7 @@ static Point3 GetVertexNormal(Mesh* pMesh, const DWORD faceIndex, RVertex* pRVer
         else
         {
             // 현재 면과 같은 스무딩 그룹인 법선을 찾아서 추가
-            for (DWORD k = 0; k < numNormals; ++k)
+            for (uint k = 0; k < numNormals; ++k)
             {
                 if (pRVertex->ern[k].getSmGroup() & smGroup)
                 {
@@ -750,4 +766,35 @@ static Point3 GetVertexNormal(Mesh* pMesh, const DWORD faceIndex, RVertex* pRVer
     }
 
     return vertexNormal;
+}
+
+bool UWMeshExporter::findISkinMod(Object* pObj, IDerivedObject** ppOutDerivedObj, int* pOutSkinIndex)
+{
+    if (pObj == NULL || pObj->SuperClassID() != GEN_DERIVOB_CLASS_ID)
+    {
+        // We have not found anything, and we have not more modifiers.
+        return false;
+    }
+
+    IDerivedObject* pDerived = (IDerivedObject*)pObj;
+    for (int i = 0; i < pDerived->NumModifiers(); i++)
+    {
+        Modifier* pMod = pDerived->GetModifier(i);
+        // Does this modifier support the skin interface?
+        void* pSkin = pMod->GetInterface(I_SKIN);
+        if (pSkin != NULL)
+        {
+            // Success, we have found a skin!
+            *pOutSkinIndex = i;
+            *ppOutDerivedObj = pDerived;
+            return true;
+        }
+    }
+
+    // We have not found a skin on this iderived object,
+    // however, the IDerivedObject references another object.
+    // It is entirely possible for the next object to be a
+    // derived object as well.  Recurse to look there as well
+    Object* pNextObj = pDerived->GetObjRef();
+    return findISkinMod(pNextObj, ppOutDerivedObj, pOutSkinIndex);
 }

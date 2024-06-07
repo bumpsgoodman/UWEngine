@@ -163,7 +163,7 @@ UW3D_HANDLE __stdcall FileSystem::UW3DLoadOrNull(const wchar_t* pFilePath)
         fread(&pDesc->pMaterialIDsOrNull[i], sizeof(uint), 1, fp);
         fread(&pDesc->pNumIndexBuffers[i], sizeof(uint), 1, fp);
 
-        pDesc->ppVertices[i] = malloc(UW3D_VERTEX_SIZE * pDesc->pNumVertices[i]);
+        pDesc->ppVertices[i] = malloc(UWMESH_VERTEX_SIZE * pDesc->pNumVertices[i]);
         ASSERT(pDesc->ppVertices[i] != nullptr, "Failed to malloc ppVertices[i]");
 
         if (GET_MASK(pDesc->pIncludeFlags[i], UW3D_INCLUDE_FLAG_TEXTURE))
@@ -174,17 +174,17 @@ UW3D_HANDLE __stdcall FileSystem::UW3DLoadOrNull(const wchar_t* pFilePath)
                 ASSERT(pDesc->ppTexCoordsOrNull != nullptr, "Failed to malloc ppTexCoordsOrNull");
             }
 
-            pDesc->ppTexCoordsOrNull[i] = malloc(UW3D_TEXCOORD_SIZE * pDesc->pNumVertices[i]);
+            pDesc->ppTexCoordsOrNull[i] = malloc(UWMESH_TEXCOORD_SIZE * pDesc->pNumVertices[i]);
             ASSERT(pDesc->ppTexCoordsOrNull[i] != nullptr, "Failed to malloc ppTexCoordsOrNull[i]");
         }
 
         // 버텍스 읽기
-        fread(pDesc->ppVertices[i], UW3D_VERTEX_SIZE, pDesc->pNumVertices[i], fp);
+        fread(pDesc->ppVertices[i], UWMESH_VERTEX_SIZE, pDesc->pNumVertices[i], fp);
 
         // 텍스처 좌표 읽기
         if (GET_MASK(pDesc->pIncludeFlags[i], UW3D_INCLUDE_FLAG_TEXTURE))
         {
-            fread(pDesc->ppTexCoordsOrNull[i], UW3D_TEXCOORD_SIZE, pDesc->pNumVertices[i], fp);
+            fread(pDesc->ppTexCoordsOrNull[i], UWMESH_TEXCOORD_SIZE, pDesc->pNumVertices[i], fp);
         }
 
         pDesc->pppIndexBuffers[i] = (uint16**)malloc(UW_PTR_SIZE * pDesc->pNumIndexBuffers[i]);
@@ -376,10 +376,10 @@ const uint16* __stdcall FileSystem::UW3DGetNumIndices(const UW3D_HANDLE handle, 
 
 uint __stdcall FileSystem::UW3DGetVertexSize()
 {
-    return UW3D_VERTEX_SIZE;
+    return UWMESH_VERTEX_SIZE;
 }
 
 uint __stdcall FileSystem::UW3DGetTexCoordSize()
 {
-    return UW3D_TEXCOORD_SIZE;
+    return UWMESH_TEXCOORD_SIZE;
 }
