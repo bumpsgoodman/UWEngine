@@ -115,6 +115,13 @@ struct UWMaterial
     wchar_t**   ppTextureFilenames;
 };
 
+struct UWBoneWeightBlock
+{
+    uint    NumWeights;
+    uint16  Indices[4];
+    float   Weights[4];
+};
+
 struct UWMeshBlock
 {
     UWMESH_INCLUDE_FLAG IncludeFlag;
@@ -124,6 +131,7 @@ struct UWMeshBlock
     uint                NumVertices;
     void*               pVertices;          // [Position(xyz), Normal(xyz)]
     void*               pTexCoords;         // [TexCoord(xy)]
+    UWBoneWeightBlock*  pBoneWeights;
 
     uint                NumIndexBuffers;
     uint16*             pNumIndices;        // 각 인덱스 버퍼에 인덱스가 몇 개인지

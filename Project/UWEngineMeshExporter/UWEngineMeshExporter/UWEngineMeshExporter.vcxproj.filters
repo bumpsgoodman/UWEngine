@@ -6,6 +6,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshExporter.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="UWEngineMeshExporter.def" />
@@ -13,6 +19,9 @@
   <ItemGroup>
     <Filter Include="Private">
       <UniqueIdentifier>{f731abeb-0e46-48a8-97b4-644439258e9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UWEngineCommon">
+      <UniqueIdentifier>{1cee9567-1382-4cea-b74c-346e4ccee60f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

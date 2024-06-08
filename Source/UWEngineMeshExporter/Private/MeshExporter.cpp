@@ -21,7 +21,7 @@ using namespace std;
 
 HINSTANCE g_hInstance;
 
-static Point3 GetVertexNormal(Mesh* pMesh, const DWORD faceIndex, RVertex* pRVertex);
+static Point3 GetVertexNormal(Mesh* pMesh, const uint faceIndex, RVertex* pRVertex);
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)
 {
@@ -492,7 +492,7 @@ void UWMeshExporter::exportNodeRecursion(INode* pNode)
 }
 
 // 주의사항
-// 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음
+// 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음 => 고쳐야 됨
 void UWMeshExporter::exportGeomObject(INode* pNode)
 {
     uint includeFlag = 0;
@@ -503,6 +503,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     if (GetIncludeSkin() && findISkinMod(pNode->GetObjectRef(), &pDerivedObj, &skinIndex))
     {
         includeFlag |= UWMESH_INCLUDE_FLAG_SKINNED;
+
         // We have a skin, because we export its data
         // separately we do not want to include it in the eval
         // Eval the derived object instead, starting at the skin idx
@@ -514,7 +515,6 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         os = pNode->EvalWorldState(0);
     }
 
-    ObjectState os = pNode->EvalWorldState(0);
     Object* pObject = os.obj;
     TriObject* pTri = nullptr;
     bool bDeleteTri = false;
@@ -543,7 +543,42 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     vector<Point3> vertices;
     vector<Point3> normals;
     vector<Point3> uvs;
+    vector<uint> numBoneWeights;
+    vector<vector<uint16>> boneIndices;
+    vector<vector<float>> boneWeights;
     vector<vector<uint16>> indexBuffers;
+
+    if (GetIncludeSkin() && pDerivedObj != nullptr && skinIndex >= 0)
+    {
+        Modifier* pMod = pDerivedObj->GetModifier(skinIndex);
+        ISkin* pSkin = (ISkin*)pMod->GetInterface(I_SKIN);
+        ISkinContextData* pSkinData = pSkin->GetContextInterface(pNode);
+
+        const int numBones = pSkin->GetNumBones();
+        const int numPoints = pSkinData->GetNumPoints();
+        for (DWORD i = 0; i < numPoints; ++i)
+        {
+            const int numAssignedBones = pSkinData->GetNumAssignedBones(i);
+
+            numBoneWeights.push_back(numAssignedBones);
+
+            boneIndices.push_back(vector<uint16>());
+            boneIndices[i].resize(4);
+
+            boneWeights.push_back(vector<float>());
+            boneWeights[i].resize(4);
+
+            for (DWORD j = 0; j < numAssignedBones; ++j)
+            {
+                const int boneIndex = pSkinData->GetAssignedBone(i, j);
+                const float boneWeight = pSkinData->GetBoneWeight(i, j);
+
+                // 기존 본 정보 추가
+                boneIndices[i][j] = boneIndex;
+                boneWeights[i][j] = boneWeight;
+            }
+        }
+    }
 
     uvs.resize(pMesh->numTVerts);
 
@@ -605,6 +640,14 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
                         bUseVertex[indexMap[uvIndex]] = true;
 
                         vertices.push_back(pMesh->verts[vertexIndex]);
+
+                        numBoneWeights.push_back(numBoneWeights[vertexIndex]);
+
+                        boneIndices.push_back(vector<uint16>());
+                        boneIndices.back() = boneIndices[vertexIndex];
+
+                        boneWeights.push_back(vector<float>());
+                        boneWeights.back() = boneWeights[vertexIndex];
                     }
                     else
                     {
@@ -687,6 +730,18 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         {
             const float uv[2] = { uvs[i].x, 1.0f - uvs[i].y };
             fwrite(uv, sizeof(uv), 1, m_pFile);
+        }
+    }
+
+    if (pDerivedObj != nullptr && GetIncludeSkin())
+    {
+        for (uint i = 0; i < numVertices; ++i)
+        {
+            // 본 인덱스 저장
+            fwrite(&boneIndices[i], sizeof(uint16), 1, m_pFile);
+
+            // 본 웨이트 저장
+            fwrite(&boneWeights[i], sizeof(float), 1, m_pFile);
         }
     }
 

@@ -28,7 +28,6 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\FileSystem.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineFileSystem\UW3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\DllMain.cpp" />
