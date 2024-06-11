@@ -18,9 +18,14 @@ using namespace std;
 // Class ID. These must be unique and randomly generated!!
 // If you use this as a sample project, this is the first thing
 // you should change!
-#define UWBONE_EXP_CLASS_ID	Class_ID(0x4f3d6ef1, 0x39dc4eb0)
+#define UWBONE_EXP_CLASS_ID	Class_ID(0x30202dab, 0x132b5576)
 
 HINSTANCE g_hInstance;
+
+uint UWBoneExporter::DEFAULT_KEYFRAME = 5;
+
+// Not truly the correct way to compare floats of arbitary magnitude...
+BOOL EqualPoint3(Point3 p1, Point3 p2);
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)
 {
@@ -97,7 +102,7 @@ const TCHAR* UWBoneExporter::Ext(int n)
     switch (n)
     {
     case 0:
-        return _T("UWSkin");
+        return _T("UWBone");
     }
 
     return _T("");
@@ -330,7 +335,7 @@ int	UWBoneExporter::DoExport(const TCHAR* pName, ExpInterface* pExpInterface, In
     }
 
     // 시그니처 저장
-    const char signature[8] = "UWSkin";
+    const char signature[8] = "UWBone";
     fwrite(signature, sizeof(signature), 1, m_pFile);
 
     // 오브젝트 개수 저장
@@ -427,22 +432,7 @@ void UWBoneExporter::exportNodeRecursion(INode* pNode)
 // 1. 정점에 UV 매핑이 되어 있지 않으면 작동하지 않음 -> 고쳐야 됨
 void UWBoneExporter::exportGeomObject(INode* pNode)
 {
-    ObjectState os;
-
-    IDerivedObject* pDerivedObj = NULL;
-    int skinIndex = -1;
-    if (findISkinMod(pNode->GetObjectRef(), &pDerivedObj, &skinIndex))
-    {
-        // We have a skin, because we export its data
-        // separately we do not want to include it in the eval
-        // Eval the derived object instead, starting at the skin idx
-        os = pDerivedObj->Eval(0, skinIndex + 1);
-    }
-    else
-    {
-        // We have no skin, evaluate the entire stack
-        os = pNode->EvalWorldState(0);
-    }
+    ObjectState os = pNode->EvalWorldState(0);
 
     Object* pObject = os.obj;
     TriObject* pTri = nullptr;
@@ -460,33 +450,133 @@ void UWBoneExporter::exportGeomObject(INode* pNode)
         }
     }
 
+    const wchar_t* pName = pNode->GetName();
+    INode* pParentNode = pNode->GetParentNode();
+    const wchar_t* pParentName = pParentNode->GetName();
+
     Mesh* pMesh = &pTri->GetMesh();
 
-    if (pDerivedObj != nullptr && skinIndex >= 0)
+    const Matrix3 tm1 = pNode->GetObjTMAfterWSM(0);
+    Matrix44 m;
+    for (uint i = 0; i < 4; ++i)
     {
-        Modifier* pMod = pDerivedObj->GetModifier(skinIndex);
-        ISkin* pSkin = (ISkin*)pMod->GetInterface(I_SKIN);
-        ISkinContextData* pSkinData = pSkin->GetContextInterface(pNode);
+        const Point3 p = tm1.GetRow(i);
+        m.M[i][0] = p.x;
+        m.M[i][1] = p.z;
+        m.M[i][2] = p.y;
+    }
+    m.M[0][3] = 0.0f;
+    m.M[1][3] = 0.0f;
+    m.M[2][3] = 0.0f;
+    m.M[3][3] = 1.0f;
 
-        const int numBones = pSkin->GetNumBones();
-        const int numPoints = pSkinData->GetNumPoints();
-        for (DWORD i = 0; i < numPoints; ++i)
+    TimeValue start = m_pInterface->GetAnimRange().Start();
+    TimeValue end = m_pInterface->GetAnimRange().End();
+    TimeValue t;
+    Matrix3 tm;
+    AffineParts ap;
+    int delta = GetTicksPerFrame() * DEFAULT_KEYFRAME;
+    Point3	prevPos;
+    Quat	prevRot;
+    Point3	prevScale;
+
+    vector<Point3> positions;
+    vector<Quat> rotations;
+    vector<Point3> scales;
+
+    for (t = start; t <= end; t += delta)
+    {
+        tm = pNode->GetNodeTM(t) * Inverse(pNode->GetParentTM(t));
+        //tm = pNode->GetNodeTM(t);
+        decomp_affine(tm, &ap);
+
+        Point3 pos = ap.t;
+        Quat rot = ap.q / prevRot;
+        Point3 scale = ap.k;
+
+        if (t == start || !EqualPoint3(pos, prevPos))
         {
-            const int numAssignedBones = pSkinData->GetNumAssignedBones(i);
-            for (DWORD j = 0; j < numAssignedBones; ++j)
+            positions.push_back(pos);
+            prevPos = pos;
+        }
+
+        if (!rot.IsIdentity())
+        {
+            Quat accumRotation = rot;
+            if (t != start)
             {
-                const int boneIndex = pSkinData->GetAssignedBone(i, j);
-                const float boneWeight = pSkinData->GetBoneWeight(i, j);
+                accumRotation *= rotations.back();
             }
+
+            rotations.push_back(accumRotation);
+            prevRot = ap.q;
+        }
+
+        if(t == start || !EqualPoint3(scale, prevScale))
+        {
+            scales.push_back(scale);
+            prevScale = scale;
         }
     }
 
-    const wchar_t* pNodeName = pNode->GetName();
+    // TM 저장
+    fwrite(&m, sizeof(m), 1, m_pFile);
 
-    INode* pParentNode = pNode->GetParentNode();
-    if (pParentNode != nullptr)
+    // 키 프레임 저장
+    const uint keyFrame = DEFAULT_KEYFRAME;
+    fwrite(&keyFrame, sizeof(uint), 1, m_pFile);
+
+    const bool bHasPosition = (positions.size() > 1) ? true : false;
+    const bool bHasRotation = (rotations.size() > 1) ? true : false;
+    const bool bHasScale = (scales.size() > 1) ? true : false;
+
+    fwrite(&bHasPosition, sizeof(bool), 1, m_pFile);
+    fwrite(&bHasRotation, sizeof(bool), 1, m_pFile);
+    fwrite(&bHasScale, sizeof(bool), 1, m_pFile);
+
+    if (bHasPosition)
     {
-        m_nodeLists.
+        // 위치 개수 저장
+        const uint numKeys = positions.size();
+        fwrite(&numKeys, sizeof(uint), 1, m_pFile);
+        
+        // 위치 저장
+        for (uint i = 0; i < numKeys; ++i)
+        {
+            const Point3 pos = positions[i];
+            const Point3 result(pos.x, pos.z, pos.y);
+            fwrite(&result, sizeof(result), 1, m_pFile);
+        }
+    }
+
+    if (bHasRotation)
+    {
+        // 회전 개수 저장
+        const uint numKeys = rotations.size();
+        fwrite(&numKeys, sizeof(uint), 1, m_pFile);
+
+        // 회전 저장
+        for (uint i = 0; i < numKeys; ++i)
+        {
+            const Quat rot = rotations[i];
+            const Quat result(rot.x, rot.z, rot.y, rot.w);
+            fwrite(&result, sizeof(result), 1, m_pFile);
+        }
+    }
+
+    if (bHasScale)
+    {
+        // 스케일 개수 저장
+        const uint numKeys = scales.size();
+        fwrite(&numKeys, sizeof(uint), 1, m_pFile);
+
+        // 스케일 저장
+        for (uint i = 0; i < numKeys; ++i)
+        {
+            const Point3 scale = scales[i];
+            const Point3 result(scale.x, scale.z, scale.y);
+            fwrite(&result, sizeof(result), 1, m_pFile);
+        }
     }
 
     if (bDeleteTri)
@@ -495,33 +585,15 @@ void UWBoneExporter::exportGeomObject(INode* pNode)
     }
 }
 
-bool UWBoneExporter::findISkinMod(Object* pObj, IDerivedObject** ppOutDerivedObj, int* pOutSkinIndex)
+// Not truly the correct way to compare floats of arbitary magnitude...
+BOOL EqualPoint3(Point3 p1, Point3 p2)
 {
-    if (pObj == NULL || pObj->SuperClassID() != GEN_DERIVOB_CLASS_ID)
-    {
-        // We have not found anything, and we have not more modifiers.
-        return false;
-    }
+    if (fabs(p1.x - p2.x) > ALMOST_ZERO)
+        return FALSE;
+    if (fabs(p1.y - p2.y) > ALMOST_ZERO)
+        return FALSE;
+    if (fabs(p1.z - p2.z) > ALMOST_ZERO)
+        return FALSE;
 
-    IDerivedObject* pDerived = (IDerivedObject*)pObj;
-    for (int i = 0; i < pDerived->NumModifiers(); i++)
-    {
-        Modifier* pMod = pDerived->GetModifier(i);
-        // Does this modifier support the skin interface?
-        void* pSkin = pMod->GetInterface(I_SKIN);
-        if (pSkin != NULL)
-        {
-            // Success, we have found a skin!
-            *pOutSkinIndex = i;
-            *ppOutDerivedObj = pDerived;
-            return true;
-        }
-    }
-
-    // We have not found a skin on this iderived object,
-    // however, the IDerivedObject references another object.
-    // It is entirely possible for the next object to be a
-    // derived object as well.  Recurse to look there as well
-    Object* pNextObj = pDerived->GetObjRef();
-    return findISkinMod(pNextObj, ppOutDerivedObj, pOutSkinIndex);
+    return TRUE;
 }

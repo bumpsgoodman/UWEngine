@@ -9,6 +9,15 @@
     <ClInclude Include="Resource.h">
       <Filter>Private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BoneExporter.rc" />
@@ -19,6 +28,9 @@
   <ItemGroup>
     <Filter Include="Private">
       <UniqueIdentifier>{c501d8b4-44a3-4ead-9d1d-30b14a6c79ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UWEngineCommon">
+      <UniqueIdentifier>{cc06a8ff-7eba-4e43-baa0-26b3b6f0e05e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

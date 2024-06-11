@@ -100,6 +100,8 @@ lb_return:
 bool __stdcall MeshObject::CreateMesh(const int includeFlag,
                                       const void* pVertices, const uint vertexSize, const uint numVertices,
                                       const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
+                                      BoneWeightBlock* pWeights,
+                                      AnimationControlBlock* pAnimation,
                                       const void* pTexCoordsOrNull, const wchar_t** ppTextureFileNamesOrNull,
                                       const wchar_t* pShaderFileName, const char* pVSEntryPoint, const char* pPSEntryPoint)
 {
@@ -147,7 +149,7 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         goto lb_return;
     }
 
-    D3D11_INPUT_ELEMENT_DESC layout[3];
+    D3D11_INPUT_ELEMENT_DESC layout[5];
     uint numLayout = 2;
 
     layout[0].SemanticName = "POSITION";
@@ -166,7 +168,7 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     layout[1].InstanceDataStepRate = 0;
 
-    if (GET_MASK(includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
+    if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
     {
         layout[2].SemanticName = "TEXCOORD";
         layout[2].SemanticIndex = 0;
@@ -177,7 +179,7 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
     }
-    else if (GET_MASK(includeFlag, UW3D_INCLUDE_FLAG_COLOR))
+    else if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_COLOR))
     {
         layout[2].SemanticName = "COLOR";
         layout[2].SemanticIndex = 0;
@@ -188,6 +190,24 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         layout[2].InstanceDataStepRate = 0;
         numLayout = 3;
     }
+
+    layout[3].SemanticName = "BLENDWEIGHT";
+    layout[3].SemanticIndex = 0;
+    layout[3].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    layout[3].InputSlot = 2;
+    layout[3].AlignedByteOffset = 0;
+    layout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    layout[3].InstanceDataStepRate = 0;
+
+    layout[4].SemanticName = "BLENDINDICES";
+    layout[4].SemanticIndex = 0;
+    layout[4].Format = DXGI_FORMAT_R32_UINT;
+    layout[4].InputSlot = 2;
+    layout[4].AlignedByteOffset = 16;
+    layout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    layout[4].InstanceDataStepRate = 0;
+
+    numLayout = 5;
 
     hr = m_pDevice->CreateInputLayout(layout, numLayout, pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), &m_pVertexLayout);
     if (FAILED(hr))
@@ -207,19 +227,19 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     }
     m_vertexBuffer.SetVertex(pVertices, numVertices, vertexSize, 0, VERTEX_BUFFER_FLAG_DEFAULT);
 
-    if (GET_MASK(includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
+    if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
     {
         ASSERT(pTexCoordsOrNull != nullptr, "pTexCoordsOrNull == nullptr");
         ASSERT(ppTextureFileNamesOrNull != nullptr, "ppTextureFileNamesOrNull == nullptr");
 
         // 텍스처 버퍼 초기화
-        if (!m_subVertexBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_TEXCOORD, sizeof(float) * 2, numVertices))
+        if (!m_textureBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_TEXCOORD, sizeof(float) * 2, numVertices))
         {
             CRASH();
             goto lb_return;
         }
 
-        m_subVertexBuffer.SetVertex(pTexCoordsOrNull, numVertices, sizeof(float) * 2, 0, VERTEX_BUFFER_FLAG_TEXCOORD);
+        m_textureBuffer.SetVertex(pTexCoordsOrNull, numVertices, sizeof(float) * 2, 0, VERTEX_BUFFER_FLAG_TEXCOORD);
 
         // 페이스 그룹 초기화
         if (!m_faceGroup.Initialize(m_pRenderer, numIndexBuffers))
@@ -233,6 +253,12 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
             m_faceGroup.AddIndexBuffer(ppIndices[i], pNumIndices[i]);
             m_faceGroup.AddTexture(ppTextureFileNamesOrNull[i]);
         }
+    }
+
+    if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_SKINNED))
+    {
+        m_weightBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_WEIGHT, sizeof(BoneWeightBlock), numVertices);
+        m_weightBuffer.SetVertex(pWeights, numVertices, sizeof(BoneWeightBlock), 0, VERTEX_BUFFER_FLAG_WEIGHT);
     }
 
     // constant 버퍼 생성
@@ -254,6 +280,9 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
 
     m_world = XMMatrixIdentity();
 
+    m_pWeights = pWeights;
+    m_pAnimation = pAnimation;
+
     bResult = true;
 
 lb_return:
@@ -266,12 +295,16 @@ lb_return:
 void __stdcall MeshObject::RenderMesh()
 {
     ConstantBuffer cb;
+    XMMATRIX world;
+
+    uint index = m_curKeyFrame % 5;
+
     cb.WVP = XMMatrixTranspose(m_world * UW_Matrix44ToXMMatrix(m_pCamera->GetView()) * UW_Matrix44ToXMMatrix(m_pCamera->GetProjection()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-    const UINT strides[] = { m_vertexSize, sizeof(float) * 2 };
-    const UINT offsets[] = { 0, 0 };
-    ID3D11Buffer* buffers[] = { m_vertexBuffer.GetBuffer(), m_subVertexBuffer.GetBuffer() };
+    const UINT strides[] = { m_vertexSize, sizeof(float) * 2, sizeof(float) * 4 };
+    const UINT offsets[] = { 0, 0, 0 };
+    ID3D11Buffer* buffers[] = { m_vertexBuffer.GetBuffer(), m_textureBuffer.GetBuffer() };
 
     m_pImmediateContext->IASetInputLayout(m_pVertexLayout);
     m_pImmediateContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
@@ -289,7 +322,7 @@ void __stdcall MeshObject::RenderMesh()
 
         m_pImmediateContext->IASetIndexBuffer(pIndexBuffer->GetBuffer(), DXGI_FORMAT_R16_UINT, 0);
 
-        if (GET_MASK(m_includeFlag, UW3D_INCLUDE_FLAG_TEXTURE))
+        if (GET_MASK(m_includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
         {
             ID3D11ShaderResourceView* pTexture = m_faceGroup.GetTexture(i);
             m_pImmediateContext->PSSetShaderResources(0, 1, &pTexture);

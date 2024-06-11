@@ -21,6 +21,8 @@
 
 #include "istdplug.h"
 
+#include "UWEngineCommon/Structures.h"
+
 #define CFGFILENAME		_T("UWBONEEXPORTER.CFG")	// Configuration file
 
 using namespace std;
@@ -58,7 +60,8 @@ private:
     void                exportNodeRecursion(INode* pNode);
     void                exportGeomObject(INode* pNode);
 
-    bool                findISkinMod(Object* pObj, IDerivedObject** ppOutDerivedObj, int* pOutSkinIndex);
+private:
+    static uint DEFAULT_KEYFRAME;
 
 private:
     DWORD m_numTotalNode = 0;

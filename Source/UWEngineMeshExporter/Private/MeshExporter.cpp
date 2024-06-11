@@ -563,10 +563,10 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
             numBoneWeights.push_back(numAssignedBones);
 
             boneIndices.push_back(vector<uint16>());
-            boneIndices[i].resize(4);
+            boneIndices[i].resize(NUM_MAX_BONES_PER_VERTEX);
 
             boneWeights.push_back(vector<float>());
-            boneWeights[i].resize(4);
+            boneWeights[i].resize(NUM_MAX_BONES_PER_VERTEX);
 
             for (DWORD j = 0; j < numAssignedBones; ++j)
             {
@@ -695,6 +695,14 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         }
     }
 
+    for (uint i = 0; i < MAX_MESHMAPS - 1; ++i)
+    {
+        if (pMesh->mapSupport(i))
+        {
+            int a = 0;
+        }
+    }
+
     // 인클루드 플래그 저장
     fwrite(&includeFlag, sizeof(uint), 1, m_pFile);
 
@@ -737,11 +745,15 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     {
         for (uint i = 0; i < numVertices; ++i)
         {
-            // 본 인덱스 저장
-            fwrite(&boneIndices[i], sizeof(uint16), 1, m_pFile);
+            // 본 가중치 개수 저장
+            fwrite(&numBoneWeights[i], sizeof(uint), 1, m_pFile);
 
-            // 본 웨이트 저장
-            fwrite(&boneWeights[i], sizeof(float), 1, m_pFile);
+            // 본 가중치 저장
+            for (uint j = 0; j < NUM_MAX_BONES_PER_VERTEX; ++j)
+            {
+                fwrite(&boneIndices[i][j], sizeof(uint16), 1, m_pFile);
+                fwrite(&boneWeights[i][j], sizeof(float), 1, m_pFile);
+            }
         }
     }
 

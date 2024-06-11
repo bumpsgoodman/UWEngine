@@ -7,10 +7,9 @@
 
 #include "Precompiled.h"
 #include "FileSystem.h"
-#include "UW3D.h"
 #include "UWEngineGeneric/IHashMap.h"
 
-#define DEFAULT_UW3D_MAP_SIZE 16
+#define DEFAULT_UWMESH_MAP_SIZE 16
 
 vsize __stdcall FileSystem::AddRef()
 {
@@ -23,16 +22,21 @@ vsize __stdcall FileSystem::Release()
     --m_refCount;
     if (m_refCount == 0)
     {
-        // UW3D 해시맵 해제
-        KeyValue* pKeyValues = m_pUW3DMap->GetKeyValuesOrNull();
-        for (vsize i = 0; i < m_pUW3DMap->GetNumKeyValues(); ++i)
+        // UWMesh 해시맵 해제
+        KeyValue* pKeyValues = m_pUWMeshMap->GetKeyValuesOrNull();
+        for (vsize i = 0; i < m_pUWMeshMap->GetNumKeyValues(); ++i)
         {
-            UW3DUnload((const wchar_t*)pKeyValues[i].pKey);
-
-            void** ppValue = (void**)pKeyValues[i].pValue;
-            SAFE_FREE(*ppValue);
+            UnloadUWMesh((const wchar_t*)pKeyValues[i].pKey);
         }
-        DestroyHashMap(m_pUW3DMap);
+        DestroyHashMap(m_pUWMeshMap);
+
+        // UWBone 해시맵 해제
+        pKeyValues = m_pUWBoneMap->GetKeyValuesOrNull();
+        for (vsize i = 0; i < m_pUWBoneMap->GetNumKeyValues(); ++i)
+        {
+            UnloadUWBone((const wchar_t*)pKeyValues[i].pKey);
+        }
+        DestroyHashMap(m_pUWBoneMap);
 
         delete this;
         return 0;
@@ -50,8 +54,15 @@ bool __stdcall FileSystem::Initialize()
 {
     bool bResult = false;
 
-    CreateHashMap(&m_pUW3DMap);
-    if (!m_pUW3DMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UW3D_MAP_SIZE))
+    CreateHashMap(&m_pUWMeshMap);
+    if (!m_pUWMeshMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
+    {
+        CRASH();
+        goto lb_return;
+    }
+
+    CreateHashMap(&m_pUWBoneMap);
+    if (!m_pUWBoneMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
     {
         CRASH();
         goto lb_return;
@@ -62,153 +73,153 @@ bool __stdcall FileSystem::Initialize()
 lb_return:
     if (!bResult)
     {
-        DestroyHashMap(m_pUW3DMap);
+        DestroyHashMap(m_pUWMeshMap);
+    }
+
+    if (!bResult)
+    {
+        DestroyHashMap(m_pUWBoneMap);
     }
 
     return bResult;
 }
 
-UW3D_HANDLE __stdcall FileSystem::UW3DLoadOrNull(const wchar_t* pFilePath)
+bool __stdcall FileSystem::LoadUWMesh(const wchar_t* pFilename, UWMesh* pOutUWMesh)
 {
-    ASSERT(pFilePath != nullptr, "pPath == nullptr");
+    ASSERT(pFilename != nullptr, "pFilename == nullptr");
+    ASSERT(pOutUWMesh != nullptr, "pOutUWMesh == nullptr");
 
-    UW3D_HANDLE handle = nullptr;
+    bool bResult =false;
     FILE* fp = nullptr;
 
-    void** ppUW3D = (void**)m_pUW3DMap->GetValueOrNull(pFilePath, sizeof(wchar_t) * UW_MAX_FILE_PATH);
-    if (ppUW3D != nullptr)
+    UWMesh** ppUWMesh = (UWMesh**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    if (ppUWMesh != nullptr)
     {
-        handle = *ppUW3D;
+        pOutUWMesh = *ppUWMesh;
         goto lb_return;
     }
 
-    fp = _wfopen(pFilePath, L"rb");
+    fp = _wfopen(pFilename, L"rb");
     if (fp == nullptr)
     {
         CRASH();
         goto lb_return;
     }
 
-    // 시그니처 읽기
-    char magic[8] = {};
-    fread(magic, sizeof(magic), 1, fp);
-    if (strcmp(magic, "uw3d") != 0)
+    char magicNumber[8] = {};
+    fread(magicNumber, 8, 1, fp);
+    if (strcmp(magicNumber, "UWMesh") != 0)
     {
         CRASH();
         goto lb_return;
     }
 
-    UW3D_DESC* pDesc = new UW3D_DESC;
-    memset(pDesc, 0, sizeof(UW3D_DESC));
+    // 머티리얼 개수 불러오기
+    uint numMaterials;
+    fread(&numMaterials, sizeof(uint), 1, fp);
 
-    // 머티리얼 개수 읽기
-    fread(&pDesc->NumMaterials, sizeof(uint), 1, fp);
-
-    if (pDesc->NumMaterials > 0)
+    // 머티리얼 불러오기
+    MATERIAL_DESC* pMaterials = new MATERIAL_DESC[numMaterials];
+    for (uint i = 0; i < numMaterials; ++i)
     {
-        pDesc->pppTexturesPathOrNull = (wchar_t***)malloc(UW_PTR_SIZE * pDesc->NumMaterials);
-        ASSERT(pDesc->pppTexturesPathOrNull != nullptr, "Failed to malloc pppTexturesPathOrNull");
+        uint numTextures;
+        fread(&numTextures, sizeof(uint), 1, fp);
 
-        pDesc->pNumTexturesOrNull = (uint*)malloc(UW_PTR_SIZE * pDesc->NumMaterials);
-        ASSERT(pDesc->pNumTexturesOrNull != nullptr, "Failed to malloc pNumTexturesOrNull");
+        // 텍스처 경로 불러오기
+        wchar_t** ppTextureFilenames = new wchar_t*[numTextures];
+        for (uint j = 0; j < numTextures; ++j)
+        {
+            wchar_t* pTextureFilename = new wchar_t[UW_MAX_FILE_PATH];
+            fread(pTextureFilename, sizeof(wchar_t), UW_MAX_FILE_PATH, fp);
+
+            ppTextureFilenames[j] = pTextureFilename;
+        }
+
+        pMaterials[i].NumTextures = numTextures;
+        pMaterials[i].ppTextureFilenames = ppTextureFilenames;
     }
 
-    // 텍스처 경로 읽기
-    for (vsize i = 0; i < pDesc->NumMaterials; ++i)
+    // 메시 개수 불러오기
+    uint numUWMeshBlocks;
+    fread(&numUWMeshBlocks, sizeof(uint), 1, fp);
+
+    // 메시 불러오기
+    MESH_DESC* pMeshBlocks = new MESH_DESC[numUWMeshBlocks];
+    for (uint i = 0; i < numUWMeshBlocks; ++i)
     {
-        fread(&pDesc->pNumTexturesOrNull[i], sizeof(uint), 1, fp);
+        // 인클루드 플래그 불러오기
+        uint includeFlag;
+        fread(&includeFlag, sizeof(uint), 1, fp);
 
-        if (pDesc->pNumTexturesOrNull[i] > 0)
+        // 머티리얼 ID 불러오기
+        uint materialID = UINT_MAX;
+        if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
         {
-            pDesc->pppTexturesPathOrNull[i] = (wchar_t**)malloc(UW_PTR_SIZE * pDesc->pNumTexturesOrNull[i]);
-            ASSERT(pDesc->pppTexturesPathOrNull[i] != nullptr, "Failed to malloc pppTexturesPathOrNull[i]");
+            materialID;
+            fread(&materialID, sizeof(uint), 1, fp);
         }
 
-        for (vsize j = 0; j < pDesc->pNumTexturesOrNull[i]; ++j)
-        {
-            pDesc->pppTexturesPathOrNull[i][j] = (wchar_t*)malloc(sizeof(wchar_t) * UW_MAX_FILE_PATH);
-            ASSERT(pDesc->pppTexturesPathOrNull[i][j] != nullptr, "Failed to malloc pppTexturesPathOrNull[i][j]");
+        // 버텍스 개수 불러오기
+        uint numVertices;
+        fread(&numVertices, sizeof(uint), 1, fp);
 
-            fread(pDesc->pppTexturesPathOrNull[i][j], sizeof(wchar_t), UW_MAX_FILE_PATH, fp);
+        // 버텍스 불러오기
+        void* pVertices = new char[numVertices * UWMESH_VERTEX_SIZE];
+        fread(pVertices, UWMESH_VERTEX_SIZE, numVertices, fp);
+
+        // 텍스처 좌표 불러오기
+        void* pTexCoords = nullptr;
+        if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
+        {
+            pTexCoords = new char[numVertices * UWMESH_TEXCOORD_SIZE];
+            fread(pTexCoords, UWMESH_TEXCOORD_SIZE, numVertices, fp);
         }
+
+        // 본 가중치 불러오기
+        BoneWeight* pBoneWeights = nullptr;
+        if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_SKINNED))
+        {
+            pBoneWeights = new BoneWeight[numVertices];
+            fread(pBoneWeights, sizeof(BoneWeight), numVertices, fp);
+        }
+
+        // 인덱스 버퍼 개수 불러오기
+        uint numIndexBuffers;
+        fread(&numIndexBuffers, sizeof(uint), 1, fp);
+
+        uint16* pNumIndices = new uint16[numIndexBuffers];
+        uint16** ppIndices = new uint16*[numIndexBuffers];
+
+        // 인덱스 버퍼 불러오기
+        for (uint j = 0; j < numIndexBuffers; ++j)
+        {
+            // 인덱스 개수 불러오기
+            fread(&pNumIndices[j], sizeof(uint16), 1, fp);
+
+            // 인덱스 불러오기
+            ppIndices[j] = new uint16[pNumIndices[j]];
+            fread(ppIndices[j], sizeof(uint16), pNumIndices[j], fp);
+        }
+
+        pMeshBlocks[i].IncludeFlag = includeFlag;
+        pMeshBlocks[i].MaterialID = materialID;
+        pMeshBlocks[i].NumVertices = numVertices;
+        pMeshBlocks[i].pVertices = pVertices;
+        pMeshBlocks[i].pTexCoords = pTexCoords;
+        pMeshBlocks[i].pBoneWeights = pBoneWeights;
+        pMeshBlocks[i].NumIndexBuffers = numIndexBuffers;
+        pMeshBlocks[i].pNumIndices = pNumIndices;
+        pMeshBlocks[i].ppIndices = ppIndices;
     }
 
-    // 오브젝트 개수 읽기
-    fread(&pDesc->NumObjects, sizeof(uint), 1, fp);
+    pOutUWMesh->NumMaterials = numMaterials;
+    pOutUWMesh->pMaterials = pMaterials;
+    pOutUWMesh->NumMeshBlocks = numUWMeshBlocks;
+    pOutUWMesh->pMeshBlocks = pMeshBlocks;
 
-    pDesc->pIncludeFlags = (uint*)malloc(sizeof(uint) * pDesc->NumObjects);
-    pDesc->pNumVertices = (uint*)malloc(sizeof(uint) * pDesc->NumObjects);
-    pDesc->pNumIndexBuffers = (uint*)malloc(sizeof(uint) * pDesc->NumObjects);
-    ASSERT(pDesc->pIncludeFlags != nullptr, "Failed to malloc pIncludeFlags");
-    ASSERT(pDesc->pNumVertices != nullptr, "Failed to malloc pNumVertices");
-    ASSERT(pDesc->pNumIndexBuffers != nullptr, "Failed to malloc pNumIndexBuffers");
+    m_pUWMeshMap->Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWMesh, UW_PTR_SIZE);
 
-    pDesc->ppVertices = (void**)malloc(UW_PTR_SIZE * pDesc->NumObjects);
-    ASSERT(pDesc->ppVertices != nullptr, "Failed to malloc ppVertices");
-
-    pDesc->pppIndexBuffers = (uint16***)malloc(UW_PTR_SIZE * pDesc->NumObjects);
-    pDesc->ppNumIndices = (uint16**)malloc(UW_PTR_SIZE * pDesc->NumObjects);
-    ASSERT(pDesc->pppIndexBuffers != nullptr, "Failed to malloc pppIndexBuffers");
-    ASSERT(pDesc->ppNumIndices != nullptr, "Failed to malloc ppNumIndices");
-
-    pDesc->pMaterialIDsOrNull = (uint*)malloc(sizeof(uint) * pDesc->NumObjects);
-    ASSERT(pDesc->pMaterialIDsOrNull != nullptr, "Failed to malloc pMaterialIDsOrNull");
-
-    for (vsize i = 0; i < pDesc->NumObjects; ++i)
-    {
-        // 오브젝트 정보 읽기
-        fread(&pDesc->pIncludeFlags[i], sizeof(uint), 1, fp);
-        fread(&pDesc->pNumVertices[i], sizeof(uint), 1, fp);
-        
-        fread(&pDesc->pMaterialIDsOrNull[i], sizeof(uint), 1, fp);
-        fread(&pDesc->pNumIndexBuffers[i], sizeof(uint), 1, fp);
-
-        pDesc->ppVertices[i] = malloc(UWMESH_VERTEX_SIZE * pDesc->pNumVertices[i]);
-        ASSERT(pDesc->ppVertices[i] != nullptr, "Failed to malloc ppVertices[i]");
-
-        if (GET_MASK(pDesc->pIncludeFlags[i], UW3D_INCLUDE_FLAG_TEXTURE))
-        {
-            if (pDesc->ppTexCoordsOrNull == nullptr)
-            {
-                pDesc->ppTexCoordsOrNull = (void**)malloc(UW_PTR_SIZE * pDesc->NumObjects);
-                ASSERT(pDesc->ppTexCoordsOrNull != nullptr, "Failed to malloc ppTexCoordsOrNull");
-            }
-
-            pDesc->ppTexCoordsOrNull[i] = malloc(UWMESH_TEXCOORD_SIZE * pDesc->pNumVertices[i]);
-            ASSERT(pDesc->ppTexCoordsOrNull[i] != nullptr, "Failed to malloc ppTexCoordsOrNull[i]");
-        }
-
-        // 버텍스 읽기
-        fread(pDesc->ppVertices[i], UWMESH_VERTEX_SIZE, pDesc->pNumVertices[i], fp);
-
-        // 텍스처 좌표 읽기
-        if (GET_MASK(pDesc->pIncludeFlags[i], UW3D_INCLUDE_FLAG_TEXTURE))
-        {
-            fread(pDesc->ppTexCoordsOrNull[i], UWMESH_TEXCOORD_SIZE, pDesc->pNumVertices[i], fp);
-        }
-
-        pDesc->pppIndexBuffers[i] = (uint16**)malloc(UW_PTR_SIZE * pDesc->pNumIndexBuffers[i]);
-        ASSERT(pDesc->pppIndexBuffers[i] != nullptr, "Failed to malloc pppIndexBuffers[i]");
-
-        pDesc->ppNumIndices[i] = (uint16*)malloc(sizeof(uint16) * pDesc->pNumIndexBuffers[i]);
-        ASSERT(pDesc->ppNumIndices[i] != nullptr, "Failed to malloc ppNumIndices[i]");
-
-        for (vsize j = 0; j < pDesc->pNumIndexBuffers[i]; ++j)
-        {
-            // 인덱스 개수 읽기
-            fread(&pDesc->ppNumIndices[i][j], sizeof(uint16), 1, fp);
-
-            // 인덱스 읽기
-            pDesc->pppIndexBuffers[i][j] = (uint16*)malloc(sizeof(uint16) * pDesc->ppNumIndices[i][j]);
-            ASSERT(pDesc->pppIndexBuffers[i][j] != nullptr, "Failed to malloc pppIndexBuffers");
-
-            fread(pDesc->pppIndexBuffers[i][j], sizeof(uint16), pDesc->ppNumIndices[i][j], fp);
-        }
-    }
-
-    m_pUW3DMap->Insert(pFilePath, sizeof(wchar_t)* UW_MAX_FILE_PATH, &pDesc, UW_PTR_SIZE);
-
-    handle = pDesc;
+    bResult = true;
 
 lb_return:
     if (fp != nullptr)
@@ -216,170 +227,168 @@ lb_return:
         fclose(fp);
     }
 
-    return handle;
+    return bResult;
 }
 
-void __stdcall FileSystem::UW3DUnload(const wchar_t* pFilePath)
+void __stdcall FileSystem::UnloadUWMesh(const wchar_t* pFilename)
 {
-    UW3D_DESC** ppUW3D = (UW3D_DESC**)m_pUW3DMap->GetValueOrNull(pFilePath, sizeof(wchar_t) * UW_MAX_FILE_PATH);
-    if (ppUW3D != nullptr)
+    UWMesh** ppUWMesh = (UWMesh**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    if (ppUWMesh != nullptr)
     {
-        UW3D_DESC* pDesc = *ppUW3D;
-        
-        for (vsize i = 0; i < pDesc->NumMaterials; ++i)
+        UWMesh* pUWMesh = *ppUWMesh;
+
+        // 머티리얼 해제
+        for (uint i = 0; i < pUWMesh->NumMaterials; ++i)
         {
-            for (vsize j = 0; j < pDesc->pNumTexturesOrNull[i]; ++j)
+            MATERIAL_DESC* pMaterial = &pUWMesh->pMaterials[i];
+            wchar_t** ppTextureFilenames = pMaterial->ppTextureFilenames;
+            ASSERT(ppTextureFilenames != nullptr, "");
+
+            for (uint j = 0; j < pMaterial->NumTextures; ++j)
             {
-                SAFE_FREE(pDesc->pppTexturesPathOrNull[i][j]);
+                SAFE_DELETE_ARRAY(ppTextureFilenames[j]);
             }
-            SAFE_FREE(pDesc->pppTexturesPathOrNull[i]);
+            SAFE_DELETE_ARRAY(pMaterial->ppTextureFilenames);
         }
-        SAFE_FREE(pDesc->pppTexturesPathOrNull);
+        SAFE_DELETE_ARRAY(pUWMesh->pMaterials);
 
-        SAFE_FREE(pDesc->pNumTexturesOrNull);
-
-        for (vsize i = 0; i < pDesc->NumObjects; ++i)
+        // 메시 해제
+        for (uint i = 0; i < pUWMesh->NumMeshBlocks; ++i)
         {
-            SAFE_FREE(pDesc->ppVertices[i]);
-            SAFE_FREE(pDesc->ppTexCoordsOrNull[i]);
+            MESH_DESC* pMesh = &pUWMesh->pMeshBlocks[i];
 
-            for (vsize j = 0; j < pDesc->pNumIndexBuffers[i]; ++j)
+            SAFE_DELETE_ARRAY(pMesh->pVertices);
+            SAFE_DELETE_ARRAY(pMesh->pTexCoords);
+            SAFE_DELETE_ARRAY(pMesh->pBoneWeights);
+
+            uint16** ppIndices = pMesh->ppIndices;
+            ASSERT(ppIndices != nullptr, "");
+            for (uint j = 0; j < pMesh->NumIndexBuffers; ++j)
             {
-                SAFE_FREE(pDesc->pppIndexBuffers[i][j]);
+                SAFE_DELETE_ARRAY(ppIndices[j]);
             }
-            SAFE_FREE(pDesc->pppIndexBuffers[i]);
-            SAFE_FREE(pDesc->ppNumIndices[i]);
+            SAFE_DELETE_ARRAY(pMesh->ppIndices);
+            SAFE_DELETE_ARRAY(pMesh->pNumIndices);
         }
-        SAFE_FREE(pDesc->pppIndexBuffers);
-        SAFE_FREE(pDesc->ppTexCoordsOrNull);
-        SAFE_FREE(pDesc->ppNumIndices);
-        SAFE_FREE(pDesc->ppVertices);
-        SAFE_FREE(pDesc->pNumIndexBuffers);
 
-        SAFE_FREE(pDesc->pIncludeFlags);
-        SAFE_FREE(pDesc->pNumVertices);
-        SAFE_FREE(pDesc->pMaterialIDsOrNull);
+        SAFE_DELETE_ARRAY(pUWMesh->pMeshBlocks);
     }
 }
 
-uint __stdcall FileSystem::UW3DGetNumMaterials(const UW3D_HANDLE handle)
+bool __stdcall FileSystem::LoadUWBone(const wchar_t* pFilename, UWBone* pOutUWBone)
 {
-    ASSERT(handle != nullptr, "handle == nullptr");
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    return pDesc->NumMaterials;
+    ASSERT(pFilename != nullptr, "pFilename == nullptr");
+    ASSERT(pOutUWBone != nullptr, "pOutUWBone == nullptr");
+
+    bool bResult = false;
+    FILE* fp = nullptr;
+
+    UWBone** ppUWBone = (UWBone**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    if (ppUWBone != nullptr)
+    {
+        pOutUWBone = *ppUWBone;
+        goto lb_return;
+    }
+
+    fp = _wfopen(pFilename, L"rb");
+    if (fp == nullptr)
+    {
+        CRASH();
+        goto lb_return;
+    }
+
+    char magicNumber[8] = {};
+    fread(magicNumber, 8, 1, fp);
+    if (strcmp(magicNumber, "UWBone") != 0)
+    {
+        CRASH();
+        goto lb_return;
+    }
+
+    bResult = true;
+
+    // 본 개수 불러오기
+    uint numBones;
+    fread(&numBones, sizeof(uint), 1, fp);
+
+    // 본 불러오기
+    BONE_DESC* pBones = new BONE_DESC[numBones];
+    for (uint i = 0; i < numBones; ++i)
+    {
+        // TM 불러오기
+        fread(&pBones[i].TransformMatrix, sizeof(Matrix44), 1, fp);
+
+        ANIMATION_DESC* pACB = &pBones[i].Animation;
+        memset(pACB, 0, sizeof(ANIMATION_DESC));
+        
+        // 키 프레임 불러오기
+        fread(&pACB->KeyFrame, sizeof(uint), 1, fp);
+
+        // 키 여부 불러오기
+        fread(&pACB->bHasPosition, sizeof(bool), 1, fp);
+        fread(&pACB->bHasRotation, sizeof(bool), 1, fp);
+        fread(&pACB->bHasScale, sizeof(bool), 1, fp);
+        
+        pACB->pPositions = nullptr;
+        if (pACB->bHasPosition)
+        {
+            // 키 개수 불러오기
+            fread(&pACB->NumPositionKeys, sizeof(uint), 1, fp);
+
+            pACB->pPositions = new ANIMATION_DESC::Position[pACB->NumPositionKeys];
+            fread(pACB->pPositions, sizeof(ANIMATION_DESC::Position), pACB->NumPositionKeys, fp);
+        }
+
+        pACB->pRotations = nullptr;
+        if (pACB->bHasRotation)
+        {
+            // 키 개수 불러오기
+            fread(&pACB->NumRotationKeys, sizeof(uint), 1, fp);
+
+            pACB->pRotations = new ANIMATION_DESC::Rotation[pACB->NumRotationKeys];
+            fread(pACB->pRotations, sizeof(ANIMATION_DESC::Rotation), pACB->NumRotationKeys, fp);
+        }
+
+        pACB->pScales = nullptr;
+        if (pACB->bHasScale)
+        {
+            // 키 개수 불러오기
+            fread(&pACB->NumScaleKeys, sizeof(uint), 1, fp);
+
+            pACB->pScales = new ANIMATION_DESC::Scale[pACB->NumScaleKeys];
+            fread(pACB->pScales, sizeof(ANIMATION_DESC::Scale), pACB->NumScaleKeys, fp);
+        }
+    }
+
+    pOutUWBone->NumBones = numBones;
+    pOutUWBone->pBones = pBones;
+
+    m_pUWBoneMap->Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWBone, UW_PTR_SIZE);
+
+lb_return:
+    if (fp != nullptr)
+    {
+        fclose(fp);
+    }
+
+    return bResult;
 }
 
-uint __stdcall FileSystem::UW3DGetNumTextures(const UW3D_HANDLE handle, const uint materialID)
+void __stdcall FileSystem::UnloadUWBone(const wchar_t* pFilename)
 {
-    ASSERT(handle != nullptr, "handle == nullptr");
+    UWBone** ppUWBone = (UWBone**)m_pUWBoneMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    if (ppUWBone != nullptr)
+    {
+        UWBone* pUWBone = *ppUWBone;
 
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(materialID < pDesc->NumMaterials, "Invalid materialID");
+        for (uint i = 0; i < pUWBone->NumBones; ++i)
+        {
+            BONE_DESC* pBoneBlock = &pUWBone->pBones[i];
 
-    return pDesc->pNumTexturesOrNull[materialID];
-}
-
-const wchar_t** __stdcall FileSystem::UW3DGetTexturesPath(const UW3D_HANDLE handle, const uint materialID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(materialID < pDesc->NumMaterials, "Invalid materialID");
-
-    return (const wchar_t**)pDesc->pppTexturesPathOrNull[materialID];
-}
-
-uint __stdcall FileSystem::UW3DGetNumObjects(const UW3D_HANDLE handle)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    return pDesc->NumObjects;
-}
-
-uint __stdcall FileSystem::UW3DGetIncludeFlag(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return pDesc->pIncludeFlags[objectID];
-}
-
-uint __stdcall FileSystem::UW3DGetNumVertices(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return pDesc->pNumVertices[objectID];
-}
-
-uint __stdcall FileSystem::UW3DGetMaterialID(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-    ASSERT(GET_MASK(UW3DGetIncludeFlag(handle, objectID), UW3D_INCLUDE_FLAG_TEXTURE), "Invalid includeFlag");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    return pDesc->pMaterialIDsOrNull[objectID];
-}
-
-uint __stdcall FileSystem::UW3DGetNumIndexBuffers(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return pDesc->pNumIndexBuffers[objectID];
-}
-
-const void* __stdcall FileSystem::UW3DGetVertices(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return (const void*)pDesc->ppVertices[objectID];
-}
-
-const void* __stdcall FileSystem::UW3DGetTexCoords(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-    ASSERT(GET_MASK(UW3DGetIncludeFlag(handle, objectID), UW3D_INCLUDE_FLAG_TEXTURE), "Invalid includeFlag");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    return (const void*)pDesc->ppTexCoordsOrNull[objectID];
-}
-
-const uint16** __stdcall FileSystem::UW3DGetIndexBuffers(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return (const uint16**)pDesc->pppIndexBuffers[objectID];
-}
-
-const uint16* __stdcall FileSystem::UW3DGetNumIndices(const UW3D_HANDLE handle, const uint objectID)
-{
-    ASSERT(handle != nullptr, "handle == nullptr");
-
-    const UW3D_DESC* pDesc = (UW3D_DESC*)handle;
-    ASSERT(objectID < pDesc->NumObjects, "Invalid objectID");
-
-    return (const uint16*)pDesc->ppNumIndices[objectID];
-}
-
-uint __stdcall FileSystem::UW3DGetVertexSize()
-{
-    return UWMESH_VERTEX_SIZE;
-}
-
-uint __stdcall FileSystem::UW3DGetTexCoordSize()
-{
-    return UWMESH_TEXCOORD_SIZE;
+            SAFE_DELETE_ARRAY(pBoneBlock->Animation.pPositions);
+            SAFE_DELETE_ARRAY(pBoneBlock->Animation.pRotations);
+            SAFE_DELETE_ARRAY(pBoneBlock->Animation.pScales);
+        }
+        SAFE_DELETE_ARRAY(pUWBone->pBones);
+    }
 }

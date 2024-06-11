@@ -31,6 +31,9 @@
       <Filter>UWEngineCommon\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\FileSystem.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.cpp">

@@ -25,6 +25,7 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IFileSystem.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IRenderer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\FileSystem.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.h" />

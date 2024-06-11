@@ -20,7 +20,7 @@
 
 #include "istdplug.h"
 
-#include "UWEngineCommon/Defines.h"
+#include "UWEngineCommon/Structures.h"
 
 #define CFGFILENAME		_T("UWMESHEXPORTER.CFG")	// Configuration file
 
@@ -85,8 +85,6 @@ private:
 
     UWMESH_INCLUDE_FLAG             m_includeFlag = UWMESH_INCLUDE_FLAG_COLOR;
     uint                            m_numMaterials = 0;
-
-    UWMesh                          m_uwmesh = {};
 };
 
 inline bool UWMeshExporter::GetIncludeTextureCoords() const
