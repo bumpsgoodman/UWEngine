@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshExporter.h" />
   </ItemGroup>
   <ItemGroup>

@@ -28,8 +28,6 @@ public:
     virtual bool        __stdcall       CreateMesh(const int includeFlag,
                                                    const void* pVertices, const uint vertexSize, const uint numVertices,
                                                    const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
-                                                   BoneWeightBlock* pWeights,
-                                                   AnimationControlBlock* pAnimation,
                                                    const void* pTexCoordsOrNull, const wchar_t** ppTextureFileNamesOrNull,
                                                    const wchar_t* pShaderFileName, const char* pVSEntryPoint, const char* pPSEntryPoint) override;
     virtual void        __stdcall       RenderMesh() override;
@@ -85,13 +83,6 @@ private:
     VertexBuffer                m_weightBuffer;
     VertexBuffer                m_boneIndexBuffer;
     TextureFaceGroup            m_faceGroup;
-
-    // 애니메이션 데이터
-    BoneWeightBlock*            m_pWeights = nullptr;
-    AnimationControlBlock*      m_pAnimation = nullptr;
-    uint                        m_animationIndex = 0;
-    uint                        m_curKeyFrame = 0;
-    uint                        m_maxKeyFrame = 0;
 
     uint                        m_includeFlag = 0;
     uint                        m_vertexSize = 0;

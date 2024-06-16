@@ -140,12 +140,12 @@ bool __stdcall FileSystem::LoadUWMesh(const wchar_t* pFilename, UWMesh* pOutUWMe
     }
 
     // 메시 개수 불러오기
-    uint numUWMeshBlocks;
-    fread(&numUWMeshBlocks, sizeof(uint), 1, fp);
+    uint numMeshes;
+    fread(&numMeshes, sizeof(uint), 1, fp);
 
     // 메시 불러오기
-    MESH_DESC* pMeshBlocks = new MESH_DESC[numUWMeshBlocks];
-    for (uint i = 0; i < numUWMeshBlocks; ++i)
+    MESH_DESC* pMeshes = new MESH_DESC[numMeshes];
+    for (uint i = 0; i < numMeshes; ++i)
     {
         // 인클루드 플래그 불러오기
         uint includeFlag;
@@ -201,21 +201,21 @@ bool __stdcall FileSystem::LoadUWMesh(const wchar_t* pFilename, UWMesh* pOutUWMe
             fread(ppIndices[j], sizeof(uint16), pNumIndices[j], fp);
         }
 
-        pMeshBlocks[i].IncludeFlag = includeFlag;
-        pMeshBlocks[i].MaterialID = materialID;
-        pMeshBlocks[i].NumVertices = numVertices;
-        pMeshBlocks[i].pVertices = pVertices;
-        pMeshBlocks[i].pTexCoords = pTexCoords;
-        pMeshBlocks[i].pBoneWeights = pBoneWeights;
-        pMeshBlocks[i].NumIndexBuffers = numIndexBuffers;
-        pMeshBlocks[i].pNumIndices = pNumIndices;
-        pMeshBlocks[i].ppIndices = ppIndices;
+        pMeshes[i].IncludeFlag = includeFlag;
+        pMeshes[i].MaterialID = materialID;
+        pMeshes[i].NumVertices = numVertices;
+        pMeshes[i].pVertices = pVertices;
+        pMeshes[i].pTexCoords = pTexCoords;
+        pMeshes[i].pBoneWeights = pBoneWeights;
+        pMeshes[i].NumIndexBuffers = numIndexBuffers;
+        pMeshes[i].pNumIndices = pNumIndices;
+        pMeshes[i].ppIndices = ppIndices;
     }
 
     pOutUWMesh->NumMaterials = numMaterials;
     pOutUWMesh->pMaterials = pMaterials;
-    pOutUWMesh->NumMeshBlocks = numUWMeshBlocks;
-    pOutUWMesh->pMeshBlocks = pMeshBlocks;
+    pOutUWMesh->NumMeshes = numMeshes;
+    pOutUWMesh->pMeshes = pMeshes;
 
     m_pUWMeshMap->Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWMesh, UW_PTR_SIZE);
 
@@ -253,9 +253,9 @@ void __stdcall FileSystem::UnloadUWMesh(const wchar_t* pFilename)
         SAFE_DELETE_ARRAY(pUWMesh->pMaterials);
 
         // 메시 해제
-        for (uint i = 0; i < pUWMesh->NumMeshBlocks; ++i)
+        for (uint i = 0; i < pUWMesh->NumMeshes; ++i)
         {
-            MESH_DESC* pMesh = &pUWMesh->pMeshBlocks[i];
+            MESH_DESC* pMesh = &pUWMesh->pMeshes[i];
 
             SAFE_DELETE_ARRAY(pMesh->pVertices);
             SAFE_DELETE_ARRAY(pMesh->pTexCoords);
@@ -271,7 +271,7 @@ void __stdcall FileSystem::UnloadUWMesh(const wchar_t* pFilename)
             SAFE_DELETE_ARRAY(pMesh->pNumIndices);
         }
 
-        SAFE_DELETE_ARRAY(pUWMesh->pMeshBlocks);
+        SAFE_DELETE_ARRAY(pUWMesh->pMeshes);
     }
 }
 

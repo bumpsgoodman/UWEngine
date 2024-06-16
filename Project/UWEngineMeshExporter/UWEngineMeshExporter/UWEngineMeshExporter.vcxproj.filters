@@ -4,12 +4,14 @@
     <ClInclude Include="Resource.h">
       <Filter>Private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMeshExporter\MeshExporter.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
   </ItemGroup>

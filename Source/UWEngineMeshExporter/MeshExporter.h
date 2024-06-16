@@ -3,6 +3,33 @@
 *
 * 작성자: bumpsgoodman
 * 작성일: 2023.01.31
+* 
+* 메모리 레이아웃
+* -----------------------
+* UWMesh 매직넘버            =>                  char[8], "UWMesh"
+* 
+* 머티리얼 개수              =>                  uint
+* 머티리얼                   =>                  MATERIAL_DESC*
+*   텍스처 개수              =>                  uint
+*   텍스처 파일이름          =>                  wchar_t**
+* 
+* 메시 개수                  =>                  uint
+* 메시                       =>                  MESH_DESC
+*   인클루드 플래그          =>                  uint
+* 
+*   머티리얼 ID              =>                  uint                                           * UWMESH_INCLUDE_FLAG_TEXTURE
+*   
+*   버텍스 개수              =>                  uint
+*   버텍스 배열              =>                  void*, 요소 당 24바이트, [POSITION, NORMAL]
+*   텍스처 좌표              =>                  void*, 요소 당 float[2]                        * UWMESH_INCLUDE_FLAG_TEXTURE
+*   뼈대 가중치              =>                  BoneWeight*                                    * UWMESH_INCLUDE_FLAG_SKINNED
+*     가중치 개수            =>                  uint
+*     뼈대 인덱스            =>                  uint[4]
+*     가중치                 =>                  float[4]
+* 
+*   인덱스 버퍼 개수         =>                  uint
+*   인덱스 개수              =>                  uint16*
+*   인덱스                   =>                  uint16**
 */
 
 #pragma once

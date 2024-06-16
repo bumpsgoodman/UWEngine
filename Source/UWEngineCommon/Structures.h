@@ -44,8 +44,8 @@ struct UWMesh
     uint            NumMaterials;
     MATERIAL_DESC*  pMaterials;
 
-    uint            NumMeshBlocks;
-    MESH_DESC*      pMeshBlocks;
+    uint            NumMeshes;
+    MESH_DESC*      pMeshes;
 };
 
 struct ANIMATION_DESC
@@ -83,10 +83,14 @@ struct ANIMATION_DESC
     } *pScales;
 };
 
+struct BONE_DESC
+{
+    Matrix44        TransformMatrix;
+    ANIMATION_DESC  Animation;
+};
+
 struct UWBone
 {
-    uint                NumBones;
-
-    Matrix44*           pTransformMatrix;
-    ANIMATION_DESC*     pAnimations;
+    uint        NumBones;
+    BONE_DESC*  pBones;
 };

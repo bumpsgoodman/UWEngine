@@ -100,8 +100,6 @@ lb_return:
 bool __stdcall MeshObject::CreateMesh(const int includeFlag,
                                       const void* pVertices, const uint vertexSize, const uint numVertices,
                                       const uint16** ppIndices, const uint16* pNumIndices, const uint numIndexBuffers,
-                                      BoneWeightBlock* pWeights,
-                                      AnimationControlBlock* pAnimation,
                                       const void* pTexCoordsOrNull, const wchar_t** ppTextureFileNamesOrNull,
                                       const wchar_t* pShaderFileName, const char* pVSEntryPoint, const char* pPSEntryPoint)
 {
@@ -255,12 +253,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         }
     }
 
-    if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_SKINNED))
-    {
-        m_weightBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_WEIGHT, sizeof(BoneWeightBlock), numVertices);
-        m_weightBuffer.SetVertex(pWeights, numVertices, sizeof(BoneWeightBlock), 0, VERTEX_BUFFER_FLAG_WEIGHT);
-    }
-
     // constant 버퍼 생성
     D3D11_BUFFER_DESC bd;
     memset(&bd, 0, sizeof(bd));
@@ -280,9 +272,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
 
     m_world = XMMatrixIdentity();
 
-    m_pWeights = pWeights;
-    m_pAnimation = pAnimation;
-
     bResult = true;
 
 lb_return:
@@ -295,9 +284,6 @@ lb_return:
 void __stdcall MeshObject::RenderMesh()
 {
     ConstantBuffer cb;
-    XMMATRIX world;
-
-    uint index = m_curKeyFrame % 5;
 
     cb.WVP = XMMatrixTranspose(m_world * UW_Matrix44ToXMMatrix(m_pCamera->GetView()) * UW_Matrix44ToXMMatrix(m_pCamera->GetProjection()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);

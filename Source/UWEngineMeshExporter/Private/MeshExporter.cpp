@@ -544,7 +544,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     vector<Point3> normals;
     vector<Point3> uvs;
     vector<uint> numBoneWeights;
-    vector<vector<uint16>> boneIndices;
+    vector<vector<uint>> boneIndices;
     vector<vector<float>> boneWeights;
     vector<vector<uint16>> indexBuffers;
 
@@ -562,7 +562,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
 
             numBoneWeights.push_back(numAssignedBones);
 
-            boneIndices.push_back(vector<uint16>());
+            boneIndices.push_back(vector<uint>());
             boneIndices[i].resize(NUM_MAX_BONES_PER_VERTEX);
 
             boneWeights.push_back(vector<float>());
@@ -643,7 +643,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
 
                         numBoneWeights.push_back(numBoneWeights[vertexIndex]);
 
-                        boneIndices.push_back(vector<uint16>());
+                        boneIndices.push_back(vector<uint>());
                         boneIndices.back() = boneIndices[vertexIndex];
 
                         boneWeights.push_back(vector<float>());
@@ -751,7 +751,7 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
             // 본 가중치 저장
             for (uint j = 0; j < NUM_MAX_BONES_PER_VERTEX; ++j)
             {
-                fwrite(&boneIndices[i][j], sizeof(uint16), 1, m_pFile);
+                fwrite(&boneIndices[i][j], sizeof(uint), 1, m_pFile);
                 fwrite(&boneWeights[i][j], sizeof(float), 1, m_pFile);
             }
         }
