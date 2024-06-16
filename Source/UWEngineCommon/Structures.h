@@ -83,14 +83,10 @@ struct ANIMATION_DESC
     } *pScales;
 };
 
-struct BONE_DESC
-{
-    Matrix44        TransformMatrix;
-    ANIMATION_DESC  Animation;
-};
-
 struct UWBone
 {
-    uint        NumBones;
-    BONE_DESC*  pBones;
+    uint                NumBones;
+
+    Matrix44*           pTransformMatrix;
+    ANIMATION_DESC*     pAnimations;
 };
