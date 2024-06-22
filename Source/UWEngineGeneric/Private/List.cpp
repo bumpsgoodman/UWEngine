@@ -10,20 +10,22 @@
 
 GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-    ASSERT(pNode != NULL, "pNode == NULL");
-
-    if (*ppHead == NULL)
+    if (*ppHead == nullptr)
     {
         *ppHead = *ppTail = pNode;
-        pNode->pNext = NULL;
-        pNode->pPrev = NULL;
+        pNode->pNext = nullptr;
+        pNode->pPrev = nullptr;
     }
     else
     {
+        // 이미 추가된 노드거나 널 포인터를 추가할 경우
+        if (*ppHead == pNode)
+        {
+            CRASH();
+        }
+
         pNode->pNext = *ppHead;
-        pNode->pPrev = NULL;
+        pNode->pPrev = nullptr;
 
         (*ppHead)->pPrev = pNode;
         *ppHead = pNode;
@@ -32,19 +34,21 @@ GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, Lis
 
 GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-    ASSERT(pNode != NULL, "pNode == NULL");
-
-    if (*ppTail == NULL)
+    if (*ppTail == nullptr)
     {
         *ppTail = *ppHead = pNode;
-        pNode->pNext = NULL;
-        pNode->pPrev = NULL;
+        pNode->pNext = nullptr;
+        pNode->pPrev = nullptr;
     }
     else
     {
-        pNode->pNext = NULL;
+        // 이미 추가된 노드거나 널 포인터를 추가할 경우
+        if (*ppTail == pNode)
+        {
+            CRASH();
+        }
+
+        pNode->pNext = nullptr;
         pNode->pPrev = *ppTail;
 
         (*ppTail)->pNext = pNode;
@@ -54,55 +58,32 @@ GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, Lis
 
 GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-
-    if (*ppHead == NULL)
-    {
-        ASSERT(false, "*ppHead == NULL");
-        return;
-    }
-
     *ppHead = (*ppHead)->pNext;
-    if (*ppHead == NULL)
+    if (*ppHead == nullptr)
     {
-        *ppTail = NULL;
+        *ppTail = nullptr;
     }
     else
     {
-        (*ppHead)->pPrev = NULL;
+        (*ppHead)->pPrev = nullptr;
     }
 }
 
 GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-
-    if (*ppTail == NULL)
-    {
-        ASSERT(false, "*ppTail == NULL");
-        return;
-    }
-
     *ppTail = (*ppTail)->pPrev;
-    if (*ppTail == NULL)
+    if (*ppTail == nullptr)
     {
-        *ppHead = NULL;
+        *ppHead = nullptr;
     }
     else
     {
-        (*ppTail)->pNext = NULL;
+        (*ppTail)->pNext = nullptr;
     }
 }
 
 GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* prevNode, ListNode* pNode)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-    ASSERT(prevNode != NULL, "prevNode == NULL");
-    ASSERT(pNode != NULL, "pNode == NULL");
-
     if (*ppHead == prevNode)
     {
         ListAddHead(ppHead, ppTail, pNode);
@@ -120,26 +101,22 @@ GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, 
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* removedNode)
+GLOBAL_FUNC void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* pDeleteNode)
 {
-    ASSERT(ppHead != NULL, "ppHead == NULL");
-    ASSERT(ppTail != NULL, "ppTail == NULL");
-    ASSERT(removedNode != NULL, "removedNode == NULL");
-
-    if (*ppHead == removedNode)
+    if (*ppHead == pDeleteNode)
     {
         ListDeleteHead(ppHead, ppTail);
     }
-    else if (*ppTail == removedNode)
+    else if (*ppTail == pDeleteNode)
     {
         ListDeleteTail(ppHead, ppTail);
     }
     else
     {
-        removedNode->pPrev->pNext = removedNode->pNext;
-        removedNode->pNext->pPrev = removedNode->pPrev;
+        pDeleteNode->pPrev->pNext = pDeleteNode->pNext;
+        pDeleteNode->pNext->pPrev = pDeleteNode->pPrev;
 
-        removedNode->pPrev = NULL;
-        removedNode->pNext = NULL;
+        pDeleteNode->pPrev = nullptr;
+        pDeleteNode->pNext = nullptr;
     }
 }

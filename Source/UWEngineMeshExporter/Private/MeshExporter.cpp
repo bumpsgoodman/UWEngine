@@ -641,13 +641,16 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
 
                         vertices.push_back(pMesh->verts[vertexIndex]);
 
-                        numBoneWeights.push_back(numBoneWeights[vertexIndex]);
+                        if (pDerivedObj != nullptr && GetIncludeSkin())
+                        {
+                            numBoneWeights.push_back(numBoneWeights[vertexIndex]);
 
-                        boneIndices.push_back(vector<uint>());
-                        boneIndices.back() = boneIndices[vertexIndex];
+                            boneIndices.push_back(vector<uint>());
+                            boneIndices.back() = boneIndices[vertexIndex];
 
-                        boneWeights.push_back(vector<float>());
-                        boneWeights.back() = boneWeights[vertexIndex];
+                            boneWeights.push_back(vector<float>());
+                            boneWeights.back() = boneWeights[vertexIndex];
+                        }
                     }
                     else
                     {

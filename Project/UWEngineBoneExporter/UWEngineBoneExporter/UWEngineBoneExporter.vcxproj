@@ -26,7 +26,6 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineBoneExporter\BoneDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineBoneExporter\BoneExporter.h" />
   </ItemGroup>
   <ItemGroup>

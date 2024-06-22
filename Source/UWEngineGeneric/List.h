@@ -12,15 +12,9 @@
 
 struct ListNode
 {
-    void* pElement;
-    struct ListNode* pNext;
-    struct ListNode* pPrev;
-};
-
-struct List
-{
-    ListNode* pHead;
-    ListNode* pTail;
+    void*               pElement;
+    struct ListNode*    pNext;
+    struct ListNode*    pPrev;
 };
 
 GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);

@@ -7,10 +7,35 @@
 
 #pragma once
 
+inline uint32 __stdcall UWHash32(const char* pBytes, vsize length)
+{
+    uint32 hash = 0;
+
+    if (length & 0x1)
+    {
+        hash += (uint32)(*(uint8*)pBytes);
+        ++pBytes;
+        --length;
+    }
+
+    if (length & 0x2)
+    {
+        hash += (uint32)(*(uint16*)pBytes);
+        pBytes += 2;
+        length -= 2;
+    }
+
+    for (vsize i = 0; i < length; ++i)
+    {
+        hash += (uint32)(*(uint32*)pBytes);
+        pBytes += 4;
+    }
+
+    return hash;
+}
+
 inline uint32 __stdcall FNV1a32(const char* pBytes, const vsize length)
 {
-    ASSERT(pBytes != nullptr, "pBytes == nullptr");
-
     static constexpr uint32 FNV_PRIME_32 = 16777619U;
     static constexpr uint32 FNV_OFFSET_32 = 2166136261U;
 
@@ -26,8 +51,6 @@ inline uint32 __stdcall FNV1a32(const char* pBytes, const vsize length)
 
 inline uint64 __stdcall FNV1a64(const char* pBytes, const vsize length)
 {
-    ASSERT(pBytes != nullptr, "pBytes == nullptr");
-
     static constexpr uint64 FNV_PRIME = 1099511628211U;
     static constexpr uint64 FNV_OFFSET_BASIS = 14695981039346656037U;
 

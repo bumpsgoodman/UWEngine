@@ -89,6 +89,8 @@ interface IRenderer : public IRefObject
     virtual void    __stdcall   CreateCamera(ICamera** ppOutCamera) = 0;
     virtual void    __stdcall   CreateMeshObject(IMeshObject** ppOutMeshObject) = 0;
 
+    //virtual bool    __stdcall   PrintText(const wchar_t* pText, const vsize )
+
     virtual uint    __stdcall   GetRenderMode() const = 0;
     virtual void    __stdcall   SetRenderMode(const uint mode) = 0;
 

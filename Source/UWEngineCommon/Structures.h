@@ -27,12 +27,12 @@ struct MESH_DESC
 {
     uint                IncludeFlag;
 
-    uint                MaterialID;         // UWMESH_INCLUDE_FLAG_TEXTURE가 켜져 있을 경우에만 활성화
+    uint                MaterialID;         //                                  * UWMESH_INCLUDE_FLAG_TEXTURE
 
     uint                NumVertices;
     void*               pVertices;          // [Position(xyz), Normal(xyz)]
-    void*               pTexCoords;         // [TexCoord(xy)], UWMESH_INCLUDE_FLAG_TEXTURE가 켜져 있을 경우에만 활성화
-    BoneWeight*         pBoneWeights;       // UWMESH_INCLUDE_FLAG_SKINNED가 켜져 있을 경우에만 활성화
+    void*               pTexCoords;         // [TexCoord(xy)],                  * UWMESH_INCLUDE_FLAG_TEXTURE
+    BoneWeight*         pBoneWeights;       //                                  * UWMESH_INCLUDE_FLAG_SKINNED
 
     uint                NumIndexBuffers;
     uint16*             pNumIndices;        // 각 인덱스 버퍼에 인덱스가 몇 개인지

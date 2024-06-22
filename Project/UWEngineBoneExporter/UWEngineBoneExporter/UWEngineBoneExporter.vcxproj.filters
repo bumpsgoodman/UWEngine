@@ -4,7 +4,6 @@
     <ClCompile Include="..\..\..\Source\UWEngineBoneExporter\Private\BoneExporter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\UWEngineBoneExporter\BoneDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineBoneExporter\BoneExporter.h" />
     <ClInclude Include="Resource.h">
       <Filter>Private</Filter>
@@ -20,9 +19,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BoneExporter.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="UWEngineBoneExporter.def" />
   </ItemGroup>
   <ItemGroup>
@@ -32,5 +28,10 @@
     <Filter Include="UWEngineCommon">
       <UniqueIdentifier>{cc06a8ff-7eba-4e43-baa0-26b3b6f0e05e}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BoneExporter.rc">
+      <Filter>Private</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
