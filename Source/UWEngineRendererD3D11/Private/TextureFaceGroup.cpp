@@ -17,105 +17,65 @@ TextureFaceGroup::~TextureFaceGroup()
 
 void TextureFaceGroup::Release()
 {
-    IndexBuffer** ppIndexBuffers = (IndexBuffer**)m_pIndexBuffers->GetElementsPtrOrNull();
-    for (vsize i = 0; i < m_pIndexBuffers->GetNumElements(); ++i)
+    IndexBuffer** ppIndexBuffers = (IndexBuffer**)m_indexBuffers.GetElementsPtr();
+    for (uint i = 0; i < m_indexBuffers.GetNumElements(); ++i)
     {
         IndexBuffer* pBuffer = ppIndexBuffers[i];
         SAFE_DELETE(pBuffer);
     }
 
-    ID3D11ShaderResourceView** ppTextures = (ID3D11ShaderResourceView**)m_pTextures->GetElementsPtrOrNull();
-    for (vsize i = 0; i < m_pTextures->GetNumElements(); ++i)
+    ID3D11ShaderResourceView** ppTextures = (ID3D11ShaderResourceView**)m_textures.GetElementsPtr();
+    for (uint i = 0; i < m_textures.GetNumElements(); ++i)
     {
         ID3D11ShaderResourceView* pTexture = ppTextures[i];
         SAFE_RELEASE(pTexture);
     }
 
-    DestroyFixedArray(m_pIndexBuffers);
-    DestroyFixedArray(m_pTextures);
+    m_indexBuffers.Release();
+    m_textures.Release();
 
     SAFE_RELEASE(m_pRenderer);
 }
 
-bool __stdcall TextureFaceGroup::Initialize(IRenderer* pRenderer, const vsize numFaces)
+bool __stdcall TextureFaceGroup::Initialize(IRenderer* pRenderer, const uint numFaces)
 {
-    ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
-    ASSERT(numFaces > 0, "numFaces == 0");
-
-    bool bResult = false;
-
-    if (!CreateFixedArray(&m_pIndexBuffers))
+    if (!m_indexBuffers.Initialize(UW_PTR_SIZE, numFaces))
     {
-        ASSERT(false, "Failed to create index buffer array");
-        goto lb_return;
+        CRASH();
     }
 
-    if (!m_pIndexBuffers->Initialize(UW_PTR_SIZE, numFaces))
+    if (!m_textures.Initialize(UW_PTR_SIZE, numFaces))
     {
-        ASSERT(false, "Failed to init index buffer array");
-        goto lb_return;
-    }
-
-    if (!CreateFixedArray(&m_pTextures))
-    {
-        ASSERT(false, "Failed to create texture array");
-        goto lb_return;
-    }
-
-    if (!m_pTextures->Initialize(UW_PTR_SIZE, numFaces))
-    {
-        ASSERT(false, "Failed to init texture array");
-        goto lb_return;
+        CRASH();
     }
 
     pRenderer->AddRef();
     m_pRenderer = pRenderer;
     m_numFaces = numFaces;
 
-    bResult = true;
-
-lb_return:
-    if (!bResult)
-    {
-        DestroyFixedArray(m_pIndexBuffers);
-        DestroyFixedArray(m_pTextures);
-    }
-
-    return bResult;
+    return true;
 }
 
-bool __stdcall TextureFaceGroup::AddIndexBuffer(const uint16* pIndices, const vsize numIndices)
+bool __stdcall TextureFaceGroup::AddIndexBuffer(const uint16* pIndices, const uint numIndices)
 {
-    ASSERT(pIndices != nullptr, "pIndices == nullptr");
-    ASSERT(numIndices > 0 && numIndices % 3 == 0, "Wrong numIndices");
-
-    bool bResult = false;
-
     IndexBuffer* pIndexBuffer = new IndexBuffer;
     if (!pIndexBuffer->Initialize(m_pRenderer, numIndices))
     {
-        ASSERT(false, "Failed to init index buffer");
-        goto lb_return;
+        CRASH();
     }
 
     if (!pIndexBuffer->SetIndex(pIndices, numIndices))
     {
-        goto lb_return;
+        CRASH();
     }
 
-    m_pIndexBuffers->PushBack(&pIndexBuffer, UW_PTR_SIZE);
+    m_indexBuffers.PushBack(&pIndexBuffer, UW_PTR_SIZE);
 
-    bResult = true;
-
-lb_return:
-    return bResult;
+    return true;
 }
 
 bool __stdcall TextureFaceGroup::AddTexture(const wchar_t* pTexturePath)
 {
-    ASSERT(pTexturePath != nullptr, "pTexturePath == nullptr");
-
-    bool bResult = false;
     HRESULT hr;
 
     ID3D11Device* pDevice = (ID3D11Device*)m_pRenderer->GetD3DDevice();
@@ -124,33 +84,26 @@ bool __stdcall TextureFaceGroup::AddTexture(const wchar_t* pTexturePath)
     hr = CreateDDSTextureFromFile(pDevice, pTexturePath, nullptr, &pTextureResourceView);
     if (FAILED(hr))
     {
-        ASSERT(false, "Failed to create texture from file");
-        goto lb_return;
+        CRASH();
     }
 
-    m_pTextures->PushBack(&pTextureResourceView, UW_PTR_SIZE);
+    m_textures.PushBack(&pTextureResourceView, UW_PTR_SIZE);
 
-    bResult = true;
-
-lb_return:
     SAFE_RELEASE(pDevice);
-
-    return bResult;
+    return true;
 }
 
-IndexBuffer* __stdcall TextureFaceGroup::GetIndexBuffer(const vsize index)
+IndexBuffer* __stdcall TextureFaceGroup::GetIndexBuffer(const uint index)
 {
-    ASSERT(index < m_pIndexBuffers->GetNumElements(), "Invalid index");
-    return *(IndexBuffer**)m_pIndexBuffers->GetElementOrNull(index);
+    return *(IndexBuffer**)m_indexBuffers.GetElement(index);
 }
 
-ID3D11ShaderResourceView* __stdcall TextureFaceGroup::GetTexture(const vsize index)
+ID3D11ShaderResourceView* __stdcall TextureFaceGroup::GetTexture(const uint index)
 {
-    ASSERT(index < m_pTextures->GetNumElements(), "Invalid index");
-    return *(ID3D11ShaderResourceView**)m_pTextures->GetElementOrNull(index);
+    return *(ID3D11ShaderResourceView**)m_textures.GetElement(index);
 }
 
-vsize __stdcall TextureFaceGroup::GetNumGroups() const
+uint __stdcall TextureFaceGroup::GetNumGroups() const
 {
     return m_numFaces;
 }

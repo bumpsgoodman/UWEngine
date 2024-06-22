@@ -10,10 +10,9 @@
 #include "UWEngineCommon/Defines.h"
 #include "UWEngineCommon/Util/Timer.h"
 #include "UWEngineCommon/Util/HashFunction.h"
+#include "UWEngineCommon/Util/FixedArray.h"
 
 #include "UWEngineMath/UWMath.inl"
 
 #include "UWEngineCommon/Interfaces/IFileSystem.h"
 #include "UWEngineCommon/Interfaces/IRenderer.h"
-
-#include "UWEngineGeneric/IDynamicArray.h"

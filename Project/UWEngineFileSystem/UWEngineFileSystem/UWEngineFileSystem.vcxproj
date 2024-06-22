@@ -27,10 +27,20 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Interfaces\IRenderer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\FixedArray.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\FileSystem.h" />
     <ClInclude Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\FixedArray.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\List.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\Timer.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\DllMain.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\FileSystem.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.cpp">

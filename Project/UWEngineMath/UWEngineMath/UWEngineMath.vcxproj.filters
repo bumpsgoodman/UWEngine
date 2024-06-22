@@ -21,9 +21,6 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h">
-      <Filter>UWEngineCommon</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineMath\Private\Precompiled.cpp">

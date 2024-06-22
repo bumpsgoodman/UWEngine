@@ -27,7 +27,6 @@
 #   define ASSERT(cond, msg) { if (!(cond)) { __debugbreak(); } }
 #endif // ASSERT
 
-// Debug/Release 둘 모두 크래시
 #define CRASH __debugbreak
 
 // SAFE DELETE
@@ -58,9 +57,9 @@
 
 interface IRefObject
 {
-    virtual vsize   __stdcall   AddRef() = 0;
-    virtual vsize   __stdcall   Release() = 0;
-    virtual vsize   __stdcall   GetRefCount() const = 0;
+    virtual uint    __stdcall   AddRef() = 0;
+    virtual uint    __stdcall   Release() = 0;
+    virtual uint    __stdcall   GetRefCount() const = 0;
 };
 
 typedef void(__stdcall* CreateDllInstanceFunc)(void** ppOutInstance);

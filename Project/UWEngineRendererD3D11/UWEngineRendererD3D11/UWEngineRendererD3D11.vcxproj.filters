@@ -13,6 +13,12 @@
     <Filter Include="UWEngineCommon\Interfaces">
       <UniqueIdentifier>{55924e33-e4c2-42c4-acf6-fb3eec351363}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Text">
+      <UniqueIdentifier>{05bf7e61-af8f-4305-9e8e-2c5d1b556a30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UWEngineCommon\Util\Private">
+      <UniqueIdentifier>{eba621a4-0555-4095-8209-014e19e9d180}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
@@ -45,6 +51,18 @@
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\MeshObject.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\RendererD3D11.h" />
     <ClInclude Include="..\..\..\Source\UWEngineRendererD3D11\IndexBuffer.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\FixedArray.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h">
+      <Filter>UWEngineCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\DllMain.cpp">
@@ -76,6 +94,21 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineRendererD3D11\Private\TextureFaceGroup.cpp">
       <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\FixedArray.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\List.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\Timer.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -10,15 +10,15 @@
     <Filter Include="UWEngineCommon\Util">
       <UniqueIdentifier>{a4686cf0-b0a4-4f2d-bba2-6d9a99d2ba17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UWEngineCommon\Util\Private">
+      <UniqueIdentifier>{604eb79c-890e-4d9f-89ff-1aa3972b90a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.h">
       <Filter>Private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\FixedArray.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\List.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IStaticMemoryPool.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineGeneric\HashMap.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
@@ -32,6 +32,15 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
       <Filter>UWEngineCommon\Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\FixedArray.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.cpp">
@@ -40,20 +49,26 @@
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\DllMain.cpp">
       <Filter>Private</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\FixedArray.cpp">
-      <Filter>Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\List.cpp">
-      <Filter>Private</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\StaticMemoryPool.cpp">
-      <Filter>Private</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\HashMap.cpp">
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\ChunkedMemoryPool.cpp">
       <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\FixedArray.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\List.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\Timer.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -15,9 +15,9 @@ public:
     Camera& operator=(const Camera&) = delete;
     ~Camera() = default;
 
-    virtual vsize       __stdcall       AddRef() override;
-    virtual vsize       __stdcall       Release() override;
-    virtual vsize       __stdcall       GetRefCount() const override;
+    virtual uint        __stdcall       AddRef() override;
+    virtual uint        __stdcall       Release() override;
+    virtual uint        __stdcall       GetRefCount() const override;
 
     virtual bool        __stdcall       Initailize(const float fovY, const float aspectRatio, const float nearZ, const float farZ) override;
     virtual void        __stdcall       Update() override;
@@ -42,14 +42,14 @@ public:
     virtual Matrix44    __vectorcall    GetProjection() const override;
 
 private:
-    vsize m_refCount = 0;
+    uint        m_refCount = 0;
 
-    XMVECTOR m_up = {};
-    XMVECTOR m_at = {};
+    XMVECTOR    m_up = {};
+    XMVECTOR    m_at = {};
 
-    XMVECTOR m_position = {};
-    XMVECTOR m_rotationDegree = {};
+    XMVECTOR    m_position = {};
+    XMVECTOR    m_rotationDegree = {};
 
-    XMMATRIX m_view = {};
-    XMMATRIX m_projection = {};
+    XMMATRIX    m_view = {};
+    XMMATRIX    m_projection = {};
 };

@@ -13,6 +13,12 @@
     <Filter Include="UWEngineCommon\Interfaces">
       <UniqueIdentifier>{1412c84a-5907-4031-b80f-51c20a0fde39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UWEngineCommon\Util">
+      <UniqueIdentifier>{a386c491-3330-4d76-9222-60cb9c4a4db1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UWEngineCommon\Util\Private">
+      <UniqueIdentifier>{3906efa0-3c64-430d-a61e-a0ebdf18e2a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h">
@@ -34,6 +40,21 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Structures.h">
       <Filter>UWEngineCommon</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\FixedArray.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\Precompiled.cpp">
@@ -42,6 +63,23 @@
     <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\DllMain.cpp">
       <Filter>Private</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\FileSystem.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineFileSystem\Private\FileSystem.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\FixedArray.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\List.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\Timer.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

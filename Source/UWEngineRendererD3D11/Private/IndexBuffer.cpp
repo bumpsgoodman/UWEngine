@@ -14,7 +14,7 @@ IndexBuffer::~IndexBuffer()
     Release();
 }
 
-bool __stdcall IndexBuffer::Initialize(IRenderer* pRenderer, const vsize numIndices)
+bool __stdcall IndexBuffer::Initialize(IRenderer* pRenderer, const uint numIndices)
 {
     ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
     ASSERT(numIndices > 0 && numIndices % 3 == 0, "Wrong numIndices"); // 현재는 삼각형 단위로만 가능
@@ -57,18 +57,18 @@ void __stdcall IndexBuffer::Release()
     SAFE_RELEASE(m_pRenderer);
 }
 
-vsize __stdcall IndexBuffer::GetStartIndex() const
+uint __stdcall IndexBuffer::GetStartIndex() const
 {
     return m_startIndex;
 }
 
-void __stdcall IndexBuffer::SetStartIndex(const vsize startIndex)
+void __stdcall IndexBuffer::SetStartIndex(const uint startIndex)
 {
     ASSERT(startIndex < m_numIndices, "Wrong startIndex");
     m_startIndex = startIndex;
 }
 
-bool __stdcall IndexBuffer::SetIndex(const void* pIndices, const vsize numIndices)
+bool __stdcall IndexBuffer::SetIndex(const void* pIndices, const uint numIndices)
 {
     ASSERT(pIndices != nullptr, "pIndices == nullptr");
     ASSERT(numIndices > 0 && numIndices % 3 == 0 && numIndices <= m_numIndices, "Wrong numIndices"); // 현재는 삼각형 단위로만 가능
@@ -87,7 +87,7 @@ bool __stdcall IndexBuffer::SetIndex(const void* pIndices, const vsize numIndice
 
     uint16* pDest = (uint16*)subResource.pData + m_startIndex;
     uint16* pSrc = (uint16*)pIndices;
-    for (vsize i = 0; i < numIndices; ++i)
+    for (uint i = 0; i < numIndices; ++i)
     {
         *pDest = *pSrc;
 
@@ -105,7 +105,7 @@ lb_return:
     return bResult;
 }
 
-vsize __stdcall IndexBuffer::GetNumIndices() const
+uint __stdcall IndexBuffer::GetNumIndices() const
 {
     return m_numIndices;
 }

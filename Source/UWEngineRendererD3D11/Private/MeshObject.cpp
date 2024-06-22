@@ -15,13 +15,13 @@ struct ConstantBuffer
     XMMATRIX World;
 };
 
-vsize __stdcall MeshObject::AddRef()
+uint __stdcall MeshObject::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall MeshObject::Release()
+uint __stdcall MeshObject::Release()
 {
     --m_refCount;
 
@@ -47,17 +47,13 @@ vsize __stdcall MeshObject::Release()
     return m_refCount;
 }
 
-vsize __stdcall MeshObject::GetRefCount() const
+uint __stdcall MeshObject::GetRefCount() const
 {
     return m_refCount;
 }
 
 bool __stdcall MeshObject::Initialize(IRenderer* pRenderer)
 {
-    ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
-
-    bool bResult = false;
-
     m_position = XMVectorZero();
     m_rotationDegree = XMVectorZero();
     m_scale = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
@@ -87,13 +83,9 @@ bool __stdcall MeshObject::Initialize(IRenderer* pRenderer)
         if (FAILED(hr))
         {
             CRASH();
-            goto lb_return;
         }
     }
 
-    bResult = true;
-
-lb_return:
     return true;
 }
 
@@ -103,17 +95,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
                                       const void* pTexCoordsOrNull, const wchar_t** ppTextureFileNamesOrNull,
                                       const wchar_t* pShaderFileName, const char* pVSEntryPoint, const char* pPSEntryPoint)
 {
-    ASSERT(pVertices != nullptr, "pVertices == nullptr");
-    ASSERT(vertexSize > 0, "vertexSize == 0");
-    ASSERT(numVertices > 0, "numVertices == 0");
-    ASSERT(ppIndices != nullptr, "ppIndices == nullptr");
-    ASSERT(pNumIndices != nullptr, "pNumIndices == nullptr");
-    ASSERT(numIndexBuffers > 0, "numIndexBuffers == 0");
-    ASSERT(pShaderFileName != nullptr, "pShaderFileName == nullptr");
-    ASSERT(pVSEntryPoint != nullptr, "pVSEntryPoint == nullptr");
-    ASSERT(pPSEntryPoint != nullptr, "pPSEntryPoint == nullptr");
-
-    bool bResult = false;
     HRESULT hr;
 
     ID3DBlob* pVertexShaderBlob = nullptr;
@@ -123,28 +104,24 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     hr = CompileShaderFromFile(pShaderFileName, pPSEntryPoint, "ps_5_0", &pPixelShaderBlob);
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     hr = m_pDevice->CreateVertexShader(pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(), nullptr, &m_pVertexShader);
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     hr = m_pDevice->CreatePixelShader(pPixelShaderBlob->GetBufferPointer(), pPixelShaderBlob->GetBufferSize(), nullptr, &m_pPixelShader);
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     D3D11_INPUT_ELEMENT_DESC layout[5];
@@ -211,7 +188,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     SAFE_RELEASE(pVertexShaderBlob);
@@ -221,20 +197,15 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     if (!m_vertexBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_DEFAULT, vertexSize, numVertices))
     {
         CRASH();
-        goto lb_return;
     }
     m_vertexBuffer.SetVertex(pVertices, numVertices, vertexSize, 0, VERTEX_BUFFER_FLAG_DEFAULT);
 
     if (GET_MASK(includeFlag, UWMESH_INCLUDE_FLAG_TEXTURE))
     {
-        ASSERT(pTexCoordsOrNull != nullptr, "pTexCoordsOrNull == nullptr");
-        ASSERT(ppTextureFileNamesOrNull != nullptr, "ppTextureFileNamesOrNull == nullptr");
-
         // 텍스처 버퍼 초기화
         if (!m_textureBuffer.Initialize(m_pRenderer, VERTEX_BUFFER_FLAG_TEXCOORD, sizeof(float) * 2, numVertices))
         {
             CRASH();
-            goto lb_return;
         }
 
         m_textureBuffer.SetVertex(pTexCoordsOrNull, numVertices, sizeof(float) * 2, 0, VERTEX_BUFFER_FLAG_TEXCOORD);
@@ -243,10 +214,9 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
         if (!m_faceGroup.Initialize(m_pRenderer, numIndexBuffers))
         {
             CRASH();
-            goto lb_return;
         }
         
-        for (vsize i = 0; i < numIndexBuffers; ++i)
+        for (uint i = 0; i < numIndexBuffers; ++i)
         {
             m_faceGroup.AddIndexBuffer(ppIndices[i], pNumIndices[i]);
             m_faceGroup.AddTexture(ppTextureFileNamesOrNull[i]);
@@ -264,7 +234,6 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     m_includeFlag = includeFlag;
@@ -272,13 +241,9 @@ bool __stdcall MeshObject::CreateMesh(const int includeFlag,
 
     m_world = XMMatrixIdentity();
 
-    bResult = true;
-
-lb_return:
     SAFE_RELEASE(pVertexShaderBlob);
     SAFE_RELEASE(pPixelShaderBlob);
-    
-    return bResult;
+    return true;
 }
 
 void __stdcall MeshObject::RenderMesh()
@@ -301,8 +266,8 @@ void __stdcall MeshObject::RenderMesh()
 
     m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    const vsize numFaceGroups = m_faceGroup.GetNumGroups();
-    for (vsize i = 0; i < numFaceGroups; ++i)
+    const uint numFaceGroups = m_faceGroup.GetNumGroups();
+    for (uint i = 0; i < numFaceGroups; ++i)
     {
         const IndexBuffer* pIndexBuffer = m_faceGroup.GetIndexBuffer(i);
 

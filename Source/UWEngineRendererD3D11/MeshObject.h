@@ -19,9 +19,9 @@ public:
     MeshObject& operator=(const MeshObject&) = delete;
     ~MeshObject() = default;
 
-    virtual vsize       __stdcall       AddRef() override;
-    virtual vsize       __stdcall       Release() override;
-    virtual vsize       __stdcall       GetRefCount() const override;
+    virtual uint       __stdcall        AddRef() override;
+    virtual uint       __stdcall        Release() override;
+    virtual uint       __stdcall        GetRefCount() const override;
 
     virtual bool        __stdcall       Initialize(IRenderer* pRenderer) override;
 
@@ -64,7 +64,7 @@ private:
     ID3D11SamplerState*         m_pSamplerLinear = nullptr;
 
 private:
-    vsize                       m_refCount = 0;
+    uint                        m_refCount = 0;
 
     IRenderer*                  m_pRenderer = nullptr;
     ID3D11Device*               m_pDevice = nullptr;

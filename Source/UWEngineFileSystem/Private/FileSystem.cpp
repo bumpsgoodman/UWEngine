@@ -7,36 +7,35 @@
 
 #include "Precompiled.h"
 #include "FileSystem.h"
-#include "UWEngineGeneric/IHashMap.h"
 
 #define DEFAULT_UWMESH_MAP_SIZE 16
 
-vsize __stdcall FileSystem::AddRef()
+uint __stdcall FileSystem::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall FileSystem::Release()
+uint __stdcall FileSystem::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
     {
         // UWMesh 해시맵 해제
-        KeyValue* pKeyValues = m_pUWMeshMap->GetKeyValuesOrNull();
-        for (vsize i = 0; i < m_pUWMeshMap->GetNumKeyValues(); ++i)
+        KeyValue* pKeyValues = m_UWMeshMap.GetKeyValues();
+        for (uint i = 0; i < m_UWMeshMap.GetNumKeyValues(); ++i)
         {
             UnloadUWMesh((const wchar_t*)pKeyValues[i].pKey);
         }
-        DestroyHashMap(m_pUWMeshMap);
+        m_UWMeshMap.Release();
 
         // UWBone 해시맵 해제
-        pKeyValues = m_pUWBoneMap->GetKeyValuesOrNull();
-        for (vsize i = 0; i < m_pUWBoneMap->GetNumKeyValues(); ++i)
+        pKeyValues = m_UWBoneMap.GetKeyValues();
+        for (uint i = 0; i < m_UWBoneMap.GetNumKeyValues(); ++i)
         {
             UnloadUWBone((const wchar_t*)pKeyValues[i].pKey);
         }
-        DestroyHashMap(m_pUWBoneMap);
+        m_UWBoneMap.Release();
 
         delete this;
         return 0;
@@ -45,54 +44,32 @@ vsize __stdcall FileSystem::Release()
     return m_refCount;
 }
 
-vsize __stdcall FileSystem::GetRefCount() const
+uint __stdcall FileSystem::GetRefCount() const
 {
     return m_refCount;
 }
 
 bool __stdcall FileSystem::Initialize()
 {
-    bool bResult = false;
-
-    CreateHashMap(&m_pUWMeshMap);
-    if (!m_pUWMeshMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
+    if (!m_UWMeshMap.Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
     {
         CRASH();
-        goto lb_return;
     }
 
-    CreateHashMap(&m_pUWBoneMap);
-    if (!m_pUWBoneMap->Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
+    if (!m_UWBoneMap.Initialize(sizeof(wchar_t) * UW_MAX_FILE_PATH, UW_PTR_SIZE, DEFAULT_UWMESH_MAP_SIZE))
     {
         CRASH();
-        goto lb_return;
     }
 
-    bResult = true;
-
-lb_return:
-    if (!bResult)
-    {
-        DestroyHashMap(m_pUWMeshMap);
-    }
-
-    if (!bResult)
-    {
-        DestroyHashMap(m_pUWBoneMap);
-    }
-
-    return bResult;
+    return true;
 }
 
 bool __stdcall FileSystem::LoadUWMesh(const wchar_t* pFilename, UWMesh* pOutUWMesh)
 {
-    ASSERT(pFilename != nullptr, "pFilename == nullptr");
-    ASSERT(pOutUWMesh != nullptr, "pOutUWMesh == nullptr");
-
     bool bResult =false;
     FILE* fp = nullptr;
 
-    UWMesh** ppUWMesh = (UWMesh**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    UWMesh** ppUWMesh = (UWMesh**)m_UWMeshMap.GetValue(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUWMesh != nullptr)
     {
         pOutUWMesh = *ppUWMesh;
@@ -217,7 +194,7 @@ bool __stdcall FileSystem::LoadUWMesh(const wchar_t* pFilename, UWMesh* pOutUWMe
     pOutUWMesh->NumMeshes = numMeshes;
     pOutUWMesh->pMeshes = pMeshes;
 
-    m_pUWMeshMap->Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWMesh, UW_PTR_SIZE);
+    m_UWMeshMap.Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWMesh, UW_PTR_SIZE);
 
     bResult = true;
 
@@ -232,7 +209,7 @@ lb_return:
 
 void __stdcall FileSystem::UnloadUWMesh(const wchar_t* pFilename)
 {
-    UWMesh** ppUWMesh = (UWMesh**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    UWMesh** ppUWMesh = (UWMesh**)m_UWMeshMap.GetValue(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUWMesh != nullptr)
     {
         UWMesh* pUWMesh = *ppUWMesh;
@@ -283,7 +260,7 @@ bool __stdcall FileSystem::LoadUWBone(const wchar_t* pFilename, UWBone* pOutUWBo
     bool bResult = false;
     FILE* fp = nullptr;
 
-    UWBone** ppUWBone = (UWBone**)m_pUWMeshMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    UWBone** ppUWBone = (UWBone**)m_UWMeshMap.GetValue(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUWBone != nullptr)
     {
         pOutUWBone = *ppUWBone;
@@ -363,7 +340,7 @@ bool __stdcall FileSystem::LoadUWBone(const wchar_t* pFilename, UWBone* pOutUWBo
     pOutUWBone->NumBones = numBones;
     pOutUWBone->pBones = pBones;
 
-    m_pUWBoneMap->Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWBone, UW_PTR_SIZE);
+    m_UWBoneMap.Insert(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH, &pOutUWBone, UW_PTR_SIZE);
 
 lb_return:
     if (fp != nullptr)
@@ -376,7 +353,7 @@ lb_return:
 
 void __stdcall FileSystem::UnloadUWBone(const wchar_t* pFilename)
 {
-    UWBone** ppUWBone = (UWBone**)m_pUWBoneMap->GetValueOrNull(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
+    UWBone** ppUWBone = (UWBone**)m_UWBoneMap.GetValue(pFilename, sizeof(wchar_t) * UW_MAX_FILE_PATH);
     if (ppUWBone != nullptr)
     {
         UWBone* pUWBone = *ppUWBone;

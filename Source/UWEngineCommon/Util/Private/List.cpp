@@ -6,9 +6,9 @@
 */
 
 #include "Precompiled.h"
-#include "List.h"
+#include "UWEngineCommon/Util/List.h"
 
-GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
+void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
     if (*ppHead == nullptr)
     {
@@ -32,7 +32,7 @@ GLOBAL_FUNC void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, Lis
     }
 }
 
-GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
+void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, ListNode* pNode)
 {
     if (*ppTail == nullptr)
     {
@@ -56,7 +56,7 @@ GLOBAL_FUNC void __stdcall ListAddTail(ListNode** ppHead, ListNode** ppTail, Lis
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
+void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
 {
     *ppHead = (*ppHead)->pNext;
     if (*ppHead == nullptr)
@@ -69,7 +69,7 @@ GLOBAL_FUNC void __stdcall ListDeleteHead(ListNode** ppHead, ListNode** ppTail)
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
+void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
 {
     *ppTail = (*ppTail)->pPrev;
     if (*ppTail == nullptr)
@@ -82,7 +82,7 @@ GLOBAL_FUNC void __stdcall ListDeleteTail(ListNode** ppHead, ListNode** ppTail)
     }
 }
 
-GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* prevNode, ListNode* pNode)
+void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, ListNode* prevNode, ListNode* pNode)
 {
     if (*ppHead == prevNode)
     {
@@ -101,7 +101,7 @@ GLOBAL_FUNC void __stdcall ListInsertNode(ListNode** ppHead, ListNode** ppTail, 
     }
 }
 
-GLOBAL_FUNC void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* pDeleteNode)
+void __stdcall ListDeleteNode(ListNode** ppHead, ListNode** ppTail, ListNode* pDeleteNode)
 {
     if (*ppHead == pDeleteNode)
     {

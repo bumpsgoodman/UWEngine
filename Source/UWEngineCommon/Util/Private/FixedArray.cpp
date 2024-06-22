@@ -6,7 +6,7 @@
 */
 
 #include "Precompiled.h"
-#include "FixedArray.h"
+#include "UWEngineCommon/Util/FixedArray.h"
 
 FixedArray::~FixedArray()
 {
@@ -123,7 +123,7 @@ void* __stdcall FixedArray::GetElement(const uint index) const
     return m_pElements + m_elementSize * index;
 }
 
-void* __stdcall FixedArray::GetElements() const
+void* __stdcall FixedArray::GetElementsPtr() const
 {
     return m_pElements;
 }

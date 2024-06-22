@@ -17,22 +17,22 @@ public:
     IndexBuffer& operator=(const IndexBuffer&) = delete;
     ~IndexBuffer();
 
-    bool            __stdcall   Initialize(IRenderer* pRenderer, const vsize numIndices);
+    bool            __stdcall   Initialize(IRenderer* pRenderer, const uint numIndices);
     void            __stdcall   Release();
 
-    vsize           __stdcall   GetStartIndex() const;
-    void            __stdcall   SetStartIndex(const vsize startIndex);
+    uint            __stdcall   GetStartIndex() const;
+    void            __stdcall   SetStartIndex(const uint startIndex);
 
-    bool            __stdcall   SetIndex(const void* pIndices, const vsize numIndices);
+    bool            __stdcall   SetIndex(const void* pIndices, const uint numIndices);
 
-    vsize           __stdcall   GetNumIndices() const;
+    uint            __stdcall   GetNumIndices() const;
     ID3D11Buffer*   __stdcall   GetBuffer() const;
 
 private:
     IRenderer*          m_pRenderer = nullptr;
 
-    vsize               m_numIndices = 0;
+    uint                m_numIndices = 0;
     ID3D11Buffer*       m_pIndexBuffer = nullptr;
 
-    vsize               m_startIndex = 0;
+    uint                m_startIndex = 0;
 };

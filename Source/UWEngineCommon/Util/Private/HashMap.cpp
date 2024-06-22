@@ -6,7 +6,8 @@
 */
 
 #include "Precompiled.h"
-#include "HashMap.h"
+#include "UWEngineCommon/Util/HashMap.h"
+#include "UWEngineCommon/Util/HashFunction.h"
 
 #pragma warning(push)
 #pragma warning(disable : 6387)
@@ -212,7 +213,7 @@ void* __stdcall HashMap::GetValueByHash(const void* pKey, const uint keySize, co
 
     if (pNode == nullptr)
     {
-        CRASH();
+        return nullptr;
     }
 
     KeyValue* pKeyValue = (KeyValue*)pNode->pElement;

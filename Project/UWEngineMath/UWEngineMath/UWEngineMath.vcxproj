@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Defines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Types.h" />
-    <ClInclude Include="..\..\..\Source\UWEngineCommon\UserDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMath\UWMath.inl" />
     <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathDefines.h" />
     <ClInclude Include="..\..\..\Source\UWEngineMath\UWMathMisc.inl" />

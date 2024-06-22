@@ -14,14 +14,8 @@ VertexBuffer::~VertexBuffer()
     Release();
 }
 
-bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices)
+bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, const uint vertexSize, const uint numVertices)
 {
-    ASSERT(pRenderer != nullptr, "pRenderer == nullptr");
-    ASSERT(flag > 0, "Invalid flag");
-    ASSERT(vertexSize > 0, "vertexSize == 0");
-    ASSERT(numVertices > 0, "numVertices == 0");
-
-    bool bResult = false;
     HRESULT hr;
 
     ID3D11Device* pDevice = (ID3D11Device*)pRenderer->GetD3DDevice();
@@ -36,8 +30,7 @@ bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, c
     hr = pDevice->CreateBuffer(&bd, nullptr, &m_pVertexBuffer);
     if (FAILED(hr))
     {
-        ASSERT(false, "Failed to create vertex buffer");
-        goto lb_return;
+        CRASH();
     }
 
     pRenderer->AddRef();
@@ -47,12 +40,8 @@ bool __stdcall VertexBuffer::Initialize(IRenderer* pRenderer, const uint flag, c
     m_vertexSize = vertexSize;
     m_startIndex = 0;
 
-    bResult = true;
-
-lb_return:
     SAFE_RELEASE(pDevice);
-
-    return bResult;
+    return true;
 }
 
 void __stdcall VertexBuffer::Release()
@@ -61,18 +50,22 @@ void __stdcall VertexBuffer::Release()
     SAFE_RELEASE(m_pRenderer);
 }
 
-vsize __stdcall VertexBuffer::GetStartIndex() const
+uint __stdcall VertexBuffer::GetStartIndex() const
 {
     return m_startIndex;
 }
 
-void __stdcall VertexBuffer::SetStartIndex(const vsize startIndex)
+void __stdcall VertexBuffer::SetStartIndex(const uint startIndex)
 {
-    ASSERT(startIndex < m_numVertices, "Wrong startIndex");
+    if (startIndex >= m_numVertices)
+    {
+        CRASH();
+    }
+
     m_startIndex = startIndex;
 }
 
-bool __stdcall VertexBuffer::SetVertex(const void* pVertices, const vsize num, const vsize vertexSize, const vsize offset, const uint flag)
+bool __stdcall VertexBuffer::SetVertex(const void* pVertices, const uint num, const uint vertexSize, const uint offset, const uint flag)
 {
     ASSERT(pVertices != nullptr, "pVertices == nullptr");
     ASSERT(num > 0, "num == 0");
@@ -94,7 +87,7 @@ bool __stdcall VertexBuffer::SetVertex(const void* pVertices, const vsize num, c
 
     char* pDest = (char*)subResource.pData + m_startIndex * m_vertexSize;
     char* pSrc = (char*)pVertices;
-    for (vsize i = 0; i < num; ++i)
+    for (uint i = 0; i < num; ++i)
     {
         memcpy(pDest + offset, pSrc, vertexSize);
         pDest += m_vertexSize;
@@ -111,7 +104,7 @@ lb_return:
     return bResult;
 }
 
-bool __stdcall VertexBuffer::SetVertex1(const void* pVertex, const vsize num, const vsize vertexSize, const vsize offset, const uint flag)
+bool __stdcall VertexBuffer::SetVertex1(const void* pVertex, const uint num, const uint vertexSize, const uint offset, const uint flag)
 {
     ASSERT(pVertex != nullptr, "pVertex == nullptr");
     ASSERT(num > 0, "num == 0");
@@ -132,7 +125,7 @@ bool __stdcall VertexBuffer::SetVertex1(const void* pVertex, const vsize num, co
     }
 
     char* pDest = (char*)subResource.pData + m_startIndex * m_vertexSize;
-    for (vsize i = 0; i < num; ++i)
+    for (uint i = 0; i < num; ++i)
     {
         memcpy(pDest + offset, pVertex, vertexSize);
         pDest += m_vertexSize;

@@ -9,13 +9,13 @@
 #include "UWEngineCommon/Interfaces/IRenderer.h"
 #include "Camera.h"
 
-vsize __stdcall Camera::AddRef()
+uint __stdcall Camera::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall Camera::Release()
+uint __stdcall Camera::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
@@ -27,7 +27,7 @@ vsize __stdcall Camera::Release()
     return m_refCount;
 }
 
-vsize __stdcall Camera::GetRefCount() const
+uint __stdcall Camera::GetRefCount() const
 {
     return m_refCount;
 }

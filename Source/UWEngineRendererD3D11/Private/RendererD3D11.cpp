@@ -10,13 +10,13 @@
 #include "Camera.h"
 #include "MeshObject.h"
 
-vsize __stdcall RendererD3D11::AddRef()
+uint __stdcall RendererD3D11::AddRef()
 {
     ++m_refCount;
     return m_refCount;
 }
 
-vsize __stdcall RendererD3D11::Release()
+uint __stdcall RendererD3D11::Release()
 {
     --m_refCount;
     if (m_refCount == 0)
@@ -45,16 +45,13 @@ vsize __stdcall RendererD3D11::Release()
     return m_refCount;
 }
 
-vsize __stdcall RendererD3D11::GetRefCount() const
+uint __stdcall RendererD3D11::GetRefCount() const
 {
     return m_refCount;
 }
 
 bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
 {
-    ASSERT(hWnd != nullptr, "hWnd == nullptr");
-
-    bool bResult = false;
     HRESULT hr;
 
     m_hWnd = hWnd;
@@ -82,7 +79,7 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
         createDeviceFlag = D3D11_CREATE_DEVICE_DEBUG;
     }
 
-    for (vsize i = 0; i < DRIVER_COUNT; ++i)
+    for (uint i = 0; i < DRIVER_COUNT; ++i)
     {
         const D3D_DRIVER_TYPE driver = DRIVERS[i];
         hr = D3D11CreateDevice(nullptr, driver, nullptr, createDeviceFlag,
@@ -97,7 +94,6 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     // IDXGIFactory 얻기
@@ -142,7 +138,6 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     ID3D11Texture2D* pBack = nullptr;
@@ -150,7 +145,6 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     m_pDevice->CreateRenderTargetView(pBack, nullptr, &m_pRenderTargetView);
@@ -174,7 +168,6 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     // Create the depth stencil view
@@ -187,7 +180,6 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     if (FAILED(hr))
     {
         CRASH();
-        goto lb_return;
     }
 
     D3D11_RASTERIZER_DESC wfdesc;
@@ -219,10 +211,7 @@ bool __stdcall RendererD3D11::Initialize(const HWND hWnd)
     vp.MaxDepth = 1.0f;
     m_pImmediateContext->RSSetViewports(1, &vp);
 
-    bResult = true;
-
-lb_return:
-    return bResult;
+    return true;
 }
 
 void __stdcall RendererD3D11::BeginRender()
@@ -265,8 +254,6 @@ uint __stdcall RendererD3D11::GetFPS() const
 
 void __stdcall RendererD3D11::CreateCamera(ICamera** ppOutCamera)
 {
-    ASSERT(ppOutCamera != nullptr, "ppOutCamera == nullptr");
-
     Camera* pCamera = new Camera;
     pCamera->AddRef();
 
@@ -275,8 +262,6 @@ void __stdcall RendererD3D11::CreateCamera(ICamera** ppOutCamera)
 
 void __stdcall RendererD3D11::CreateMeshObject(IMeshObject** ppOutMeshObject)
 {
-    ASSERT(ppOutMeshObject != nullptr, "ppOutMeshObject == nullptr");
-
     MeshObject* pMeshObject = new MeshObject;
     pMeshObject->AddRef();
 

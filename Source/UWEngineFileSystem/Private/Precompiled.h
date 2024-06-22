@@ -44,7 +44,6 @@
 
 // UWEngine
 #include "UWEngineCommon/Defines.h"
+#include "UWEngineCommon/Util/HashMap.h"
 
 #include "UWEngineMath/UWMath.inl"
-
-#include "UWEngineGeneric/IFixedArray.h"

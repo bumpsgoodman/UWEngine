@@ -10,9 +10,9 @@ public:
     RendererD3D11& operator=(const RendererD3D11&) = delete;
     ~RendererD3D11() = default;
 
-    virtual vsize   __stdcall   AddRef() override;
-    virtual vsize   __stdcall   Release() override;
-    virtual vsize   __stdcall   GetRefCount() const override;
+    virtual uint   __stdcall    AddRef() override;
+    virtual uint   __stdcall    Release() override;
+    virtual uint   __stdcall    GetRefCount() const override;
 
     virtual bool    __stdcall   Initialize(const HWND hWnd) override;
 
@@ -35,7 +35,7 @@ public:
     virtual void*   __stdcall   GetD3DImmediateContext() const override;
 
 private:
-    vsize                       m_refCount = 0;
+    uint                        m_refCount = 0;
     HWND                        m_hWnd = nullptr;
 
     bool                        m_bDebug = true;

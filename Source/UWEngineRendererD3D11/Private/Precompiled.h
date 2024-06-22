@@ -54,10 +54,9 @@
 #include "UWEngineCommon/Defines.h"
 #include "UWEngineCommon/Util/HashFunction.h"
 #include "UWEngineCommon/Util/Timer.h"
+#include "UWEngineCommon/Util/FixedArray.h"
 
 #include "UWEngineMath/UWMath.inl"
-
-#include "UWEngineGeneric/IFixedArray.h"
 
 #include "D3D11Helper.h"
 #include "DDSTextureLoader.h"

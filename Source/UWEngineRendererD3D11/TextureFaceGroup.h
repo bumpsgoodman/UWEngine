@@ -20,21 +20,21 @@ public:
     TextureFaceGroup& operator=(const TextureFaceGroup&) = delete;
     ~TextureFaceGroup();
 
-    bool                        __stdcall   Initialize(IRenderer* pRenderer, const vsize numFaces);
+    bool                        __stdcall   Initialize(IRenderer* pRenderer, const uint numFaces);
     void                        __stdcall   Release();
 
-    bool                        __stdcall   AddIndexBuffer(const uint16* pIndices, const vsize numIndices);
+    bool                        __stdcall   AddIndexBuffer(const uint16* pIndices, const uint numIndices);
     bool                        __stdcall   AddTexture(const wchar_t* pTexturePath);
 
-    IndexBuffer*                __stdcall   GetIndexBuffer(const vsize index);
-    ID3D11ShaderResourceView*   __stdcall   GetTexture(const vsize index);
+    IndexBuffer*                __stdcall   GetIndexBuffer(const uint index);
+    ID3D11ShaderResourceView*   __stdcall   GetTexture(const uint index);
 
-    vsize                       __stdcall   GetNumGroups() const;
+    uint                        __stdcall   GetNumGroups() const;
 
 private:
     IRenderer*          m_pRenderer = nullptr;
 
-    vsize               m_numFaces = 0;
-    IFixedArray*        m_pIndexBuffers = nullptr;  // <IndexBuffer*>
-    IFixedArray*        m_pTextures = nullptr;      // <ID3D11ShaderResourceView*>
+    uint                m_numFaces = 0;
+    FixedArray          m_indexBuffers;  // <IndexBuffer*>
+    FixedArray          m_textures;      // <ID3D11ShaderResourceView*>
 };

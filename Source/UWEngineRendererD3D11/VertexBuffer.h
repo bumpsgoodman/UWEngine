@@ -17,14 +17,14 @@ public:
     VertexBuffer& operator=(const VertexBuffer&) = delete;
     ~VertexBuffer();
 
-    bool            __stdcall   Initialize(IRenderer* pRenderer, const uint flag, const vsize vertexSize, const vsize numVertices);
+    bool            __stdcall   Initialize(IRenderer* pRenderer, const uint flag, const uint vertexSize, const uint numVertices);
     void            __stdcall   Release();
 
-    vsize           __stdcall   GetStartIndex() const;
-    void            __stdcall   SetStartIndex(const vsize startIndex);
+    uint            __stdcall   GetStartIndex() const;
+    void            __stdcall   SetStartIndex(const uint startIndex);
 
-    bool            __stdcall   SetVertex(const void* pVertices, const vsize num, const vsize vertexSize, const vsize offset, const uint flag);
-    bool            __stdcall   SetVertex1(const void* pVertex, const vsize num, const vsize vertexSize, const vsize offset, const uint flag);
+    bool            __stdcall   SetVertex(const void* pVertices, const uint num, const uint vertexSize, const uint offset, const uint flag);
+    bool            __stdcall   SetVertex1(const void* pVertex, const uint num, const uint vertexSize, const uint offset, const uint flag);
 
     ID3D11Buffer*   __stdcall   GetBuffer() const;
 
@@ -32,9 +32,9 @@ private:
     IRenderer*          m_pRenderer = nullptr;
 
     uint                m_flag = 0;
-    vsize               m_numVertices = 0;
-    vsize               m_vertexSize = 0;
+    uint                m_numVertices = 0;
+    uint                m_vertexSize = 0;
     ID3D11Buffer*       m_pVertexBuffer = nullptr;
 
-    vsize               m_startIndex = 0;
+    uint                m_startIndex = 0;
 };

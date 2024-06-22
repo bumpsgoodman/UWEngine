@@ -7,7 +7,7 @@
 
 #include "Precompiled.h"
 #include "IChunkedMemoryPool.h"
-#include "List.h"
+#include "UWEngineCommon/Util/List.h"
 
 #pragma warning(push)
 #pragma warning(disable : 6387)
