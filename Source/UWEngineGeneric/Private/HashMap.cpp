@@ -1,5 +1,5 @@
 ﻿/*
-* Map
+* HashMap
 *
 * 작성자: bumpsgoodman
 * 작성일: 2023.12.20
@@ -17,7 +17,7 @@ HashMap::~HashMap()
     Release();
 }
 
-bool __stdcall HashMap::Initialize(const vsize keySize, const vsize valueSize, const vsize numMaxKeyValues)
+bool __stdcall HashMap::Initialize(const uint keySize, const uint valueSize, const uint numMaxKeyValues)
 {
     m_pBuckets = (Bucket*)malloc(sizeof(Bucket) * numMaxKeyValues);
     memset(m_pBuckets, 0, sizeof(Bucket) * numMaxKeyValues);
@@ -51,13 +51,13 @@ void __stdcall HashMap::Clear()
     memset(m_pBuckets, 0, sizeof(Bucket) * m_numMaxKeyValues);
 }
 
-void* __stdcall HashMap::Insert(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize)
+void* __stdcall HashMap::Insert(const void* pKey, const uint keySize, const void* pValue, const uint valueSize)
 {
     const uint32 hash = UWHash32((const char*)pKey, keySize);
     return InsertByHash(pKey, keySize, pValue, valueSize, hash);
 }
 
-void* __stdcall HashMap::InsertByHash(const void* pKey, const vsize keySize, const void* pValue, const vsize valueSize, const uint32 hash)
+void* __stdcall HashMap::InsertByHash(const void* pKey, const uint keySize, const void* pValue, const uint valueSize, const uint32 hash)
 {
     if (keySize != m_keySize || valueSize != m_valueSize)
     {
@@ -66,7 +66,7 @@ void* __stdcall HashMap::InsertByHash(const void* pKey, const vsize keySize, con
 
     void* pValueHandle = nullptr;
 
-    const vsize index = hash % m_numMaxKeyValues;
+    const uint index = hash % m_numMaxKeyValues;
     Bucket* pBucket = m_pBuckets + index;
 
     // 이미 추가된 키-값이면 바꾸기
@@ -108,20 +108,20 @@ lb_return:
     return pValueHandle;
 }
 
-void __stdcall HashMap::Remove(const void* pKey, const vsize keySize)
+void __stdcall HashMap::Remove(const void* pKey, const uint keySize)
 {
     const uint32 hash = UWHash32((const char*)pKey, keySize);
     RemoveByHash(pKey, keySize, hash);
 }
 
-void __stdcall HashMap::RemoveByHash(const void* pKey, const vsize keySize, const uint32 hash)
+void __stdcall HashMap::RemoveByHash(const void* pKey, const uint keySize, const uint32 hash)
 {
     if (keySize != m_keySize)
     {
         CRASH();
     }
 
-    const vsize index = hash % m_numMaxKeyValues;
+    const uint index = hash % m_numMaxKeyValues;
     Bucket* pBucket = m_pBuckets + index;
 
     // 노드 찾기
@@ -157,21 +157,21 @@ void __stdcall HashMap::RemoveByHash(const void* pKey, const vsize keySize, cons
     --m_numKeyValues;
 }
 
-vsize __stdcall HashMap::GetCount(const void* pKey, const vsize keySize) const
+uint __stdcall HashMap::GetCount(const void* pKey, const uint keySize) const
 {
     const uint32 hash = UWHash32((const char*)pKey, keySize);
     return GetCountByHash(pKey, keySize, hash);
 }
 
-vsize __stdcall HashMap::GetCountByHash(const void* pKey, const vsize keySize, const uint32 hash) const
+uint __stdcall HashMap::GetCountByHash(const void* pKey, const uint keySize, const uint32 hash) const
 {
     if (keySize != m_keySize)
     {
         CRASH();
     }
 
-    const vsize index = hash % m_numMaxKeyValues;
-    vsize count = 0;
+    const uint index = hash % m_numMaxKeyValues;
+    uint count = 0;
 
     Bucket* pBucket = m_pBuckets + index;
     ListNode* pNode = pBucket->pHead;
@@ -188,20 +188,20 @@ vsize __stdcall HashMap::GetCountByHash(const void* pKey, const vsize keySize, c
     return count;
 }
 
-void* __stdcall HashMap::GetValue(const void* pKey, const vsize keySize) const
+void* __stdcall HashMap::GetValue(const void* pKey, const uint keySize) const
 {
     const uint32 hash = UWHash32((const char*)pKey, keySize);
     return GetValueByHash(pKey, keySize, hash);
 }
 
-void* __stdcall HashMap::GetValueByHash(const void* pKey, const vsize keySize, const uint32 hash) const
+void* __stdcall HashMap::GetValueByHash(const void* pKey, const uint keySize, const uint32 hash) const
 {
     if (keySize != m_keySize)
     {
         CRASH();
     }
 
-    const vsize index = hash % m_numMaxKeyValues;
+    const uint index = hash % m_numMaxKeyValues;
 
     Bucket* pBucket = m_pBuckets + index;
     ListNode* pNode = pBucket->pHead;
@@ -224,22 +224,22 @@ KeyValue* __stdcall HashMap::GetKeyValues() const
     return m_pKeyValues;
 }
 
-vsize __stdcall HashMap::GetKeySize() const
+uint __stdcall HashMap::GetKeySize() const
 {
     return m_keySize;
 }
 
-vsize __stdcall HashMap::GetValueSize() const
+uint __stdcall HashMap::GetValueSize() const
 {
     return m_valueSize;
 }
 
-vsize __stdcall HashMap::GetNumKeyValues() const
+uint __stdcall HashMap::GetNumKeyValues() const
 {
     return m_numKeyValues;
 }
 
-vsize __stdcall HashMap::GetNumMaxKeyValues() const
+uint __stdcall HashMap::GetNumMaxKeyValues() const
 {
     return m_numMaxKeyValues;
 }

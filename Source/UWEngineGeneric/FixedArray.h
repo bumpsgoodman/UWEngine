@@ -15,27 +15,27 @@ public:
     FixedArray& operator=(const FixedArray&) = delete;
     ~FixedArray();
 
-    bool    __stdcall   Initialize(const vsize elementSize, const vsize numMaxElements);
+    bool    __stdcall   Initialize(const uint elementSize, const uint numMaxElements);
     void    __stdcall   Release();
     void    __stdcall   Clear();
 
-    void    __stdcall   PushBack(const void* pElement, const vsize elementSize);
+    void*    __stdcall  PushBack(const void* pElement, const uint elementSize);
     void    __stdcall   PopBack();
 
-    void    __stdcall   Insert(const void* pElement, const vsize elementSize, const vsize index);
-    void    __stdcall   Remove(const vsize index);
+    void*    __stdcall  Insert(const void* pElement, const uint elementSize, const uint index);
+    void    __stdcall   Remove(const uint index);
 
     void*   __stdcall   GetBack() const;
-    void*   __stdcall   GetElement(const vsize index) const;
+    void*   __stdcall   GetElement(const uint index) const;
     void*   __stdcall   GetElements() const;
-    vsize   __stdcall   GetElementSize() const;
-    vsize   __stdcall   GetNumMaxElements() const;
-    vsize   __stdcall   GetNumElements() const;
+    uint   __stdcall    GetElementSize() const;
+    uint   __stdcall    GetNumMaxElements() const;
+    uint   __stdcall    GetNumElements() const;
 
 private:
-    char* m_pElements = nullptr;
+    char*   m_pElements = nullptr;
 
-    vsize m_elementSize = 0;
-    vsize m_numMaxElements = 0;
-    vsize m_numElements = 0;
+    uint    m_elementSize = 0;
+    uint    m_numMaxElements = 0;
+    uint    m_numElements = 0;
 };

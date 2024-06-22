@@ -9,6 +9,10 @@
 #include "IChunkedMemoryPool.h"
 #include "List.h"
 
+#pragma warning(push)
+#pragma warning(disable : 6387)
+#pragma warning(disable : 6011)
+
 struct Chunk
 {
     void* pElements;
@@ -36,17 +40,17 @@ public:
     ChunkedMemoryPool& operator=(const ChunkedMemoryPool&) = delete;
     ~ChunkedMemoryPool();
 
-    virtual bool    __stdcall Initialize(const vsize elementSize, const vsize numElementsPerChunk) override;
-    virtual void    __stdcall Release() override;
+    virtual bool    __stdcall   Initialize(const uint elementSize, const uint numElementsPerChunk) override;
+    virtual void    __stdcall   Release() override;
 
-    virtual void*   __stdcall AllocateOrNull() override;
-    virtual void    __stdcall Free(void* pMemory) override;
-    virtual void    __stdcall Reset() override;
-    virtual bool    __stdcall IsValidMemory(const void* pMemory) const override;
+    virtual void*   __stdcall   Allocate() override;
+    virtual void    __stdcall   Free(void* pMemory) override;
+    virtual void    __stdcall   Reset() override;
+    virtual bool    __stdcall   IsValidMemory(const void* pMemory) const override;
 
-    virtual vsize   __stdcall GetElementSize() const override;
-    virtual vsize   __stdcall GetNumAllocElements() const override;
-    virtual vsize   __stdcall GetNumElementsPerChunk() const override;
+    virtual uint   __stdcall    GetElementSize() const override;
+    virtual uint   __stdcall    GetNumAllocElements() const override;
+    virtual uint   __stdcall    GetNumElementsPerChunk() const override;
 
 private:
     bool __stdcall addChunk();
@@ -55,10 +59,10 @@ private:
     ListNode*   m_pChunkHead = nullptr;
     ListNode*   m_pChunkTail = nullptr;
 
-    vsize       m_elementSize = 0;
-    vsize       m_elementSizeWithHeader = 0;
-    vsize       m_numElementsPerChunk = 0;
-    vsize       m_numAllocElements = 0;
+    uint        m_elementSize = 0;
+    uint        m_elementSizeWithHeader = 0;
+    uint        m_numElementsPerChunk = 0;
+    uint        m_numAllocElements = 0;
 };
 
 ChunkedMemoryPool::~ChunkedMemoryPool()
@@ -66,12 +70,8 @@ ChunkedMemoryPool::~ChunkedMemoryPool()
     Release();
 }
 
-bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsize numElementsPerChunk)
+bool __stdcall ChunkedMemoryPool::Initialize(const uint elementSize, const uint numElementsPerChunk)
 {
-    ASSERT(elementSize > 0, "elementSize == 0");
-
-    bool bResult = false;
-
     m_pChunkHead = nullptr;
     m_pChunkTail = nullptr;
 
@@ -82,15 +82,12 @@ bool __stdcall ChunkedMemoryPool::Initialize(const vsize elementSize, const vsiz
 
     if (!addChunk())
     {
-        goto lb_return;
+        CRASH();
     }
 
     Reset();
 
-    bResult = true;
-
-lb_return:
-    return bResult;
+    return true;
 }
 
 void __stdcall ChunkedMemoryPool::Release()
@@ -112,7 +109,7 @@ void __stdcall ChunkedMemoryPool::Release()
     }
 }
 
-void* __stdcall ChunkedMemoryPool::AllocateOrNull()
+void* __stdcall ChunkedMemoryPool::Allocate()
 {
     char* pMemory = nullptr;
 
@@ -121,7 +118,7 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
     while (pNode != nullptr)
     {
         Chunk* pChunk = (Chunk*)pNode->pElement;
-        if ((vsize)(pChunk->pIndexTablePtr - pChunk->pIndexTable) < m_numElementsPerChunk)
+        if ((uint)(pChunk->pIndexTablePtr - pChunk->pIndexTable) < m_numElementsPerChunk)
         {
             break;
         }
@@ -132,9 +129,9 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
     // 할당 가능한 청크 없으면 청크 추가
     if (pNode == nullptr)
     {
-        if (addChunk())
+        if (!addChunk())
         {
-            goto lb_return;
+            CRASH();
         }
 
         pNode = m_pChunkTail;
@@ -144,7 +141,7 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
     const uint index = *pChunk->pIndexTablePtr;
 
     Header* pHeader = (Header*)((char*)pChunk->pElements + m_elementSizeWithHeader * index);
-    ASSERT(IsValidMemory(pHeader), "Invalid memory");
+    ASSERT(pHeader->Alloc == 0, "Invalid memory");
 
     pHeader->Alloc = 1;
     pHeader->Index = index;
@@ -153,7 +150,6 @@ void* __stdcall ChunkedMemoryPool::AllocateOrNull()
 
     ++m_numAllocElements;
 
-lb_return:
     return pMemory;
 }
 
@@ -166,7 +162,7 @@ void __stdcall ChunkedMemoryPool::Free(void* pMemory)
 
     Header* pHeader = (Header*)pMemory;
     Chunk* pChunk = pHeader->pChunk;
-    const vsize index = pHeader->Index;
+    const uint index = pHeader->Index;
 
     ASSERT(pHeader->Alloc == 1, "Invalid memory");
     ASSERT(pChunk->pIndexTable[index] == index, "Invalid memory");
@@ -184,7 +180,7 @@ void __stdcall ChunkedMemoryPool::Reset()
     while (pNode != nullptr)
     {
         Chunk* pChunk = (Chunk*)pNode->pElement;
-        for (vsize i = 0; i < m_numElementsPerChunk; ++i)
+        for (uint i = 0; i < m_numElementsPerChunk; ++i)
         {
             Header* pHeader = (Header*)((char*)pChunk->pElements + m_elementSizeWithHeader * i);
             pHeader->pChunk = pChunk;
@@ -212,17 +208,17 @@ bool __stdcall ChunkedMemoryPool::IsValidMemory(const void* pMemory) const
     return pHeader->Alloc == 1;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetElementSize() const
+uint __stdcall ChunkedMemoryPool::GetElementSize() const
 {
     return m_elementSize;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetNumAllocElements() const
+uint __stdcall ChunkedMemoryPool::GetNumAllocElements() const
 {
     return m_numAllocElements;
 }
 
-vsize __stdcall ChunkedMemoryPool::GetNumElementsPerChunk() const
+uint __stdcall ChunkedMemoryPool::GetNumElementsPerChunk() const
 {
     return m_numElementsPerChunk;
 }
@@ -233,15 +229,13 @@ bool __stdcall ChunkedMemoryPool::addChunk()
 
     // 요소 저장할 공간 생성
     void* pElements = malloc(m_elementSizeWithHeader * m_numElementsPerChunk);
-    ASSERT(pElements != nullptr, "Failed to malloc new elements");
     memset(pElements, 0, m_elementSizeWithHeader * m_numElementsPerChunk);
 
     // 인덱스 테이블 생성
     uint* pIndexTable = (uint*)malloc(sizeof(uint) * m_numElementsPerChunk);
-    ASSERT(pIndexTable != nullptr, "Failed to malloc new index table");
 
     // 인덱스 테이블 초기화
-    for (vsize i = 0; i < m_numElementsPerChunk; ++i)
+    for (uint i = 0; i < m_numElementsPerChunk; ++i)
     {
         pIndexTable[i] = (uint)i;
     }
@@ -274,3 +268,5 @@ GLOBAL_FUNC void __stdcall DestroyChunkedMemoryPool(IChunkedMemoryPool* pChunked
         delete (ChunkedMemoryPool*)pChunkedMemoryPoolOrNull;
     }
 }
+
+#pragma warning(pop)

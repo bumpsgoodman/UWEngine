@@ -13,7 +13,7 @@ FixedArray::~FixedArray()
     Release();
 }
 
-bool __stdcall FixedArray::Initialize(const vsize elementSize, const vsize numMaxElements)
+bool __stdcall FixedArray::Initialize(const uint elementSize, const uint numMaxElements)
 {
     m_pElements = (char*)malloc(elementSize * numMaxElements);
 
@@ -34,7 +34,7 @@ void __stdcall FixedArray::Clear()
     m_numElements = 0;
 }
 
-void __stdcall FixedArray::PushBack(const void* pElementOrNull, const vsize elementSize)
+void* __stdcall FixedArray::PushBack(const void* pElement, const uint elementSize)
 {
     if (m_elementSize != elementSize)
     {
@@ -46,12 +46,11 @@ void __stdcall FixedArray::PushBack(const void* pElementOrNull, const vsize elem
         CRASH();
     }
 
-    if (pElementOrNull != nullptr)
-    {
-        memcpy(m_pElements + m_elementSize * m_numElements, pElementOrNull, elementSize);
-    }
+    void* pDst = m_pElements + m_elementSize * m_numElements;
+    memcpy(pDst, pElement, elementSize);
 
     ++m_numElements;
+    return pDst;
 }
 
 void __stdcall FixedArray::PopBack()
@@ -64,7 +63,7 @@ void __stdcall FixedArray::PopBack()
     --m_numElements;
 }
 
-void __stdcall FixedArray::Insert(const void* pElementOrNull, const vsize elementSize, const vsize index)
+void* __stdcall FixedArray::Insert(const void* pElement, const uint elementSize, const uint index)
 {
     if (m_elementSize != elementSize)
     {
@@ -77,20 +76,18 @@ void __stdcall FixedArray::Insert(const void* pElementOrNull, const vsize elemen
     }
 
     // element 한 칸씩 밀기
-    const vsize len = m_numElements - index;
+    const uint len = m_numElements - index;
     char* pDst = m_pElements + m_elementSize * (index + 1);
     char* pSrc = pDst - m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
 
-    if (pElementOrNull != nullptr)
-    {
-        memcpy(pSrc, pElementOrNull, elementSize);
-    }
+    memcpy(pSrc, pElement, elementSize);
 
     ++m_numElements;
+    return pDst;
 }
 
-void __stdcall FixedArray::Remove(const vsize index)
+void __stdcall FixedArray::Remove(const uint index)
 {
     if (index > m_numElements)
     {
@@ -98,7 +95,7 @@ void __stdcall FixedArray::Remove(const vsize index)
     }
 
     // element 한 칸씩 당기기
-    const vsize len = m_numElements - index;
+    const uint len = m_numElements - index;
     char* pDst = m_pElements + m_elementSize * index;
     const char* pSrc = pDst + m_elementSize;
     memmove(pDst, pSrc, m_elementSize * len);
@@ -116,7 +113,7 @@ void* __stdcall FixedArray::GetBack() const
     return m_pElements + m_elementSize * (m_numElements - 1);
 }
 
-void* __stdcall FixedArray::GetElement(const vsize index) const
+void* __stdcall FixedArray::GetElement(const uint index) const
 {
     if (index >= m_numElements)
     {
@@ -131,17 +128,17 @@ void* __stdcall FixedArray::GetElements() const
     return m_pElements;
 }
 
-vsize __stdcall FixedArray::GetElementSize() const
+uint __stdcall FixedArray::GetElementSize() const
 {
     return m_elementSize;
 }
 
-vsize __stdcall FixedArray::GetNumMaxElements() const
+uint __stdcall FixedArray::GetNumMaxElements() const
 {
     return m_numMaxElements;
 }
 
-vsize __stdcall FixedArray::GetNumElements() const
+uint __stdcall FixedArray::GetNumElements() const
 {
     return m_numElements;
 }
