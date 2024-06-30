@@ -24,6 +24,7 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\FixedArray.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashFunction.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap.h" />
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap2.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h" />
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\Timer.h" />
     <ClInclude Include="..\..\..\Source\UWEngineGeneric\IChunkedMemoryPool.h" />
@@ -34,6 +35,7 @@
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\FixedArray.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap.cpp" />
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap2.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\List.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\Timer.cpp" />
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\ChunkedMemoryPool.cpp" />

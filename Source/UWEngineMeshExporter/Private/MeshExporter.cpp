@@ -338,6 +338,9 @@ int	UWMeshExporter::DoExport(const TCHAR* pName, ExpInterface* pExpInterface, In
     const uint numMaterials = (uint)m_texturePathList.size();
     fwrite(&numMaterials, sizeof(uint), 1, m_pFile);
 
+    // 오브젝트 개수 저장
+    fwrite(&m_numTotalNode, sizeof(uint), 1, m_pFile);
+
     for (uint i = 0; i < numMaterials; ++i)
     {
         // 머티리얼에 있는 텍스처 개수 저장
@@ -352,9 +355,6 @@ int	UWMeshExporter::DoExport(const TCHAR* pName, ExpInterface* pExpInterface, In
             fwrite(texturePath, sizeof(texturePath), 1, m_pFile);
         }
     }
-
-    // 오브젝트 개수 저장
-    fwrite(&m_numTotalNode, sizeof(uint), 1, m_pFile);
 
     // 오브젝트 저장
     for (uint idx = 0; idx < numChildren; idx++)
@@ -719,6 +719,17 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
     const uint numVertices = (uint)vertices.size();
     fwrite(&numVertices, sizeof(uint), 1, m_pFile);
 
+    // 인덱스 버퍼 개수 저장
+    uint numIndexBuffers = 0;
+    for (uint i = 0; i < indexBuffers.size(); ++i)
+    {
+        if (!indexBuffers[i].empty())
+        {
+            ++numIndexBuffers;
+        }
+    }
+    fwrite(&numIndexBuffers, sizeof(uint), 1, m_pFile);
+
     // 버텍스 저장
     const Matrix3 tm = pNode->GetObjTMAfterWSM(0);
     for (uint i = 0; i < numVertices; ++i)
@@ -732,6 +743,31 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
         const Point3& vn = normals[i];
         const float normal[3] = { vn.x, vn.z, vn.y };
         fwrite(normal, sizeof(normal), 1, m_pFile);
+    }
+
+    // 인덱스 버퍼 저장
+    uint16 indices[3];
+    for (uint i = 0; i < numMaxIndexBuffers; ++i)
+    {
+        vector<uint16>& indexBuffer = indexBuffers[i];
+        if (indexBuffer.empty())
+        {
+            continue;
+        }
+
+        // 인덱스 개수 저장
+        const uint16 numIndices = indexBuffer.size();
+        fwrite(&numIndices, sizeof(uint16), 1, m_pFile);
+
+        // 인덱스 저장
+        for (uint j = 0; j < numIndices; j += 3)
+        {
+            indices[0] = indexBuffer[j];
+            indices[1] = indexBuffer[j + 2];
+            indices[2] = indexBuffer[j + 1];
+
+            fwrite(indices, sizeof(indices), 1, m_pFile);
+        }
     }
 
     // UV 저장
@@ -757,42 +793,6 @@ void UWMeshExporter::exportGeomObject(INode* pNode)
                 fwrite(&boneIndices[i][j], sizeof(uint), 1, m_pFile);
                 fwrite(&boneWeights[i][j], sizeof(float), 1, m_pFile);
             }
-        }
-    }
-
-    // 인덱스 버퍼 개수 저장
-    uint numIndexBuffers = 0;
-    for (uint i = 0; i < indexBuffers.size(); ++i)
-    {
-        if (!indexBuffers[i].empty())
-        {
-            ++numIndexBuffers;
-        }
-    }
-    fwrite(&numIndexBuffers, sizeof(uint), 1, m_pFile);
-
-    // 인덱스 버퍼 저장
-    uint16 indices[3];
-    for (uint i = 0; i < numMaxIndexBuffers; ++i)
-    {
-        vector<uint16>& indexBuffer = indexBuffers[i];
-        if (indexBuffer.empty())
-        {
-            continue;
-        }
-
-        // 인덱스 개수 저장
-        const uint16 numIndices = indexBuffer.size();
-        fwrite(&numIndices, sizeof(uint16), 1, m_pFile);
-
-        // 인덱스 저장
-        for (uint j = 0; j < numIndices; j += 3)
-        {
-            indices[0] = indexBuffer[j];
-            indices[1] = indexBuffer[j + 2];
-            indices[2] = indexBuffer[j + 1];
-
-            fwrite(indices, sizeof(indices), 1, m_pFile);
         }
     }
     

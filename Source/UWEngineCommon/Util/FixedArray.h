@@ -19,10 +19,10 @@ public:
     void    __stdcall   Release();
     void    __stdcall   Clear();
 
-    void*   __stdcall   PushBack(const void* pElement, const uint elementSize);
+    void    __stdcall   PushBack(const void* pElement, const uint elementSize);
     void    __stdcall   PopBack();
 
-    void*   __stdcall   Insert(const void* pElement, const uint elementSize, const uint index);
+    void    __stdcall   Insert(const void* pElement, const uint elementSize, const uint index);
     void    __stdcall   Remove(const uint index);
 
     void*   __stdcall   GetBack() const;

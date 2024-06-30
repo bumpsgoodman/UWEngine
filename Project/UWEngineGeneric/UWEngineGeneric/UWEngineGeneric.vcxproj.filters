@@ -41,6 +41,9 @@
     <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\List.h">
       <Filter>UWEngineCommon\Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\UWEngineCommon\Util\HashMap2.h">
+      <Filter>UWEngineCommon\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\UWEngineGeneric\Private\Precompiled.cpp">
@@ -68,6 +71,9 @@
       <Filter>UWEngineCommon\Util\Private</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashFunction.cpp">
+      <Filter>UWEngineCommon\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UWEngineCommon\Util\Private\HashMap2.cpp">
       <Filter>UWEngineCommon\Util\Private</Filter>
     </ClCompile>
   </ItemGroup>

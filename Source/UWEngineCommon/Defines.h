@@ -27,7 +27,7 @@
 #   define ASSERT(cond, msg) { if (!(cond)) { __debugbreak(); } }
 #endif // ASSERT
 
-#define CRASH __debugbreak
+#define CRASH(cond, msg) { if (!(cond)) { __debugbreak(); } }
 
 // SAFE DELETE
 #define SAFE_DELETE(p)              { delete (p); (p) = nullptr; }

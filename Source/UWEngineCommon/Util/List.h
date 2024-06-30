@@ -12,9 +12,9 @@
 
 struct ListNode
 {
-    void*               pElement;
-    struct ListNode*    pNext;
-    struct ListNode*    pPrev;
+    void*       pElement;
+    ListNode*   pNext;
+    ListNode*   pPrev;
 };
 
 void __stdcall ListAddHead(ListNode** ppHead, ListNode** ppTail, ListNode* pNode);

@@ -1,4 +1,11 @@
-﻿#pragma once
+﻿/*
+* RendererD3D11
+*
+* 작성자: bumpsgoodman
+* 작성일: 2024.05.11
+*/
+
+#pragma once
 
 #include "UWEngineCommon/Interfaces/IRenderer.h"
 
@@ -10,9 +17,9 @@ public:
     RendererD3D11& operator=(const RendererD3D11&) = delete;
     ~RendererD3D11() = default;
 
-    virtual uint   __stdcall    AddRef() override;
-    virtual uint   __stdcall    Release() override;
-    virtual uint   __stdcall    GetRefCount() const override;
+    virtual uint    __stdcall   AddRef() override;
+    virtual uint    __stdcall   Release() override;
+    virtual uint    __stdcall   GetRefCount() const override;
 
     virtual bool    __stdcall   Initialize(const HWND hWnd) override;
 

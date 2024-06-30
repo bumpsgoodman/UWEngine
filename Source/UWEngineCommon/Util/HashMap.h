@@ -11,7 +11,7 @@
 
 #include "List.h"
 
-struct Bucket
+struct BUCKET
 {
     ListNode* pHead;
     ListNode* pTail;
@@ -27,7 +27,7 @@ struct KeyValue
     uint Index;
 };
 
-class HashMap
+class HashMap final
 {
 public:
     HashMap() = default;
@@ -45,17 +45,17 @@ public:
     void        __stdcall   Remove(const void* pKey, const uint keySize);
     void        __stdcall   RemoveByHash(const void* pKey, const uint keySize, const uint32 hash);
 
-    uint       __stdcall    GetCount(const void* pKey, const uint keySize) const;
-    uint       __stdcall    GetCountByHash(const void* pKey, const uint keySize, const uint32 hash) const;
+    uint        __stdcall   GetCount(const void* pKey, const uint keySize) const;
+    uint        __stdcall   GetCountByHash(const void* pKey, const uint keySize, const uint32 hash) const;
 
     void*       __stdcall   GetValue(const void* pKey, const uint keySize) const;
     void*       __stdcall   GetValueByHash(const void* pKey, const uint keySize, const uint32 hash) const;
 
     KeyValue*   __stdcall   GetKeyValues() const;
-    uint       __stdcall    GetKeySize() const;
-    uint       __stdcall    GetValueSize() const;
-    uint       __stdcall    GetNumKeyValues() const;
-    uint       __stdcall    GetNumMaxKeyValues() const;
+    uint        __stdcall   GetKeySize() const;
+    uint        __stdcall   GetValueSize() const;
+    uint        __stdcall   GetNumKeyValues() const;
+    uint        __stdcall   GetNumMaxKeyValues() const;
 
 private:
     uint        m_keySize = 0;
@@ -63,11 +63,11 @@ private:
     uint        m_numMaxKeyValues = 0;
     uint        m_numKeyValues = 0;
 
-    Bucket*     m_pBuckets = nullptr;
+    BUCKET*     m_pBuckets = nullptr;
 
     KeyValue*   m_pKeyValues = nullptr;
 
-    void*       m_pKeyPool = nullptr;
+    void*       m_pKeyValuePool = nullptr;
     void*       m_pValuePool = nullptr;
     ListNode*   m_pNodePool = nullptr;
 };

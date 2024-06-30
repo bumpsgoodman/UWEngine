@@ -34,7 +34,7 @@ void __stdcall FixedArray::Clear()
     m_numElements = 0;
 }
 
-void* __stdcall FixedArray::PushBack(const void* pElement, const uint elementSize)
+void __stdcall FixedArray::PushBack(const void* pElement, const uint elementSize)
 {
     if (m_elementSize != elementSize)
     {
@@ -50,7 +50,6 @@ void* __stdcall FixedArray::PushBack(const void* pElement, const uint elementSiz
     memcpy(pDst, pElement, elementSize);
 
     ++m_numElements;
-    return pDst;
 }
 
 void __stdcall FixedArray::PopBack()
@@ -63,7 +62,7 @@ void __stdcall FixedArray::PopBack()
     --m_numElements;
 }
 
-void* __stdcall FixedArray::Insert(const void* pElement, const uint elementSize, const uint index)
+void __stdcall FixedArray::Insert(const void* pElement, const uint elementSize, const uint index)
 {
     if (m_elementSize != elementSize)
     {
@@ -84,7 +83,6 @@ void* __stdcall FixedArray::Insert(const void* pElement, const uint elementSize,
     memcpy(pSrc, pElement, elementSize);
 
     ++m_numElements;
-    return pDst;
 }
 
 void __stdcall FixedArray::Remove(const uint index)

@@ -20,12 +20,12 @@ HashMap::~HashMap()
 
 bool __stdcall HashMap::Initialize(const uint keySize, const uint valueSize, const uint numMaxKeyValues)
 {
-    m_pBuckets = (Bucket*)malloc(sizeof(Bucket) * numMaxKeyValues);
-    memset(m_pBuckets, 0, sizeof(Bucket) * numMaxKeyValues);
+    m_pBuckets = (BUCKET*)malloc(sizeof(BUCKET) * numMaxKeyValues);
+    memset(m_pBuckets, 0, sizeof(BUCKET) * numMaxKeyValues);
 
     m_pKeyValues = (KeyValue*)malloc(sizeof(KeyValue) * numMaxKeyValues);
 
-    m_pKeyPool = malloc(keySize * numMaxKeyValues);
+    m_pKeyValuePool = malloc(keySize * numMaxKeyValues);
     m_pValuePool = malloc(valueSize * numMaxKeyValues);
     m_pNodePool = (ListNode*)malloc(sizeof(ListNode) * numMaxKeyValues);
 
@@ -41,7 +41,7 @@ void __stdcall HashMap::Release()
 {
     SAFE_FREE(m_pNodePool);
     SAFE_FREE(m_pValuePool);
-    SAFE_FREE(m_pKeyPool);
+    SAFE_FREE(m_pKeyValuePool);
     SAFE_FREE(m_pKeyValues);
     SAFE_FREE(m_pBuckets);
 }
@@ -49,7 +49,7 @@ void __stdcall HashMap::Release()
 void __stdcall HashMap::Clear()
 {
     m_numKeyValues = 0;
-    memset(m_pBuckets, 0, sizeof(Bucket) * m_numMaxKeyValues);
+    memset(m_pBuckets, 0, sizeof(BUCKET) * m_numMaxKeyValues);
 }
 
 void* __stdcall HashMap::Insert(const void* pKey, const uint keySize, const void* pValue, const uint valueSize)
@@ -68,7 +68,7 @@ void* __stdcall HashMap::InsertByHash(const void* pKey, const uint keySize, cons
     void* pValueHandle = nullptr;
 
     const uint index = hash % m_numMaxKeyValues;
-    Bucket* pBucket = m_pBuckets + index;
+    BUCKET* pBucket = m_pBuckets + index;
 
     // 이미 추가된 키-값이면 바꾸기
     {
@@ -92,7 +92,7 @@ void* __stdcall HashMap::InsertByHash(const void* pKey, const uint keySize, cons
     KeyValue* pKeyValue = m_pKeyValues + m_numKeyValues;
 
     // 키-값 복사
-    pKeyValue->pKey = (char*)m_pKeyPool + keySize * m_numKeyValues;
+    pKeyValue->pKey = (char*)m_pKeyValuePool + keySize * m_numKeyValues;
     pKeyValue->pValue = (char*)m_pValuePool + valueSize * m_numKeyValues;
     memcpy(pKeyValue->pKey, pKey, keySize);
     memcpy(pKeyValue->pValue, pValue, valueSize);
@@ -123,7 +123,7 @@ void __stdcall HashMap::RemoveByHash(const void* pKey, const uint keySize, const
     }
 
     const uint index = hash % m_numMaxKeyValues;
-    Bucket* pBucket = m_pBuckets + index;
+    BUCKET* pBucket = m_pBuckets + index;
 
     // 노드 찾기
     ListNode* pNode = pBucket->pHead;
@@ -144,7 +144,7 @@ void __stdcall HashMap::RemoveByHash(const void* pKey, const uint keySize, const
     void* pDeletedValue = pKeyValue->pValue;
     *pKeyValue = *pLastKeyValue;
 
-    Bucket* pLastBucket = m_pBuckets + pLastKeyValue->Index;
+    BUCKET* pLastBucket = m_pBuckets + pLastKeyValue->Index;
     ListNode* pLastNode = pLastBucket->pHead;
     while (pLastNode != nullptr
            && memcmp(pLastKeyValue->pKey, ((KeyValue*)pLastNode->pElement)->pKey, keySize) != 0)
@@ -174,7 +174,7 @@ uint __stdcall HashMap::GetCountByHash(const void* pKey, const uint keySize, con
     const uint index = hash % m_numMaxKeyValues;
     uint count = 0;
 
-    Bucket* pBucket = m_pBuckets + index;
+    BUCKET* pBucket = m_pBuckets + index;
     ListNode* pNode = pBucket->pHead;
     while (pNode != nullptr)
     {
@@ -204,7 +204,7 @@ void* __stdcall HashMap::GetValueByHash(const void* pKey, const uint keySize, co
 
     const uint index = hash % m_numMaxKeyValues;
 
-    Bucket* pBucket = m_pBuckets + index;
+    BUCKET* pBucket = m_pBuckets + index;
     ListNode* pNode = pBucket->pHead;
     while (pNode != nullptr && memcmp(((KeyValue*)pNode->pElement)->pKey, pKey, keySize) != 0)
     {
